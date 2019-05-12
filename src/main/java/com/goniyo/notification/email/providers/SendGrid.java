@@ -2,14 +2,15 @@ package com.goniyo.notification.email.providers;
 
 import com.goniyo.notification.email.Email;
 import com.goniyo.notification.email.EmailNotifier;
-import com.goniyo.notification.notification.NotificationMessage;
+import org.springframework.stereotype.Service;
 
-
-public class SendGrid implements EmailNotifier {
+@Service
+public class SendGrid implements EmailNotifier<Email> {
     @Override
-    public String send(NotificationMessage notificationMessage) {
-        Email email = (Email) notificationMessage;
+    public String send(Email email) {
         System.out.println("Inside SENDGRID Email Notifier" + email.toString());
         return "SENDGRID";
     }
+
+
 }

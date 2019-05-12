@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class EmailController {
     @Autowired
-    EmailAdapter emailFacade;
+    EmailService emailService;
 
     @RequestMapping("/test")
     public String home() {
@@ -17,9 +17,10 @@ public class EmailController {
 
     @RequestMapping("/email")
     public String email() {
+        // TODO immutables
         EmailDto emailDto = new EmailDto();
         emailDto.setTo("99");
-        return emailFacade.sendEmail(emailDto);
+        return emailService.sendEmail(emailDto);
     }
 }
 

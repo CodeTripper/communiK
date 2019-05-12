@@ -16,6 +16,7 @@ repositories {
 ext {
 	set('springCloudVersion', 'Greenwich.SR1')
 	set('springStatemachineVersion', '2.0.1.RELEASE')
+
 }
 
 dependencies {

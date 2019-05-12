@@ -1,44 +1,68 @@
 package com.goniyo.notification.notification;
 
 import com.goniyo.notification.repository.NotificationStorage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
-public class NotificationHandler {
-
+public class NotificationHandler<T extends NotificationMessage> {
+    private static final Logger logger = LoggerFactory.getLogger(NotificationHandler.class);
     @Autowired
-    NotificationStorage notificationStorage;
+    private NotificationStorage notificationStorage;
 
-    Notifier notifier;
+    List<Notifier> backupNotifiers;
 
-    public void setNotifierHandler(Notifier notifier) {
-        this.notifier = notifier;
+    public void setBackupNotifierHandlers(List<Notifier> backupNotifiers) {
+        this.backupNotifiers = backupNotifiers;
     }
 
 
-    public String sendNotification(NotificationMessage notificationMessage) {
-        System.out.println("NOTIFIED");
+    public String sendNotification(Notifier<T> notifier, T notificationMessage) {
+        logger.info("sending notification");
         // TODO handler nullpointer if NotificationStorage is null
         // TODO use a pattern here
-        // 1. call store
-        // 3. call retry
         // 4. add max retry
-        // get list of backups providers
-        // get primary provider'
         // what about failed ones?
         // send response or async via mongo
-        // update DB
         notificationStorage.store(notificationMessage);
 
         String returnValue = notifier.send(notificationMessage);
+        if (returnValue.equals("FAILURE")) {
+            retryWithBackup(notificationMessage);
+        }
         notificationStorage.update(notificationMessage);
 
         return returnValue;
     }
 
+    private void retryWithBackup(NotificationMessage notificationMessage) {
+        // FIXME exit after first success
+        backupNotifiers.forEach(notifier -> notifier.send(notificationMessage));
+
+    }
     public String getNotificationStatus(String id) {
         NotificationStorageResponse notificationStorageResponse = notificationStorage.status(id);
         return "SUCCESS";
     }
+
+
+   /* private VehicleDao fallbackNotifiers() {
+        foreach(VehicleDao vehicleDao : vehicleDaos) {
+            if(vehicleDao.isResponsibleFor(vehicle) {
+                return vehicleDao;
+            }
+        }
+
+        throw new UnsupportedOperationException("unsupported vehicleType");
+    }*/
+
+    /*public void doSomething(String input) {
+        backupNotifiers.stream().filter(c -> c.getName().contains(input)).findFirst().ifPresent(c -> {
+            System.out.println(input);
+        });
+    }*/
 }

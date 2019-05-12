@@ -1,6 +1,6 @@
 package com.goniyo.notification.sms;
 
-class SmsDTO {
+class SmsDto {
     public String getTo() {
         return to;
     }

@@ -1,5 +1,6 @@
 package com.goniyo.notification.notification;
 
-public interface Notifier {
-    String send(NotificationMessage notificationMessage);
+public interface Notifier<T extends NotificationMessage> {
+    String send(T notificationMessage);
+    // boolean isFallback();
 }
