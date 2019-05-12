@@ -8,16 +8,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 
-@Service("APPSMS")
-class SmsServiceImpl implements SmsService {
-    private static final Logger logger = LoggerFactory.getLogger(SmsServiceImpl.class);
+
+@Service("APPOTP")
+class OtpSmsServiceImpl implements SmsService {
+    private static final Logger logger = LoggerFactory.getLogger(OtpSmsServiceImpl.class);
     @Autowired
     NotificationHandler<Sms> notificationHandler;
     @Autowired
     MessageGenerator messageGenerator;
-    @Autowired
+    @Resource(name = "OTP")
     SmsNotifier<Sms> smsNotifier;
+
     // add validation here
     public String sendSms(SmsDto smsDTO) {
         logger.debug("Inside SMS Adaptor");

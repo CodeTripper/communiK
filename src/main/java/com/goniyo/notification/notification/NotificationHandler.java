@@ -14,16 +14,15 @@ public class NotificationHandler<T extends NotificationMessage> {
     @Autowired
     private NotificationStorage notificationStorage;
 
-    List<Notifier> backupNotifiers;
+    List<Notifier<T>> backupNotifiers;
 
-    public void setBackupNotifierHandlers(List<Notifier> backupNotifiers) {
+    public void setBackupNotifierHandlers(List<Notifier<T>> backupNotifiers) {
         this.backupNotifiers = backupNotifiers;
     }
 
 
     public String sendNotification(Notifier<T> notifier, T notificationMessage) {
         logger.info("sending notification");
-        // TODO handler nullpointer if NotificationStorage is null
         // TODO use a pattern here
         // 4. add max retry
         // what about failed ones?
@@ -39,7 +38,7 @@ public class NotificationHandler<T extends NotificationMessage> {
         return returnValue;
     }
 
-    private void retryWithBackup(NotificationMessage notificationMessage) {
+    private void retryWithBackup(T notificationMessage) {
         // FIXME exit after first success
         backupNotifiers.forEach(notifier -> notifier.send(notificationMessage));
 

@@ -8,18 +8,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-class EmailServiceImpl implements EmailService {
-    private static final Logger logger = LoggerFactory.getLogger(EmailServiceImpl.class);
+class SalaryCreditedEmailService implements EmailService {
+    private static final Logger logger = LoggerFactory.getLogger(SalaryCreditedEmailService.class);
     @Autowired
     private NotificationHandler<Email> notificationHandler;
     @Autowired
     MessageGenerator messageGenerator;
     @Autowired
     EmailNotifier<Email> emailNotifier;
+
     // add validation here
     public String sendEmail(EmailDto emailDto) {
         Email email = null;//ImmutableEmailBuilder().builder.to("").build(); // TODO copy only req data to Email
-        String message = messageGenerator.generateMessage("templates/email/email-salary-credited.ftl", emailDto);
+        String message = messageGenerator.generateMessage("email/salary-credited.ftl", emailDto);
+        logger.debug("generated email{}", message);
+        return notificationHandler.sendNotification(emailNotifier, email);
+
+    }
+
+    public String sendSalaryEmail(EmailDto emailDto) {
+        Email email = null;//ImmutableEmailBuilder().builder.to("").build(); // TODO copy only req data to Email
+        String message = messageGenerator.generateMessage("email/salary-credited.ftl", emailDto);
         logger.debug("generated email{}", message);
         return notificationHandler.sendNotification(emailNotifier, email);
 
