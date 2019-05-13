@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.Properties;
 
 @Service
-public class SendGrid extends EmailSender {
+public class MailGun extends EmailSender {
 
     @Override
     protected EmailConfiguration getMailConfiguration() {
@@ -20,6 +20,7 @@ public class SendGrid extends EmailSender {
         return emailConfiguration;
 
     }
+
     @Override
     protected Properties getMailProperties() {
         Properties props = new Properties();

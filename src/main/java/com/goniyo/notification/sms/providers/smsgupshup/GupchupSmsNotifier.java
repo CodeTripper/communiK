@@ -1,5 +1,6 @@
 package com.goniyo.notification.sms.providers.smsgupshup;
 
+import com.goniyo.notification.notification.NotificationFailedException;
 import com.goniyo.notification.sms.Sms;
 import com.goniyo.notification.sms.SmsNotifier;
 import org.springframework.context.annotation.Primary;
@@ -10,7 +11,7 @@ import org.springframework.stereotype.Service;
 public class GupchupSmsNotifier implements SmsNotifier<Sms> {
 
     @Override
-    public String send(Sms sms) {
+    public String send(Sms sms) throws NotificationFailedException {
         System.out.println("Inside Gupshup Notifier" + sms.toString());
         // ADD web flux webclient to call Gupchup
         return "GUPCHUP";

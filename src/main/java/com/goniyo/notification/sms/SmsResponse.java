@@ -1,6 +1,6 @@
 package com.goniyo.notification.sms;
 
-import com.goniyo.notification.notification.NotificationResponse;
+import com.goniyo.notification.notification.NotificationStatusResponse;
 
-class SmsResponse implements NotificationResponse {
+class SmsResponse implements NotificationStatusResponse {
 }

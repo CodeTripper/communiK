@@ -8,15 +8,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.util.Observable;
+import java.util.Observer;
 
 @Service
-public class MongoDbStorageHandler implements NotificationStorage {
+public class MongoDbStorageHandler implements NotificationStorage, Observer {
     private static final Logger logger = LoggerFactory.getLogger(MongoDbStorageHandler.class);
     @Override
     public NotificationStorageResponse store(NotificationMessage notificationMessage) {
         // TODO write to mongo
         // TODO add hystrix here
         logger.debug("stored");
+        notificationMessage.setStatus("STORED");
         return new NotificationStorageResponse();
     }
 
@@ -36,5 +39,13 @@ public class MongoDbStorageHandler implements NotificationStorage {
     public NotificationStorageResponse status(String id) {
         // TODO add hystrix here
         return null;
+    }
+
+    @Override
+    public void update(Observable o, Object status) {
+        System.out.println("MongoDb: " + status);
+        if (status.equals("NEW")) {
+            store((NotificationMessage) o);
+        }
     }
 }

@@ -1,9 +1,11 @@
 package com.goniyo.notification.sms;
 
-import com.goniyo.notification.notification.NotificationResponse;
+import com.goniyo.notification.notification.NotificationStatusResponse;
 
 interface SmsService {
     String sendSms(SmsDto smsDTO);
 
-    NotificationResponse getSmsStatus(String id);
+    String sendOtp(SmsDto smsDTO);
+
+    NotificationStatusResponse getSmsStatus(String id);
 }

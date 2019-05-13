@@ -1,17 +1,17 @@
 package com.goniyo.notification.messagegenerator;
 
 import freemarker.template.Configuration;
-import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 public class FreeMarkerMessageGenerator<T> implements MessageGenerator<T> {
+    private static final Logger logger = LoggerFactory.getLogger(FreeMarkerMessageGenerator.class);
     private final Configuration templates;
 
     public FreeMarkerMessageGenerator(Configuration templates) {
@@ -19,20 +19,15 @@ public class FreeMarkerMessageGenerator<T> implements MessageGenerator<T> {
     }
 
     @Override
-    public String generateMessage(String templateId, T notificationMessage) {
-        Template t = null;
-        String message = null;
+    public String generateMessage(String templateId, T notificationMessage) throws MessageGenerationException {
+        String message;
         try {
-            t = templates.getTemplate(templateId);
-            Map<String, String> map = new HashMap<>();
-            message = FreeMarkerTemplateUtils.processTemplateIntoString(t, notificationMessage);
+            message = FreeMarkerTemplateUtils.processTemplateIntoString(templates.getTemplate(templateId), notificationMessage);
         } catch (IOException e) {
-            // TODO fix execptions
-            e.printStackTrace();
+            throw new MessageGenerationException("Unable to find template", e);
         } catch (TemplateException e) {
-            e.printStackTrace();
+            throw new MessageGenerationException("Unable to create message from template", e);
         }
-
         return message;
     }
 }
