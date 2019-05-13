@@ -10,14 +10,17 @@ public class NotificationMessage extends Observable {
     public String message;
     public String to;
     public String senderIp;
-    private String status;// TODO enum
+    public Status status;
+
+    public enum Status {NOTIFICATION_NEW, NOTIFICATION_STORED, NOTIFICATION_SENT, NOTIFICATION_FAILED, NOTIFICATION_RETRY_FAILED}
+
 
     // todo add subdomain
-    public String getStatus() {
+    public Status getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(Status status) {
         this.status = status;
         setChanged();
         notifyObservers(status);

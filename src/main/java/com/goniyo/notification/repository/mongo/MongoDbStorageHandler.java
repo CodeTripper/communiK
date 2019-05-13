@@ -9,17 +9,16 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.Observable;
-import java.util.Observer;
 
 @Service
-public class MongoDbStorageHandler implements NotificationStorage, Observer {
+public class MongoDbStorageHandler implements NotificationStorage {
     private static final Logger logger = LoggerFactory.getLogger(MongoDbStorageHandler.class);
     @Override
     public NotificationStorageResponse store(NotificationMessage notificationMessage) {
         // TODO write to mongo
         // TODO add hystrix here
         logger.debug("stored");
-        notificationMessage.setStatus("STORED");
+        notificationMessage.setStatus(NotificationMessage.Status.NOTIFICATION_STORED);
         return new NotificationStorageResponse();
     }
 
@@ -31,7 +30,9 @@ public class MongoDbStorageHandler implements NotificationStorage, Observer {
     @Override
     public NotificationStorageResponse update(NotificationMessage notificationMessage) {
         // TODO add hystrix here
+        // WARN DO NOT UPDATE STATUS OF notificationMessage HERE
         logger.debug("updated");
+        //notificationMessage.setStatus("UPDATED");
         return new NotificationStorageResponse();
     }
 
@@ -43,9 +44,13 @@ public class MongoDbStorageHandler implements NotificationStorage, Observer {
 
     @Override
     public void update(Observable o, Object status) {
-        System.out.println("MongoDb: " + status);
-        if (status.equals("NEW")) {
-            store((NotificationMessage) o);
+        logger.debug("MongoDb: " + status);
+        if (status.equals(NotificationMessage.Status.NOTIFICATION_NEW)) {
+            this.store((NotificationMessage) o);
+        } else {
+            this.update((NotificationMessage) o);
         }
+
+
     }
 }

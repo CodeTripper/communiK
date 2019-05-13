@@ -49,7 +49,7 @@ class SmsServiceImpl implements SmsService {
 
     @Override
     public NotificationStatusResponse getSmsStatus(String id) {
-        notificationHandler.getNotificationStatus(id);
+        //notificationHandler.getNotificationStatus(id);
         return null;
     }
 

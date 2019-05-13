@@ -50,7 +50,6 @@ public abstract class EmailSender implements EmailNotifier<Email> {
             helper.addAttachment("CoolImage.jpg", file);
         }
         sender.send(message);
-        email.setStatus("SUCCESS");
         return true;
 
     }
