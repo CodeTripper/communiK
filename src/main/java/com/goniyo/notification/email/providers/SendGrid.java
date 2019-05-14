@@ -4,6 +4,7 @@ import com.goniyo.notification.email.Email;
 import com.goniyo.notification.email.EmailConfiguration;
 import com.goniyo.notification.email.EmailSender;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Properties;
@@ -11,14 +12,15 @@ import java.util.Properties;
 @Service
 @Slf4j
 public class SendGrid extends EmailSender {
-
+    @Autowired
+    private SendGridConfig sendGridConfig;
     @Override
     protected EmailConfiguration getMailConfiguration() {
-        // TODO get from Configuration
         EmailConfiguration emailConfiguration = new EmailConfiguration();
-        emailConfiguration.setHost("smtp.gmail.com");
-        emailConfiguration.setUsername("hkdisonline@gmail.com");
-        emailConfiguration.setPort(587);
+        emailConfiguration.setHost(sendGridConfig.getHost());
+        emailConfiguration.setUsername(sendGridConfig.getUsername());
+        emailConfiguration.setPassword(sendGridConfig.getPassword());
+        emailConfiguration.setPort(sendGridConfig.getPort());
         return emailConfiguration;
 
     }
@@ -28,7 +30,7 @@ public class SendGrid extends EmailSender {
         props.put("mail.transport.protocol", "smtp");
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.debug", "true");
+        props.put("mail.debug", "false");
         return props;
     }
 
