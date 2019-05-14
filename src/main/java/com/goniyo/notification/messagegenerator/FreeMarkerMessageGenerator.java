@@ -2,16 +2,16 @@ package com.goniyo.notification.messagegenerator;
 
 import freemarker.template.Configuration;
 import freemarker.template.TemplateException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 
 @Service
+@Slf4j
 public class FreeMarkerMessageGenerator<T> implements MessageGenerator<T> {
-    private static final Logger logger = LoggerFactory.getLogger(FreeMarkerMessageGenerator.class);
     private final Configuration templates;
 
     public FreeMarkerMessageGenerator(Configuration templates) {
@@ -19,7 +19,7 @@ public class FreeMarkerMessageGenerator<T> implements MessageGenerator<T> {
     }
 
     @Override
-    public String generateMessage(String templateId, T notificationMessage) throws MessageGenerationException {
+    public String generateMessage(@NotNull String templateId, @NotNull T notificationMessage) throws MessageGenerationException {
         String message;
         try {
             message = FreeMarkerTemplateUtils.processTemplateIntoString(templates.getTemplate(templateId), notificationMessage);

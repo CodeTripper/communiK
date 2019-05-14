@@ -3,11 +3,13 @@ package com.goniyo.notification.email.providers;
 import com.goniyo.notification.email.Email;
 import com.goniyo.notification.email.EmailConfiguration;
 import com.goniyo.notification.email.EmailSender;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Properties;
 
 @Service
+@Slf4j
 public class MailGun extends EmailSender {
 
     @Override

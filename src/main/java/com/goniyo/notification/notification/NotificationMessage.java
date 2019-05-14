@@ -1,46 +1,64 @@
 package com.goniyo.notification.notification;
 
+import lombok.Getter;
+import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
+
+import javax.validation.constraints.NotNull;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.time.LocalDateTime;
-import java.util.Observable;
+import java.util.UUID;
+// TODO change the below hack to Superbuilder when milestone 25 is released Idea plugin
+// https://github.com/mplushnikov/lombok-intellij-plugin/milestone/31
 
-public class NotificationMessage extends Observable {
-    private String id;
-    private Type type;
-    public LocalDateTime timestamp;
-    public String message;
-    public String to;
-    public String senderIp;
-    private Status status;
 
-    public Type getType() {
-        return type;
-    }
-
-    public void setType(Type type) {
-        this.type = type;
-    }
-
+@Getter
+@ToString
+@Slf4j
+public class NotificationMessage {
     public enum Status {NOTIFICATION_NEW, NOTIFICATION_STORED, NOTIFICATION_SENT, NOTIFICATION_FAILED, NOTIFICATION_RETRY_FAILED}
 
     public enum Type {EMAIL, SMS}
 
+    private String id;
+    private LocalDateTime created;
+    private Type type;
+    private String message;
+    private @NotNull String to;
+    private String senderIp;
+    private transient PropertyChangeSupport propertyChangeSupport;
+    private Status status;
+    private LocalDateTime updated;
 
-    // todo add subdomain
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
+    public NotificationMessage(Type type, String message, String to, String senderIp, Status status) {
+        this.id = UUID.randomUUID().toString();
+        this.type = type;
+        this.message = message;
+        this.to = to;
+        this.senderIp = senderIp;
         this.status = status;
-        setChanged();
-        notifyObservers(status);
+        this.created = LocalDateTime.now();
+        propertyChangeSupport = new PropertyChangeSupport(this);
     }
 
-    public String getId() {
-        return id;
+    public final void setStatus(Status status) {
+        this.status = status;
+        propertyChangeSupport.firePropertyChange("status", status, this);
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void addPropertyChangeListener(PropertyChangeListener pcl) {
+        log.debug("pcl added");
+        propertyChangeSupport.addPropertyChangeListener(pcl);
     }
+
+    public void removePropertyChangeListener(PropertyChangeListener pcl) {
+        propertyChangeSupport.removePropertyChangeListener(pcl);
+    }
+
+    public final Status getStatus() {
+        return this.status;
+    }
+
+
 }

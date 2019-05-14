@@ -3,16 +3,13 @@ package com.goniyo.notification.email;
 import com.goniyo.notification.messagegenerator.MessageGenerationException;
 import com.goniyo.notification.messagegenerator.MessageGenerator;
 import com.goniyo.notification.notification.NotificationHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.UUID;
-
 @Component
+@Slf4j
 class EmailServiceImpl implements EmailService {
-    private static final Logger logger = LoggerFactory.getLogger(EmailServiceImpl.class);
     @Autowired
     private NotificationHandler<Email> notificationHandler;
     @Autowired
@@ -43,9 +40,8 @@ class EmailServiceImpl implements EmailService {
         } catch (MessageGenerationException e) {
             e.printStackTrace();
         }
-        logger.debug("generated email{}", message);
-        Email email = new Email();
-        email.setId(UUID.randomUUID().toString());
+        log.debug("generated email{}", message);
+        Email email = Email.builder().message(message).subject(emailDto.getSubject()).build();
         return notificationHandler.sendNotification(emailNotifier, email);
     }
 }

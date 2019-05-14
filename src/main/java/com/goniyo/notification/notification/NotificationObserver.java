@@ -1,6 +1,6 @@
 package com.goniyo.notification.notification;
 
-import java.util.Observer;
+import java.beans.PropertyChangeListener;
 
-public interface NotificationObserver extends Observer {
+public interface NotificationObserver extends PropertyChangeListener {
 }

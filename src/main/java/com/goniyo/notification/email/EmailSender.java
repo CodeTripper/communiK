@@ -1,6 +1,7 @@
 package com.goniyo.notification.email;
 
 import com.goniyo.notification.notification.NotificationFailedException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
@@ -11,8 +12,9 @@ import javax.mail.internet.MimeMessage;
 import java.io.File;
 import java.util.Properties;
 
+@Slf4j
 public abstract class EmailSender implements EmailNotifier<Email> {
-    private JavaMailSenderImpl sender;
+    private final JavaMailSenderImpl sender;
 
     public EmailSender() {
         sender = new JavaMailSenderImpl();
@@ -21,6 +23,7 @@ public abstract class EmailSender implements EmailNotifier<Email> {
 
     @Override
     public final String send(Email email) throws NotificationFailedException {
+        log.debug("starting email sender");
         try {
             preProcess(email);
             process(email);
@@ -41,9 +44,9 @@ public abstract class EmailSender implements EmailNotifier<Email> {
         sender.setJavaMailProperties(getMailProperties());
         MimeMessage message = sender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
-        helper.setTo(email.to);
+        helper.setTo(email.getTo());
         helper.setSubject(email.getSubject());
-        helper.setText(email.message);
+        helper.setText(email.getMessage());
 
         if (!email.getAttachment().isEmpty()) {
             FileSystemResource file = new FileSystemResource(new File(email.getAttachment()));

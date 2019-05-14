@@ -1,7 +1,7 @@
 package com.goniyo.notification.notification;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -10,8 +10,8 @@ import java.util.List;
 import static com.goniyo.notification.notification.NotificationMessage.Status.*;
 
 @Component
+@Slf4j
 public class NotificationHandler<T extends NotificationMessage> {
-    private static final Logger logger = LoggerFactory.getLogger(NotificationHandler.class);
     private List<Notifier<T>> backupNotifiers;
 
     public void setBackupNotifierHandlers(List<Notifier<T>> backupNotifiers) {
@@ -23,14 +23,12 @@ public class NotificationHandler<T extends NotificationMessage> {
     List<NotificationObserver> notificationObservers;
 
     private void addObservers(T notificationMessage) {
-        notificationObservers.forEach(
-                observer -> {
-                    notificationMessage.addObserver(observer);
-                });
+        notificationObservers.forEach(notificationMessage::addPropertyChangeListener
+        );
     }
 
-    public String sendNotification(Notifier<T> notifier, T notificationMessage) {
-        logger.info("sending notification" + notificationMessage);
+    public String sendNotification(@NonNull Notifier<T> notifier, @NonNull T notificationMessage) {
+        log.info("sending notification" + notificationMessage);
         addObservers(notificationMessage);
         notificationMessage.setStatus(NOTIFICATION_NEW);
         String returnValue = null;

@@ -1,13 +1,9 @@
 package com.goniyo.notification.sms;
 
+import lombok.Data;
+
+@Data
 class SmsDto {
-    public String getTo() {
-        return to;
-    }
-
-    public void setTo(String to) {
-        this.to = to;
-    }
-
     private String to;
+    private String message;
 }
