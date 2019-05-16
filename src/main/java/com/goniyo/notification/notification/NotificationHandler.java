@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-import static com.goniyo.notification.notification.NotificationMessage.Status.*;
+import static com.goniyo.notification.notification.Status.*;
 
 @Component
 @Slf4j
@@ -30,7 +30,7 @@ public class NotificationHandler<T extends NotificationMessage> {
     public String sendNotification(@NonNull Notifier<T> notifier, @NonNull T notificationMessage) {
         log.info("sending notification" + notificationMessage);
         addObservers(notificationMessage);
-        notificationMessage.setStatus(NOTIFICATION_NEW);
+        notificationMessage.setStatus(Status.NOTIFICATION_NEW);
         String returnValue = null;
         try {
             returnValue = notifier.send(notificationMessage);

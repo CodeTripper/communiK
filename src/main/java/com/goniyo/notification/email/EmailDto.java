@@ -15,5 +15,6 @@ public class EmailDto implements Serializable {
     private String message;
     private String subject;
     private LocalDateTime timestamp = LocalDateTime.now();
+    private String templateId;
 
 }

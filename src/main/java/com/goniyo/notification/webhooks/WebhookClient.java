@@ -1,14 +1,15 @@
 package com.goniyo.notification.webhooks;
 
-import com.goniyo.notification.notification.NotificationMessage;
+import com.goniyo.notification.notification.Status;
+import com.goniyo.notification.notification.Type;
 
 import java.util.List;
 
 public class WebhookClient {
     private String clientId;
     private String clientName;
-    private List<NotificationMessage.Status> interests;
-    private List<NotificationMessage.Type> notificationTypes;
+    private List<Status> interests;
+    private List<Type> notificationTypes;
     private String webhook;
     private String active;
 
@@ -29,19 +30,19 @@ public class WebhookClient {
         this.clientName = clientName;
     }
 
-    public List<NotificationMessage.Status> getInterests() {
+    public List<Status> getInterests() {
         return interests;
     }
 
-    public void setInterests(List<NotificationMessage.Status> interests) {
+    public void setInterests(List<Status> interests) {
         this.interests = interests;
     }
 
-    public List<NotificationMessage.Type> getNotificationTypes() {
+    public List<Type> getNotificationTypes() {
         return notificationTypes;
     }
 
-    public void setNotificationTypes(List<NotificationMessage.Type> notificationTypes) {
+    public void setNotificationTypes(List<Type> notificationTypes) {
         this.notificationTypes = notificationTypes;
     }
 

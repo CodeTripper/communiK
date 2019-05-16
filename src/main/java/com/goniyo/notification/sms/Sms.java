@@ -1,6 +1,8 @@
 package com.goniyo.notification.sms;
 
 import com.goniyo.notification.notification.NotificationMessage;
+import com.goniyo.notification.notification.Status;
+import com.goniyo.notification.notification.Type;
 import lombok.Builder;
 import lombok.Getter;
 

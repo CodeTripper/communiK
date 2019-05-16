@@ -1,0 +1,5 @@
+package com.goniyo.notification.notification;
+
+public enum Status {
+    NOTIFICATION_SENT, NOTIFICATION_FAILED, NOTIFICATION_RETRY_FAILED, NOTIFICATION_STORED, NOTIFICATION_NEW
+}

@@ -1,6 +1,8 @@
 package com.goniyo.notification.email;
 
 import com.goniyo.notification.notification.NotificationMessage;
+import com.goniyo.notification.notification.Status;
+import com.goniyo.notification.notification.Type;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDateTime;
+
 /*
  All domain logic to reside here , no reference of DTos here.
  */
@@ -17,11 +19,14 @@ public class TemplateServiceImpl implements TemplateService {
 
     @Override
     public Mono<Template> create(Template template) {
+        template.setCreated(LocalDateTime.now());
         return templatePersistence.create(template);
     }
 
     @Override
     public Mono<Template> update(Template template) {
+        template.setUpdated(LocalDateTime.now());
+        template.setActive(true);
         return templatePersistence.update(template);
     }
 

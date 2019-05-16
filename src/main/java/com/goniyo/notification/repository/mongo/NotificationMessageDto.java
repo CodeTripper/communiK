@@ -1,6 +1,7 @@
 package com.goniyo.notification.repository.mongo;
 
-import com.goniyo.notification.notification.NotificationMessage;
+import com.goniyo.notification.notification.Status;
+import com.goniyo.notification.notification.Type;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
@@ -13,15 +14,13 @@ import java.time.LocalDateTime;
 @Document
 public class NotificationMessageDto {
 
-    public enum Type {EMAIL, SMS}
-
     private @Id
     String id;
     private LocalDateTime created;
-    private NotificationMessage.Type type;
+    private Type type;
     private String message;
     private String to;
     private String senderIp;
-    private NotificationMessage.Status status;
+    private Status status;
     private LocalDateTime updated;
 }

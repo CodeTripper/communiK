@@ -2,6 +2,7 @@ package com.goniyo.notification.repository.mongo;
 
 import com.goniyo.notification.notification.NotificationMessage;
 import com.goniyo.notification.notification.NotificationStorageResponse;
+import com.goniyo.notification.notification.Status;
 import com.goniyo.notification.repository.NotificationPersistence;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,7 @@ public class MongoDbPersistenceHandler implements NotificationPersistence {
         })).doOnError((email1 -> {
             log.debug("ERROR#########");
         })).block();
-        notificationMessage.setStatus(NotificationMessage.Status.NOTIFICATION_STORED);
+        notificationMessage.setStatus(Status.NOTIFICATION_STORED);
         return new NotificationStorageResponse();
     }
 
@@ -66,7 +67,7 @@ public class MongoDbPersistenceHandler implements NotificationPersistence {
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         log.debug("MongoDb: " + evt.getOldValue());
-        if (evt.getOldValue().equals(NotificationMessage.Status.NOTIFICATION_NEW)) {
+        if (evt.getOldValue().equals(Status.NOTIFICATION_NEW)) {
             this.store((NotificationMessage) evt.getNewValue());
         } else {
             this.update((NotificationMessage) evt.getNewValue());

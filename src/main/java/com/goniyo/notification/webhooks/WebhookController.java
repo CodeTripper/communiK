@@ -28,7 +28,7 @@ public class WebhookController {
         log.debug("template controler:{}", templateDto);
         Template template = templateMapper.templateDtoToTemplate(templateDto);
         return this.templateService.create(template)
-                .map(p -> ResponseEntity.created(URI.create(BASE_PATH + p.getId()))
+                .map(p -> ResponseEntity.created(URI.create(BASE_PATH + "/" + p.getId()))
                         .build());
     }
 

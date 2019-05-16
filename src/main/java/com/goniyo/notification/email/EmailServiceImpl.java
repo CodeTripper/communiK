@@ -45,7 +45,7 @@ class EmailServiceImpl implements EmailService {
     private String sendEmail(EmailDto emailDto, String s) {
         String message = null;
         try {
-            message = messageGenerator.generateMessage(s, emailDto);
+            message = messageGenerator.generateMessage(emailDto.getTemplateId(), emailDto);
         } catch (MessageGenerationException e) {
             e.printStackTrace();
         }
