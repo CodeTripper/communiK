@@ -3,9 +3,12 @@ package com.goniyo.notification.email;
 import com.goniyo.notification.messagegenerator.MessageGenerationException;
 import com.goniyo.notification.messagegenerator.MessageGenerator;
 import com.goniyo.notification.notification.NotificationHandler;
+import com.goniyo.notification.repository.NotificationPersistence;
+import com.goniyo.notification.repository.mongo.NotificationMessageDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 
 @Component
 @Slf4j
@@ -16,7 +19,8 @@ class EmailServiceImpl implements EmailService {
     private MessageGenerator messageGenerator;
     @Autowired
     private EmailNotifier<Email> emailNotifier;
-
+    @Autowired
+    NotificationPersistence notificationPersistence;
     // TODO add validation here
     public String salaryCredited(EmailDto emailDto) {
         return sendEmail(emailDto, "email/salary-credited.ftl");
@@ -31,6 +35,11 @@ class EmailServiceImpl implements EmailService {
     @Override
     public String promoMailToCustomers(EmailDto emailDto) {
         return sendEmail(emailDto, "templates/email/promo-mail-to-customers.ftl");
+    }
+
+    @Override
+    public Flux<NotificationMessageDto> getAllEmails() {
+        return notificationPersistence.getAll();
     }
 
     private String sendEmail(EmailDto emailDto, String s) {

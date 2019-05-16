@@ -1,8 +1,10 @@
 package com.goniyo.notification.notification;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.annotation.Id;
 
 import javax.validation.constraints.NotNull;
 import java.beans.PropertyChangeListener;
@@ -16,12 +18,15 @@ import java.util.UUID;
 @Getter
 @ToString
 @Slf4j
+@NoArgsConstructor
+
 public class NotificationMessage {
     public enum Status {NOTIFICATION_NEW, NOTIFICATION_STORED, NOTIFICATION_SENT, NOTIFICATION_FAILED, NOTIFICATION_RETRY_FAILED}
 
     public enum Type {EMAIL, SMS}
 
-    private String id;
+    private @Id
+    String id;
     private LocalDateTime created;
     private Type type;
     private String message;

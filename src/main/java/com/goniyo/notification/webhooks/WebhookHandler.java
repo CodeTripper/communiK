@@ -45,7 +45,7 @@ public class WebhookHandler implements NotificationObserver {
         } catch (WebClientException webClientException) {
             log.error("webClientException");
         }
-        log.debug("webhook called");
+        log.debug("webhook called:" + notificationMessage);
         // create payload
         // call post
         return true;
