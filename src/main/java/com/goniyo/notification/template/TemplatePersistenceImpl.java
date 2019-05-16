@@ -1,5 +1,6 @@
 package com.goniyo.notification.template;
 
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -18,6 +19,7 @@ public class TemplatePersistenceImpl implements TemplatePersistence {
     private TemplateMapper templateMapper;
 
     @Override
+    @HystrixCommand()
     public Mono<Template> create(Template template) {
         log.debug("template TemplateServiceImpl:{}", template);
         TemplateRepoDto templateRepoDto = templateMapper.templateToTemplateRepoDto(template);
@@ -31,6 +33,7 @@ public class TemplatePersistenceImpl implements TemplatePersistence {
     }
 
     @Override
+    @HystrixCommand()
     public Mono<Template> update(Template template) {
         log.debug("template TemplateServiceImpl:{}", template);
         TemplateRepoDto templateRepoDto = templateMapper.templateToTemplateRepoDto(template);
@@ -43,18 +46,21 @@ public class TemplatePersistenceImpl implements TemplatePersistence {
     }
 
     @Override
+    @HystrixCommand()
     public Flux<Template> getAll() {
         return this.templateRepository
                 .findAll().map(te -> templateMapper.templateRepoDtotoTemplate(te));
     }
 
     @Override
+    @HystrixCommand()
     public Mono<Template> get(String id) {
         return this.templateRepository
                 .findById(id).map(te -> templateMapper.templateRepoDtotoTemplate(te));
     }
 
     @Override
+    @HystrixCommand()
     public Mono<Void> delete(String id) {
         return this.templateRepository
                 .deleteById(id);

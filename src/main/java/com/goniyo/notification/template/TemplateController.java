@@ -18,40 +18,38 @@ import java.net.URI;
 public class TemplateController {
     @Autowired
     private TemplateService templateService;
-    private final MediaType mediaType = MediaType.APPLICATION_JSON_UTF8;
     @Autowired
     private TemplateMapper templateMapper;
+    private static final String BASE_PATH = "template";
 
-
-    @PostMapping(value = "template", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PostMapping(value = BASE_PATH, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     Publisher<ResponseEntity<Template>> create(@RequestBody TemplateDto templateDto) {
         log.debug("template controler:{}", templateDto);
         Template template = templateMapper.templateDtoToTemplate(templateDto);
         return this.templateService.create(template)
-                .map(p -> ResponseEntity.created(URI.create("/template/" + p.getId()))
+                .map(p -> ResponseEntity.created(URI.create("/webhook/" + p.getId()))
                         .build());
     }
 
-    @GetMapping(value = "template/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @GetMapping(value = BASE_PATH + "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     Mono<Template> getTemplate(@NotBlank @PathVariable String id) {
         return templateService.get(id);
     }
 
-    @GetMapping(value = "templates", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @GetMapping(value = BASE_PATH + "s", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     Flux<Template> getTemplates() {
         return templateService.getAll();
     }
 
-    @PutMapping(value = "template/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    Publisher<ResponseEntity<Template>> updateTemplate(@NotBlank @PathVariable String id, @RequestBody TemplateDto templateDto) {
+    @PutMapping(value = BASE_PATH + "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    Mono<Template> updateTemplate(@NotBlank @PathVariable String id, @RequestBody TemplateDto templateDto) {
         templateDto.setId(id);
         Template template = templateMapper.templateDtoToTemplate(templateDto);
-        return this.templateService.update(template)
-                .map(p -> ResponseEntity.created(URI.create("/template/" + p.getId()))
-                        .build());
+        return this.templateService.update(template);
+
     }
 
-    @DeleteMapping(value = "template/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @DeleteMapping(value = BASE_PATH + "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     Mono<Void> deleteTemplate(@NotBlank @PathVariable String id) {
         return templateService.delete(id);
     }

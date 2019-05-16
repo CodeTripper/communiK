@@ -1,22 +1,57 @@
-package com.goniyo.notification.webhooks;
+package com.goniyo.notification.template;
 
-import com.goniyo.notification.email.EmailDto;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.reactivestreams.Publisher;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import java.net.URI;
 
+
+@RestController
 @Slf4j
 public class WebhookController {
-    // TODO register/deregister/ which which messages/events/
-    @RequestMapping(value = "/webhook/ping", method = RequestMethod.POST)
-    public final String emailSalary(@Valid @RequestBody EmailDto emailDto) {
-        // no logic in controller. Just pickup DTOs and send to service
-        log.debug("emaildto message{}", emailDto.getMessage());
-        //return new ResponseEntity(customer, HttpStatus.OK);
-        return "";
+    @Autowired
+    private TemplateService templateService;
+    private final MediaType mediaType = MediaType.APPLICATION_JSON_UTF8;
+    @Autowired
+    private TemplateMapper templateMapper;
+    private static final String BASE_PATH = "webhook";
+
+    @PostMapping(value = BASE_PATH, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    Publisher<ResponseEntity<Template>> create(@RequestBody TemplateDto templateDto) {
+        log.debug("template controler:{}", templateDto);
+        Template template = templateMapper.templateDtoToTemplate(templateDto);
+        return this.templateService.create(template)
+                .map(p -> ResponseEntity.created(URI.create("/webhook/" + p.getId()))
+                        .build());
     }
 
+    @GetMapping(value = BASE_PATH + "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    Mono<Template> getTemplate(@NotBlank @PathVariable String id) {
+        return templateService.get(id);
+    }
+
+    @GetMapping(value = BASE_PATH + "s", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    Flux<Template> getTemplates() {
+        return templateService.getAll();
+    }
+
+    @PutMapping(value = BASE_PATH + "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    Mono<Template> updateTemplate(@NotBlank @PathVariable String id, @RequestBody TemplateDto templateDto) {
+        templateDto.setId(id);
+        Template template = templateMapper.templateDtoToTemplate(templateDto);
+        return this.templateService.update(template);
+
+    }
+
+    @DeleteMapping(value = BASE_PATH + "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    Mono<Void> deleteTemplate(@NotBlank @PathVariable String id) {
+        return templateService.delete(id);
+    }
 }
