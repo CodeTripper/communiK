@@ -13,6 +13,6 @@ public class TemplateCreatedListener<T> {
     @EventListener
     @Async
     public void onApplicationEvent(@NonNull T event) {
-        log.debug("Event {}", event);
+        //    log.debug("Event {}", event);
     }
 }

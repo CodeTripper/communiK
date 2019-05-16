@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 @ToString
 @Data
-public class Template implements Serializable {
+public class TemplateDto implements Serializable {
     private String id;
     private String templateName;
 }
