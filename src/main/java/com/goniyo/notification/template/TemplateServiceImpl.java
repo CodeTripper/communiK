@@ -36,6 +36,7 @@ public class TemplateServiceImpl implements TemplateService {
     }
 
     @Override
+    // TODO check active
     public Mono<Template> get(String id) {
         return templatePersistence.get(id);
     }

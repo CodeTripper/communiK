@@ -1,0 +1,47 @@
+[
+  {
+    "type": "SMS",
+    "category": "transactional",
+    "lob": "bank",
+    "to": "+919916989922",
+    "message": "Your salary of Rs 11000 has been credited"
+  },
+  {
+    "type": "SMS",
+    "category": "transactional",
+    "lob": "bank",
+    "to": "+919916989922",
+    "body": {
+      "template": "sdfjq2378dsk8",
+      "data": [
+        {
+          "salary": 1222
+        }
+      ]
+    }
+  },
+  {
+    "type": "EMAIL",
+    "category": "transactional",
+    "lob": "bank",
+    "to": "hkdoley@gmai.com",
+    "subject": "Your salary is here",
+    "body": {
+      "template": "sdfjq2378dsk8",
+      "data": [
+        {
+          "salary": 1222,
+          "statement": 1222
+        }
+      ]
+    },
+    "attachment": {
+      "template": "sdfjq2378dsk7",
+      "data": [
+        {
+          "salary": 1222
+        }
+      ]
+    }
+  }
+]

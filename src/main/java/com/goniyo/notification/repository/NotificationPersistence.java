@@ -5,9 +5,10 @@ import com.goniyo.notification.notification.NotificationObserver;
 import com.goniyo.notification.notification.NotificationStorageResponse;
 import com.goniyo.notification.repository.mongo.NotificationMessageDto;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 public interface NotificationPersistence extends NotificationObserver {
-    NotificationStorageResponse store(NotificationMessage notificationMessage);
+    Mono<NotificationMessage> store(NotificationMessage notificationMessage);
 
     NotificationStorageResponse update(NotificationMessage notificationMessage);
 

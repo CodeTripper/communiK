@@ -1,37 +1,90 @@
 package com.goniyo.notification.notification;
 
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.validation.constraints.NotNull;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.time.LocalDateTime;
-import java.util.UUID;
+import java.time.LocalTime;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 // TODO change the below hack to Superbuilder when milestone 25 is released Idea plugin
 // https://github.com/mplushnikov/lombok-intellij-plugin/milestone/31
 
 
-@Getter
+@Data
 @ToString
 @Slf4j
 @NoArgsConstructor
 
 public class NotificationMessage {
-
-    String id;
-    private LocalDateTime created;
-    private Type type;
-    private String message;
+    private String id; // from DB
     private @NotNull String to;
-    private String senderIp;
-    private transient PropertyChangeSupport propertyChangeSupport;
+    private @NotNull NotificationMessage.Container body;
+    private Container attachment;
+    private Meta meta;
     private Status status;
-    private LocalDateTime updated;
+    private Notifiers notifiers;
+    private List<Action> actions;
+    private List<BlackOut> blackouts;
+    private LocalDateTime lastUpdated;
+    private int attempts;
 
-    public NotificationMessage(Type type, String message, String to, String senderIp, Status status) {
+
+    @Data
+    @NoArgsConstructor
+    public static class Container {
+        private String message;
+        private String templateId;
+        Map<String, Object> dynamicData = new LinkedHashMap<>();
+    }
+
+    /*
+        All meta data of the message to ne here. Immutable
+     */
+    @Data
+    public static class Meta {
+        private Type type;
+        private String senderIp;
+        private String category;
+        private String lob;
+        private int maxRetry; // from template
+        private @NotNull LocalDateTime created; // by Timestam
+        private @NotNull LocalDateTime expireBy;
+
+    }
+
+    @Data
+    public static class Notifiers {
+        private Notifier primary;
+        private List<Notifier> backup;
+    }
+
+    @Data
+    public static class Action {
+        private Notifier notifier;
+        private @NotNull LocalDateTime started;
+        private @NotNull LocalDateTime ended;
+        private @NotNull LocalDateTime callbackAt;
+        private Status status;
+    }
+
+    /*
+        Should be populated from category, but should be overridable
+     */
+    @Data
+    public static class BlackOut {
+        // by category
+        private Type type;
+        private LocalTime start;
+        private LocalTime end;
+    }
+
+
+    /*public NotificationMessage(Type type, String message, String to, String senderIp, Status status, String templateId) {
         this.id = UUID.randomUUID().toString();
         this.type = type;
         this.message = message;
@@ -39,26 +92,18 @@ public class NotificationMessage {
         this.senderIp = senderIp;
         this.status = status;
         this.created = LocalDateTime.now();
-        propertyChangeSupport = new PropertyChangeSupport(this);
-    }
+        this.templateId = templateId;
+    }*/
 
     public final void setStatus(Status status) {
         this.status = status;
-        propertyChangeSupport.firePropertyChange("status", status, this);
-    }
-
-    public void addPropertyChangeListener(PropertyChangeListener pcl) {
-        log.debug("pcl added");
-        propertyChangeSupport.addPropertyChangeListener(pcl);
-    }
-
-    public void removePropertyChangeListener(PropertyChangeListener pcl) {
-        propertyChangeSupport.removePropertyChangeListener(pcl);
     }
 
     public final Status getStatus() {
         return this.status;
     }
 
-
+    public final int getAttempts() {
+        return this.actions != null ? this.actions.size() : 0;
+    }
 }

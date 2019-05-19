@@ -13,6 +13,8 @@ import java.time.LocalDateTime;
 public class TemplateDto implements Serializable {
     private String id;
     private String name;
+    private String category;
+    private String lob;
     private Type type;
     private String body;
     private boolean active;

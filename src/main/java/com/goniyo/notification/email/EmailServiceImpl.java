@@ -3,12 +3,19 @@ package com.goniyo.notification.email;
 import com.goniyo.notification.messagegenerator.MessageGenerationException;
 import com.goniyo.notification.messagegenerator.MessageGenerator;
 import com.goniyo.notification.notification.NotificationHandler;
+import com.goniyo.notification.notification.NotificationMessage;
+import com.goniyo.notification.notification.Type;
 import com.goniyo.notification.repository.NotificationPersistence;
 import com.goniyo.notification.repository.mongo.NotificationMessageDto;
+import com.goniyo.notification.template.Template;
+import com.goniyo.notification.template.TemplateService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import java.time.LocalDateTime;
 
 @Component
 @Slf4j
@@ -20,21 +27,48 @@ class EmailServiceImpl implements EmailService {
     @Autowired
     private EmailNotifier<Email> emailNotifier;
     @Autowired
-    NotificationPersistence notificationPersistence;
+    private NotificationPersistence notificationPersistence;
+    @Autowired
+    private EmailMapper emailMapper;
+    @Autowired
+    private TemplateService templateService;
     // TODO add validation here
-    public String salaryCredited(EmailDto emailDto) {
-        return sendEmail(emailDto, "email/salary-credited.ftl");
+    public Mono<NotificationMessage> send(EmailDto emailDto) {
+        String message = null;
+        String id = emailDto.getBody().getTemplateId();
+        Template template = getTemplate(id);
+        try {
+            log.debug("emaildto {}", emailDto);
+
+            message = messageGenerator.generateMessage(template.getBody(), emailDto);
+
+        } catch (MessageGenerationException e) {
+            e.printStackTrace();
+        }
+
+        Email email = emailMapper.emailDtoToEmail(emailDto);
+        log.debug("email->{}", email);
+        NotificationMessage.Notifiers notifiers = new NotificationMessage.Notifiers();
+        notifiers.setPrimary(emailNotifier);
+        //notifiers.setBackup(emailNotifier);
+        email.setNotifiers(notifiers);
+        NotificationMessage.Meta meta = new NotificationMessage.Meta();
+        // get IP
+        meta.setSenderIp(null);
+        meta.setType(Type.EMAIL);
+        meta.setCategory(template.getCategory());
+        meta.setLob(template.getLob());
+        meta.setCreated(LocalDateTime.now());
+        email.setMeta(meta);
+        log.debug("email ->{}", email);
+        return notificationHandler.sendNotification(emailNotifier, email);
 
     }
 
-    @Override
-    public String salaryAdvanceCredited(EmailDto emailDto) {
-        return sendEmail(emailDto, "email/salary-advance-credited.ftl");
-    }
-
-    @Override
-    public String promoMailToCustomers(EmailDto emailDto) {
-        return sendEmail(emailDto, "templates/email/promo-mail-to-customers.ftl");
+    private Template getTemplate(String id) {
+        // TODO remove block
+        Template template = templateService.get(id).block();
+        return template;
     }
 
     @Override
@@ -42,15 +76,5 @@ class EmailServiceImpl implements EmailService {
         return notificationPersistence.getAll();
     }
 
-    private String sendEmail(EmailDto emailDto, String s) {
-        String message = null;
-        try {
-            message = messageGenerator.generateMessage(emailDto.getTemplateId(), emailDto);
-        } catch (MessageGenerationException e) {
-            e.printStackTrace();
-        }
-        log.debug("generated email{}", message);
-        Email email = Email.builder().message(message).subject(emailDto.getSubject()).build();
-        return notificationHandler.sendNotification(emailNotifier, email);
-    }
+
 }

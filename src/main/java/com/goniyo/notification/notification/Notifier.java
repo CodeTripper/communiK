@@ -1,6 +1,8 @@
 package com.goniyo.notification.notification;
 
+import reactor.core.publisher.Mono;
+
 public interface Notifier<T extends NotificationMessage> {
-    String send(T notificationMessage) throws NotificationFailedException;
+    Mono<NotificationStatusResponse> send(T notificationMessage) throws NotificationFailedException;
     // boolean isFallback();
 }

@@ -1,11 +1,13 @@
 package com.goniyo.notification.email;
 
 import com.goniyo.notification.notification.NotificationFailedException;
+import com.goniyo.notification.notification.NotificationStatusResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import reactor.core.publisher.Mono;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -13,16 +15,16 @@ import java.io.File;
 import java.util.Properties;
 
 @Slf4j
-public abstract class EmailSender implements EmailNotifier<Email> {
+public abstract class SmtpEmailSender implements EmailNotifier<Email> {
     private final JavaMailSenderImpl sender;
 
-    public EmailSender() {
+    public SmtpEmailSender() {
         sender = new JavaMailSenderImpl();
         //props = sender.getJavaMailProperties();
     }
 
     @Override
-    public final String send(Email email) throws NotificationFailedException {
+    public final Mono<NotificationStatusResponse> send(Email email) throws NotificationFailedException {
         log.debug("starting email sender");
         try {
             preProcess(email);
@@ -31,7 +33,7 @@ public abstract class EmailSender implements EmailNotifier<Email> {
         } catch (MessagingException | MailException e) {
             throw new NotificationFailedException("Unable to send Email", e);
         }
-        return "SENDGRID";
+        return null;
     }
 
     private boolean process(Email email) throws MailException, MessagingException {
@@ -46,10 +48,10 @@ public abstract class EmailSender implements EmailNotifier<Email> {
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
         helper.setTo(email.getTo());
         helper.setSubject(email.getSubject());
-        helper.setText(email.getMessage());
+        helper.setText(email.getBody().getMessage());
 
-        if (!email.getAttachment().isEmpty()) {
-            FileSystemResource file = new FileSystemResource(new File(email.getAttachment()));
+        if (email.getAttachment() != null) {
+            FileSystemResource file = new FileSystemResource(new File(email.getAttachment().getMessage()));
             helper.addAttachment("CoolImage.jpg", file);
         }
         sender.send(message);

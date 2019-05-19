@@ -34,10 +34,13 @@ dependencies {
 
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-hystrix'
-	implementation 'org.springframework.retry:spring-retry'
-	implementation 'org.springframework.statemachine:spring-statemachine-starter'
+	implementation 'org.springframework.retry:spring-retry' // TODO
+	implementation 'org.springframework.statemachine:spring-statemachine-starter' // TODO
+	implementation 'org.apache.pdfbox:pdfbox:2.0.13' // TODO
 	compileOnly 'org.projectlombok:lombok:1.18.8'
     implementation "org.mapstruct:mapstruct:${mapstructVersion}"
+    implementation group: 'org.xhtmlrenderer', name: 'flying-saucer-core', version: '9.1.18'
+    implementation group: 'org.xhtmlrenderer', name: 'flying-saucer-pdf-openpdf', version: '9.1.18'
     annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
     runtimeOnly 'org.springframework.boot:spring-boot-devtools'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -48,4 +51,7 @@ dependencyManagement {
 		mavenBom "org.springframework.statemachine:spring-statemachine-bom:${springStatemachineVersion}"
 		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
 	}
+}
+clean {
+    delete 'out'     // interpreted relative to the project directory
 }

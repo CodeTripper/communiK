@@ -1,5 +1,9 @@
-package com.goniyo.notification.template;
+package com.goniyo.notification.webhooks;
 
+import com.goniyo.notification.template.Template;
+import com.goniyo.notification.template.TemplateDto;
+import com.goniyo.notification.template.TemplateMapper;
+import com.goniyo.notification.template.TemplateService;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,5 +57,14 @@ public class WebhookController {
     @DeleteMapping(value = BASE_PATH + "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     Mono<Void> deleteTemplate(@NotBlank @PathVariable String id) {
         return templateService.delete(id);
+    }
+
+    @PostMapping(value = BASE_PATH + "/ping", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    Publisher<ResponseEntity<Template>> ping(@RequestBody TemplateDto templateDto) {
+        log.debug("template controler:{}", templateDto);
+        Template template = templateMapper.templateDtoToTemplate(templateDto);
+        return this.templateService.create(template)
+                .map(p -> ResponseEntity.created(URI.create(BASE_PATH + "/" + p.getId()))
+                        .build());
     }
 }

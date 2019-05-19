@@ -10,9 +10,12 @@ import java.time.LocalDateTime;
 
 @ToString
 @Data
+// TODO rename class and have template
 public class Template implements Serializable {
     private String id;
     private String name;
+    private String category;
+    private String lob;
     private Type type;
     private String body;
     private boolean active;

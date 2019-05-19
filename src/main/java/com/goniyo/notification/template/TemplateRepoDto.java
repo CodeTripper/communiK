@@ -13,6 +13,8 @@ public class TemplateRepoDto {
     private @Id
     String id;
     private String name;
+    private String category;
+    private String lob;
     private Type type;
     private String body;
     private boolean active;

@@ -1,13 +1,13 @@
 package com.goniyo.notification.repository.mongo;
 
-import com.goniyo.notification.notification.NotificationMessage;
-import com.goniyo.notification.notification.NotificationStorageResponse;
-import com.goniyo.notification.notification.Status;
+import com.goniyo.notification.notification.*;
 import com.goniyo.notification.repository.NotificationPersistence;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import javax.annotation.PostConstruct;
 import java.beans.PropertyChangeEvent;
@@ -16,24 +16,29 @@ import java.beans.PropertyChangeEvent;
 @Slf4j
 public class MongoDbPersistenceHandler implements NotificationPersistence {
     @Autowired
+    private ApplicationEventPublisher publisher;
+    @Autowired
     private MongoRepository mongoRepository;
     @Autowired
-    private TempRepo repo;
+    private NotificationMapper notificationMapper;
 
     public MongoDbPersistenceHandler(MongoRepository mongoRepository) {
         this.mongoRepository = mongoRepository;
     }
+
     @Override
-    public NotificationStorageResponse store(NotificationMessage notificationMessage) {
+    public Mono<NotificationMessage> store(NotificationMessage notificationMessage) {
         log.debug("I am storing it nowmin" + notificationMessage);
-        NotificationMessageDto notificationMessageDto = NotificationMessageDto.builder().to(notificationMessage.getTo()).id(notificationMessage.getId()).message(notificationMessage.getMessage()).build();
-        mongoRepository.insert(notificationMessageDto).doOnSuccess((email1 -> {
+        NotificationMessageDto notificationMessageDto = notificationMapper.mapMessageToDto(notificationMessage);
+        return mongoRepository.insert(notificationMessageDto).map(te ->
+                notificationMapper.mapDtoToMessage(te)).doOnSuccess((message -> {
             log.debug("#########");
-        })).doOnError((email1 -> {
+            this.publisher.publishEvent(new NotificationEvent<>(message, true));
+        })).doOnError((message -> {
             log.debug("ERROR#########");
-        })).block();
-        notificationMessage.setStatus(Status.NOTIFICATION_STORED);
-        return new NotificationStorageResponse();
+            this.publisher.publishEvent(new NotificationEvent<>(message, false));
+        }));
+
     }
 
     @PostConstruct
@@ -46,7 +51,7 @@ public class MongoDbPersistenceHandler implements NotificationPersistence {
         // TODO add hystrix here
         // WARN DO NOT UPDATE STATUS OF notificationMessage HERE
         log.debug("updated");
-        NotificationMessageDto notificationMessageDto = NotificationMessageDto.builder().to(notificationMessage.getTo()).id(notificationMessage.getId()).message(notificationMessage.getMessage()).build();
+        NotificationMessageDto notificationMessageDto = notificationMapper.mapMessageToDto(notificationMessage);
         mongoRepository.save(notificationMessageDto);
         //notificationMessage.setStatus("UPDATED");
         return new NotificationStorageResponse();

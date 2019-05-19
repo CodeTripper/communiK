@@ -1,11 +1,13 @@
 package com.goniyo.notification.sms;
 
+import com.goniyo.notification.notification.NotificationMessage;
 import com.goniyo.notification.notification.NotificationStatusResponse;
+import reactor.core.publisher.Mono;
 
 interface SmsService {
-    String sendSms(SmsDto smsDTO);
+    Mono<NotificationMessage> sendSms(SmsDto smsDTO);
 
-    String sendOtp(SmsDto smsDTO);
+    Mono<NotificationMessage> sendOtp(SmsDto smsDTO);
 
     NotificationStatusResponse getSmsStatus(String id);
 }

@@ -1,26 +1,37 @@
 package com.goniyo.notification.repository.mongo;
 
+import com.goniyo.notification.notification.NotificationMessage;
 import com.goniyo.notification.notification.Status;
-import com.goniyo.notification.notification.Type;
-import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
-@Builder
-@Document
+@Document(collection = "Notifications")
 public class NotificationMessageDto {
 
     private @Id
     String id;
-    private LocalDateTime created;
-    private Type type;
-    private String message;
-    private String to;
-    private String senderIp;
+    private @NotNull String to;
+    private @NotNull NotificationMessage.Container body;
+    private NotificationMessage.Container attachment;
+    private NotificationMessage.Meta meta;
     private Status status;
-    private LocalDateTime updated;
+    private NotificationMessage.Notifiers notifiers;
+    private List<NotificationMessage.Action> actions;
+    private List<NotificationMessage.BlackOut> blackouts;
+    private LocalDateTime lastUpdated;
+    private int attempts;
+
+    public final Status getStatus() {
+        return this.status;
+    }
+
+    public final int getAttempts() {
+        return this.actions != null ? this.actions.size() : 0;
+    }
 }

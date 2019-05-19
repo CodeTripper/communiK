@@ -2,7 +2,7 @@ package com.goniyo.notification.email.providers;
 
 import com.goniyo.notification.email.Email;
 import com.goniyo.notification.email.EmailConfiguration;
-import com.goniyo.notification.email.EmailSender;
+import com.goniyo.notification.email.SmtpEmailSender;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,7 +11,7 @@ import java.util.Properties;
 
 @Service
 @Slf4j
-public class MailGun extends EmailSender {
+public class Gmail extends SmtpEmailSender {
     @Autowired
     MailGunConfig mailGunConfig;
     @Override

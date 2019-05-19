@@ -1,4 +1,4 @@
-package com.goniyo.notification.template;
+package com.goniyo.notification.notification;
 
 public class NotificationEvent<T> {
     private T what;
