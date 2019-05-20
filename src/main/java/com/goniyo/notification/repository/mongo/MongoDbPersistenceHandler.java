@@ -1,22 +1,20 @@
 package com.goniyo.notification.repository.mongo;
 
-import com.goniyo.notification.notification.*;
+import com.goniyo.notification.notification.NotificationMapper;
+import com.goniyo.notification.notification.NotificationMessage;
+import com.goniyo.notification.notification.NotificationStorageResponse;
 import com.goniyo.notification.repository.NotificationPersistence;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.PostConstruct;
-import java.beans.PropertyChangeEvent;
 
 @Service
 @Slf4j
 public class MongoDbPersistenceHandler implements NotificationPersistence {
-    @Autowired
-    private ApplicationEventPublisher publisher;
     @Autowired
     private MongoRepository mongoRepository;
     @Autowired
@@ -28,15 +26,13 @@ public class MongoDbPersistenceHandler implements NotificationPersistence {
 
     @Override
     public Mono<NotificationMessage> store(NotificationMessage notificationMessage) {
-        log.debug("I am storing it nowmin" + notificationMessage);
         NotificationMessageDto notificationMessageDto = notificationMapper.mapMessageToDto(notificationMessage);
         return mongoRepository.insert(notificationMessageDto).map(te ->
                 notificationMapper.mapDtoToMessage(te)).doOnSuccess((message -> {
-            log.debug("#########");
-            this.publisher.publishEvent(new NotificationEvent<>(message, true));
+            log.debug("Saved message to Mongo with data {}", message);
+
         })).doOnError((message -> {
-            log.debug("ERROR#########");
-            this.publisher.publishEvent(new NotificationEvent<>(message, false));
+            log.debug("MongoDbPersistenceHandler could not save message to Mongo with data {}", message);
         }));
 
     }
@@ -49,19 +45,24 @@ public class MongoDbPersistenceHandler implements NotificationPersistence {
     @Override
     public NotificationStorageResponse update(NotificationMessage notificationMessage) {
         // TODO add hystrix here
+        // TODO mono
         // WARN DO NOT UPDATE STATUS OF notificationMessage HERE
-        log.debug("updated");
+        if (notificationMessage.getId().isBlank()) {
+            throw new RuntimeException("Id cant be null");
+        }
+        log.debug("Received for updation to Mongo data {}", notificationMessage);
         NotificationMessageDto notificationMessageDto = notificationMapper.mapMessageToDto(notificationMessage);
+        log.debug("Updated message to Mongo with data {}", notificationMessageDto);
         mongoRepository.save(notificationMessageDto);
         //notificationMessage.setStatus("UPDATED");
         return new NotificationStorageResponse();
     }
 
     @Override
-    public NotificationStorageResponse status(String id) {
+    public Mono<NotificationMessageDto> status(String id) {
         // TODO add hystrix here
-        mongoRepository.findById(id);
-        return null;
+        return mongoRepository.findById(id);
+
     }
 
     @Override
@@ -69,13 +70,4 @@ public class MongoDbPersistenceHandler implements NotificationPersistence {
         return mongoRepository.findAll();
     }
 
-    @Override
-    public void propertyChange(PropertyChangeEvent evt) {
-        log.debug("MongoDb: " + evt.getOldValue());
-        if (evt.getOldValue().equals(Status.NOTIFICATION_NEW)) {
-            this.store((NotificationMessage) evt.getNewValue());
-        } else {
-            this.update((NotificationMessage) evt.getNewValue());
-        }
-    }
 }

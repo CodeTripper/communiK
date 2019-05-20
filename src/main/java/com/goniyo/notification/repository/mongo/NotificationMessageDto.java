@@ -26,7 +26,7 @@ public class NotificationMessageDto {
     private List<NotificationMessage.BlackOut> blackouts;
     private LocalDateTime lastUpdated;
     private int attempts;
-
+    private String subject;
     public final Status getStatus() {
         return this.status;
     }

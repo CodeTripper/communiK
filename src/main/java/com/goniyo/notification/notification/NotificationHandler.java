@@ -4,45 +4,33 @@ import com.goniyo.notification.repository.NotificationPersistence;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
-
-import java.util.List;
 
 @Component
 @Slf4j
 public class NotificationHandler<T extends NotificationMessage> {
     @Autowired
-    private NotificationPersistence notificationPersistence;
-
+    private NotificationPersistence<T> notificationPersistence;
     @Autowired
-    private List<NotificationObserver> notificationObservers;
+    private ApplicationEventPublisher publisher;
 
-    // TODO
-    // should I store attachment?
-    // How to forward to the correct notifier?
-    // How to get the backup notifier?
-    // The flow to be finalized
-    public Mono<NotificationMessage> sendNotification(@NonNull Notifier<T> notifier, @NonNull T notificationMessage) {
-        log.info("sending notification" + notificationMessage);
-        //addObservers(notificationMessage);
+    public Mono<NotificationMessage> sendNotification(@NonNull T notificationMessage) {
+        log.info("About to persist notification {}", notificationMessage);
         notificationMessage.setStatus(Status.NOTIFICATION_NEW);
-        return notificationPersistence.store(notificationMessage);
-        /*String returnValue = null;
-        try {
-            returnValue = notifier.send(notificationMessage);
-            notificationMessage.setStatus(NOTIFICATION_SENT);
-        } catch (NotificationFailedException e) {
-            e.printStackTrace();
-            notificationMessage.setStatus(NOTIFICATION_FAILED);
-        }
-*/
-        //return returnValue;
-    }
+        // store in DB via async
+        // call emailer via asyn
+        // update db via async
+        Mono<NotificationMessage> notificationMessageMono = notificationPersistence.store(notificationMessage).doOnSuccess(message -> {
+            notificationMessage.setId(message.getId());
+            this.publisher.publishEvent(new NotificationCreationEvent<>(notificationMessage, true));
+            log.debug("Notification persistence successful, NotificationCreationEvent created");
+        }).doOnError(message -> {
+            this.publisher.publishEvent(new NotificationCreationEvent<>(notificationMessage, false));
+            log.debug("Notification persistence unsuccessful, NotificationCreationEvent created");
 
-    /*public void doSomething(String input) {
-        backupNotifiers.stream().filter(c -> c.getName().contains(input)).findFirst().ifPresent(c -> {
-            System.out.println(input);
         });
-    }*/
+        return notificationMessageMono;
+    }
 }

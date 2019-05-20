@@ -24,10 +24,10 @@ public class FreeMarkerMessageGenerator<T> implements MessageGenerator<T>, HtmlG
     public String generateMessage(@NotNull String template, @NotNull T notificationMessage) throws MessageGenerationException {
         String message;
         try {
-            // TODO error/failure handling optimize?
-            log.debug("message content {}", notificationMessage);
+            // TODO error/failure handling optimize/ non blocking?
             Template templateObj = new Template("name", new StringReader(template), null);
             message = FreeMarkerTemplateUtils.processTemplateIntoString(templateObj, notificationMessage);
+            log.debug("Generated message from template with {}", notificationMessage);
         } catch (IOException e) {
             throw new MessageGenerationException("Unable to find template", e);
         } catch (TemplateException e) {

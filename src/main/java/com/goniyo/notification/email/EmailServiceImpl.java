@@ -27,18 +27,19 @@ class EmailServiceImpl implements EmailService {
     @Autowired
     private EmailNotifier<Email> emailNotifier;
     @Autowired
-    private NotificationPersistence notificationPersistence;
+    private NotificationPersistence<Email> notificationPersistence; // TODO here?
     @Autowired
     private EmailMapper emailMapper;
     @Autowired
     private TemplateService templateService;
     // TODO add validation here
     public Mono<NotificationMessage> send(EmailDto emailDto) {
+        log.debug("Preparing data for Email Notification {}", emailDto);
         String message = null;
         String id = emailDto.getBody().getTemplateId();
         Template template = getTemplate(id);
         try {
-            log.debug("emaildto {}", emailDto);
+
 
             message = messageGenerator.generateMessage(template.getBody(), emailDto);
 
@@ -47,7 +48,6 @@ class EmailServiceImpl implements EmailService {
         }
 
         Email email = emailMapper.emailDtoToEmail(emailDto);
-        log.debug("email->{}", email);
         NotificationMessage.Notifiers notifiers = new NotificationMessage.Notifiers();
         notifiers.setPrimary(emailNotifier);
         //notifiers.setBackup(emailNotifier);
@@ -60,8 +60,8 @@ class EmailServiceImpl implements EmailService {
         meta.setLob(template.getLob());
         meta.setCreated(LocalDateTime.now());
         email.setMeta(meta);
-        log.debug("email ->{}", email);
-        return notificationHandler.sendNotification(emailNotifier, email);
+        log.debug("Prepared data for Email Notification {}", email);
+        return notificationHandler.sendNotification(email);
 
     }
 

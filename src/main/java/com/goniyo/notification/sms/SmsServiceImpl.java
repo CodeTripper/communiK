@@ -45,7 +45,7 @@ class SmsServiceImpl implements SmsService {
             e.printStackTrace();
         }
         Sms sms = null;//Sms.builder().message(message).build(); // TODO
-        return notificationHandler.sendNotification(optNotifier, sms);
+        return notificationHandler.sendNotification(sms);
     }
 
     @Override

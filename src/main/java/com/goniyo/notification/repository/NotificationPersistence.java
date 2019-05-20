@@ -1,18 +1,17 @@
 package com.goniyo.notification.repository;
 
 import com.goniyo.notification.notification.NotificationMessage;
-import com.goniyo.notification.notification.NotificationObserver;
 import com.goniyo.notification.notification.NotificationStorageResponse;
 import com.goniyo.notification.repository.mongo.NotificationMessageDto;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public interface NotificationPersistence extends NotificationObserver {
-    Mono<NotificationMessage> store(NotificationMessage notificationMessage);
+public interface NotificationPersistence<T extends NotificationMessage> {
+    Mono<NotificationMessage> store(T notificationMessage);
 
-    NotificationStorageResponse update(NotificationMessage notificationMessage);
+    NotificationStorageResponse update(T notificationMessage);
 
-    NotificationStorageResponse status(String id);
+    Mono<NotificationMessageDto> status(String id);
 
     Flux<NotificationMessageDto> getAll();
 }

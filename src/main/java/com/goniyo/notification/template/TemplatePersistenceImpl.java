@@ -1,6 +1,6 @@
 package com.goniyo.notification.template;
 
-import com.goniyo.notification.notification.NotificationEvent;
+import com.goniyo.notification.notification.NotificationCreationEvent;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ public class TemplatePersistenceImpl implements TemplatePersistence {
                         te ->
                                 templateMapper.templateRepoDtotoTemplate(te))
                 .doOnSuccess(templateDto -> {
-                    this.publisher.publishEvent(new NotificationEvent<>(templateDto, true));
+                    this.publisher.publishEvent(new NotificationCreationEvent<>(templateDto, true));
                 });
     }
 
@@ -42,7 +42,7 @@ public class TemplatePersistenceImpl implements TemplatePersistence {
                 .save(templateRepoDto).map(
                         te -> templateMapper.templateRepoDtotoTemplate(te))
                 .doOnSuccess(templateDto -> {
-                    this.publisher.publishEvent(new NotificationEvent<>(templateDto, true));
+                    this.publisher.publishEvent(new NotificationCreationEvent<>(templateDto, true));
                 });
     }
 
