@@ -1,7 +1,6 @@
 package com.goniyo.notification.webhooks;
 
 import com.goniyo.notification.notification.NotificationMessage;
-import com.goniyo.notification.notification.NotificationObserver;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -9,11 +8,12 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientException;
 
 import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.List;
 
 @Component
 @Slf4j
-public class WebhookHandler implements NotificationObserver {
+public class WebhookHandler implements PropertyChangeListener {
     private List<WebhookClient> webbookClients;
 
     // initialize webhookClients on startup from DB

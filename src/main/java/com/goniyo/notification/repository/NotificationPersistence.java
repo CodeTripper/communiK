@@ -7,9 +7,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface NotificationPersistence<T extends NotificationMessage> {
-    Mono<NotificationMessage> store(T notificationMessage);
+    Mono<NotificationStorageResponse> store(T notificationMessage);
 
-    NotificationStorageResponse update(T notificationMessage);
+    Mono<NotificationMessage> update(T notificationMessage);
 
     Mono<NotificationMessageDto> status(String id);
 

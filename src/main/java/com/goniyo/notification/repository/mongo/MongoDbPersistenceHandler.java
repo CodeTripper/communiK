@@ -25,16 +25,29 @@ public class MongoDbPersistenceHandler implements NotificationPersistence {
     }
 
     @Override
-    public Mono<NotificationMessage> store(NotificationMessage notificationMessage) {
+    public Mono<NotificationStorageResponse> store(NotificationMessage notificationMessage) {
         NotificationMessageDto notificationMessageDto = notificationMapper.mapMessageToDto(notificationMessage);
-        return mongoRepository.insert(notificationMessageDto).map(te ->
-                notificationMapper.mapDtoToMessage(te)).doOnSuccess((message -> {
-            log.debug("Saved message to Mongo with data {}", message);
+        return mongoRepository.insert(notificationMessageDto).
+                map(message -> {
+                    NotificationStorageResponse notificationStorageResponse = new NotificationStorageResponse();
+                    notificationStorageResponse.setId(message.getId());
+                    notificationStorageResponse.setStatus(true);
+                    return notificationStorageResponse;
+                })
+                .doOnSuccess((message -> {
+                    log.debug("Saved message to Mongo with data {}", message);
 
-        })).doOnError((message -> {
-            log.debug("MongoDbPersistenceHandler could not save message to Mongo with data {}", message);
-        }));
+                })).doOnError((message -> {
+                    log.debug("could not save message to Mongo with data {}", message);
+                }));
+        // TODO unable to return error
 
+    }
+
+    private Mono<NotificationStorageResponse> getFailure() {
+        NotificationStorageResponse notificationStatusResponse = new NotificationStorageResponse();
+        notificationStatusResponse.setStatus(false);
+        return Mono.just(notificationStatusResponse);
     }
 
     @PostConstruct
@@ -43,19 +56,27 @@ public class MongoDbPersistenceHandler implements NotificationPersistence {
     }
 
     @Override
-    public NotificationStorageResponse update(NotificationMessage notificationMessage) {
+    public Mono<NotificationStorageResponse> update(NotificationMessage notificationMessage) {
         // TODO add hystrix here
-        // TODO mono
         // WARN DO NOT UPDATE STATUS OF notificationMessage HERE
         if (notificationMessage.getId().isBlank()) {
             throw new RuntimeException("Id cant be null");
         }
         log.debug("Received for updation to Mongo data {}", notificationMessage);
         NotificationMessageDto notificationMessageDto = notificationMapper.mapMessageToDto(notificationMessage);
-        log.debug("Updated message to Mongo with data {}", notificationMessageDto);
-        mongoRepository.save(notificationMessageDto);
-        //notificationMessage.setStatus("UPDATED");
-        return new NotificationStorageResponse();
+        return mongoRepository.save(notificationMessageDto).
+                map(message -> {
+                    NotificationStorageResponse notificationStorageResponse = new NotificationStorageResponse();
+                    notificationStorageResponse.setId(message.getId());
+                    notificationStorageResponse.setStatus(true);
+                    return notificationStorageResponse;
+                })
+                .doOnSuccess((message -> {
+                    log.debug("Updated message to Mongo with data {}", message);
+
+                })).doOnError((message -> {
+                    log.debug("could not update message to Mongo with data {}", message);
+                }));
     }
 
     @Override

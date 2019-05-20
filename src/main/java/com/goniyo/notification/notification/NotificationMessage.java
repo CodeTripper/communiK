@@ -69,7 +69,7 @@ public class NotificationMessage {
         private @NotNull LocalDateTime started;
         private @NotNull LocalDateTime ended;
         private @NotNull LocalDateTime callbackAt;
-        private Status status;
+        private boolean status;
     }
 
     /*

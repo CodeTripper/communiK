@@ -1,7 +1,9 @@
 package com.goniyo.notification.notification;
 
+import lombok.Data;
+
+@Data
 public class NotificationStorageResponse {
-    enum Status {
-        SUCCESS, FAILED
-    }
+    private boolean status;
+    private String id;
 }
