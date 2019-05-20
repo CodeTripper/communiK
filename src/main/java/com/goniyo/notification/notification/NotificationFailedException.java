@@ -1,6 +1,6 @@
 package com.goniyo.notification.notification;
 
-public class NotificationFailedException extends Exception {
+public class NotificationFailedException extends RuntimeException {
     public NotificationFailedException(String s) {
         // Call constructor of parent Exception
         super(s);

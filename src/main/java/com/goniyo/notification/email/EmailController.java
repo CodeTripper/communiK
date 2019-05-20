@@ -1,7 +1,7 @@
 package com.goniyo.notification.email;
 
 
-import com.goniyo.notification.notification.NotificationMessage;
+import com.goniyo.notification.notification.NotificationStatusResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,7 +19,7 @@ public class EmailController {
     private EmailService emailService;
 
     @RequestMapping(value = "/email", method = RequestMethod.POST)
-    public final Mono<NotificationMessage> emailSalary(@Valid @RequestBody EmailDto emailDto) {
+    public final Mono<NotificationStatusResponse> emailSalary(@Valid @RequestBody EmailDto emailDto) {
         // no logic in controller. Just pickup DTOs and send to service
         log.debug("Received email request with data {}", emailDto);
         return emailService.send(emailDto);

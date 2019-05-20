@@ -7,7 +7,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
-import static com.goniyo.notification.notification.Status.NOTIFICATION_FAILED;
 import static com.goniyo.notification.notification.Status.NOTIFICATION_SENT;
 
 @Slf4j
@@ -23,7 +22,6 @@ public class NotificationCreationEventListener {
         log.debug("Received successful NotificationCreationEvent {}", event);
         NotificationMessage notificationMessage = (NotificationMessage) event.getSource();
         notificationMessage.setStatus(NOTIFICATION_SENT);
-        try {
             NotificationMessage.Notifiers notifiers = notificationMessage.getNotifiers();
             notifiers.getPrimary().send(notificationMessage).single().subscribe(message -> {
                 notificationMessage.setStatus(Status.NOTIFICATION_SUCCESS);
@@ -32,10 +30,6 @@ public class NotificationCreationEventListener {
 
             });
 
-        } catch (NotificationFailedException e) {
-            e.printStackTrace();
-            notificationMessage.setStatus(NOTIFICATION_FAILED);
-        }
 
     }
 

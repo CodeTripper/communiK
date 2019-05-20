@@ -4,6 +4,7 @@ import com.goniyo.notification.messagegenerator.MessageGenerationException;
 import com.goniyo.notification.messagegenerator.MessageGenerator;
 import com.goniyo.notification.notification.NotificationHandler;
 import com.goniyo.notification.notification.NotificationMessage;
+import com.goniyo.notification.notification.NotificationStatusResponse;
 import com.goniyo.notification.notification.Type;
 import com.goniyo.notification.repository.NotificationPersistence;
 import com.goniyo.notification.repository.mongo.NotificationMessageDto;
@@ -33,7 +34,7 @@ class EmailServiceImpl implements EmailService {
     @Autowired
     private TemplateService templateService;
     // TODO add validation here
-    public Mono<NotificationMessage> send(EmailDto emailDto) {
+    public Mono<NotificationStatusResponse> send(EmailDto emailDto) {
         log.debug("Preparing data for Email Notification {}", emailDto);
         String message = null;
         String id = emailDto.getBody().getTemplateId();

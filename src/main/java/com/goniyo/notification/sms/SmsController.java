@@ -1,6 +1,5 @@
 package com.goniyo.notification.sms;
 
-import com.goniyo.notification.notification.NotificationMessage;
 import com.goniyo.notification.notification.NotificationStatusResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,13 +17,13 @@ public class SmsController {
     private SmsService smsService;
 
     @PostMapping("/sms")
-    public Mono<NotificationMessage> sms(@Valid @RequestBody SmsDto smsDto) {
+    public Mono<NotificationStatusResponse> sms(@Valid @RequestBody SmsDto smsDto) {
         log.debug("Inside SMSController");
         return smsService.sendSms(smsDto);
     }
 
     @PostMapping("/otp")
-    public Mono<NotificationMessage> otp(@Valid @RequestBody SmsDto smsDto) {
+    public Mono<NotificationStatusResponse> otp(@Valid @RequestBody SmsDto smsDto) {
         // TODO json
         log.debug("Inside otp SMSController");
         return smsService.sendSms(smsDto);

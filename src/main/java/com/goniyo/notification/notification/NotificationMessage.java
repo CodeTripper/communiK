@@ -32,7 +32,7 @@ public class NotificationMessage {
     private List<BlackOut> blackouts;
     private LocalDateTime lastUpdated;
     private int attempts;
-
+    private int deadLine;
 
     @Data
     @NoArgsConstructor

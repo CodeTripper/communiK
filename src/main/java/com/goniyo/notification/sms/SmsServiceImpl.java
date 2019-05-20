@@ -3,7 +3,6 @@ package com.goniyo.notification.sms;
 import com.goniyo.notification.messagegenerator.MessageGenerationException;
 import com.goniyo.notification.messagegenerator.MessageGenerator;
 import com.goniyo.notification.notification.NotificationHandler;
-import com.goniyo.notification.notification.NotificationMessage;
 import com.goniyo.notification.notification.NotificationStatusResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,20 +23,20 @@ class SmsServiceImpl implements SmsService {
     @Resource(name = "OTP")
     SmsNotifier<Sms> optNotifier;
     // add validation here
-    public Mono<NotificationMessage> sendSms(SmsDto smsDto) {
+    public Mono<NotificationStatusResponse> sendSms(SmsDto smsDto) {
         log.debug("About to send Sms");
         return send(smsDto, smsNotifier);
 
     }
 
     @Override
-    public Mono<NotificationMessage> sendOtp(SmsDto smsDto) {
+    public Mono<NotificationStatusResponse> sendOtp(SmsDto smsDto) {
         log.debug("About to send Otp");
         return send(smsDto, optNotifier);
 
     }
 
-    private Mono<NotificationMessage> send(SmsDto smsDto, SmsNotifier<Sms> optNotifier) {
+    private Mono<NotificationStatusResponse> send(SmsDto smsDto, SmsNotifier<Sms> optNotifier) {
         String message = null;
         try {
             message = messageGenerator.generateMessage("sms/salary-credited.ftl", smsDto);
