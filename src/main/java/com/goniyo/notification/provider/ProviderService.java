@@ -28,6 +28,7 @@ public class ProviderService {
         return providerMap.get(id);
     }
 
+    // TODO filter active
     public Flux<Provider> getAllProviders() {
         log.info("Getting all providers...");
         return providerPersistence.getAll();

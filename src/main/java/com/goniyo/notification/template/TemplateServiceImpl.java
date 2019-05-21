@@ -17,27 +17,29 @@ public class TemplateServiceImpl implements TemplateService {
     @Autowired
     private TemplatePersistence templatePersistence;
 
+    // TODO add validation
     @Override
-    public Mono<Template> create(Template template) {
-        template.setCreated(LocalDateTime.now());
-        return templatePersistence.create(template);
+    public Mono<NotificationTemplate> create(NotificationTemplate notificationTemplate) {
+        notificationTemplate.setCreated(LocalDateTime.now());
+        return templatePersistence.create(notificationTemplate);
     }
 
     @Override
-    public Mono<Template> update(Template template) {
-        template.setUpdated(LocalDateTime.now());
-        template.setActive(true);
-        return templatePersistence.update(template);
+    public Mono<NotificationTemplate> update(NotificationTemplate notificationTemplate) {
+        notificationTemplate.setUpdated(LocalDateTime.now());
+        notificationTemplate.setActive(true);
+        return templatePersistence.update(notificationTemplate);
     }
 
     @Override
-    public Flux<Template> getAll() {
+    public Flux<NotificationTemplate> getAll() {
         return templatePersistence.getAll();
     }
 
     @Override
     // TODO check active
-    public Mono<Template> get(String id) {
+    public Mono<NotificationTemplate> get(String id) {
+        log.debug("Getting template for id {}", id);
         return templatePersistence.get(id);
     }
 

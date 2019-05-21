@@ -22,6 +22,7 @@ public class FreeMarkerMessageGenerator<T> implements MessageGenerator<T>, HtmlG
 
     @Override
     public String generateMessage(@NotNull String template, @NotNull T notificationMessage) throws MessageGenerationException {
+        log.debug("Generating message from template {}", template);
         String message;
         try {
             // TODO error/failure handling optimize/ non blocking?

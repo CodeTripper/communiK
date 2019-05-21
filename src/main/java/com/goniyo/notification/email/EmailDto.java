@@ -20,17 +20,16 @@ public class EmailDto implements Serializable {
     private Type type = Type.EMAIL;
     private Container body;
     private Container attachment;
-
+    private String templateId;
     @Data
     @NoArgsConstructor
     public static class Container {
         private String message;
-        private String templateId;
-        Map<String, Object> dynamicData = new LinkedHashMap<>();
+        Map<String, Object> data = new LinkedHashMap<>();
 
         @JsonAnySetter
         void setDetail(String key, Object value) {
-            dynamicData.put(key, value);
+            data.put(key, value);
 
         }
     }

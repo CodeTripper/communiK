@@ -27,6 +27,7 @@ public class NotificationMessageDto {
     private LocalDateTime lastUpdated;
     private int attempts;
     private String subject;
+    private String templateId;
     public final Status getStatus() {
         return this.status;
     }

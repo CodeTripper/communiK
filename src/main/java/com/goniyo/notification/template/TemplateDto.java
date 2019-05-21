@@ -6,6 +6,7 @@ import lombok.ToString;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @ToString
@@ -16,9 +17,13 @@ public class TemplateDto implements Serializable {
     private String category;
     private String lob;
     private Type type;
-    private String body;
     private boolean active;
     private LocalDateTime created;
     private LocalDateTime updated;
     private String owner;
+    private String body;
+    private String attachment;
+    private List<String> bcc;
+    private List<String> cc;
+
 }

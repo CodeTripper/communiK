@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono;
 
 public class ProviderAdapter implements ProviderPersistence {
     @Autowired
-    private MongoProviderRepository mongoNotifierRepository;
+    private ProviderMongoRepository mongoNotifierRepository;
     @Autowired
     private ProviderMapper notifierMapper;
 

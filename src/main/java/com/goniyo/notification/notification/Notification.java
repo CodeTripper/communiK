@@ -12,7 +12,7 @@ import java.util.List;
 
 @Component
 @Slf4j
-public class NotificationHandler<T extends NotificationMessage> {
+public class Notification<T extends NotificationMessage> {
     @Autowired
     private NotificationPersistence<T> notificationPersistence;
     // Store // DONE
@@ -27,7 +27,9 @@ public class NotificationHandler<T extends NotificationMessage> {
 
 
     public Mono<NotificationStatusResponse> sendNotification(@NonNull T notificationMessage) {
-        log.info("About to persist notification {}", notificationMessage);
+        log.info("About to persist notification for {}", notificationMessage.getTo());
+        log.debug("About to persist notification for {}", notificationMessage);
+        // TODO how not to save reruns?
         notificationMessage.setStatus(Status.NOTIFICATION_NEW);
         return notificationPersistence.store(notificationMessage)
                 //.timeout(Duration.ofMillis(1800))

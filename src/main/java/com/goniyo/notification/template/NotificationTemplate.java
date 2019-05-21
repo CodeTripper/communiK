@@ -6,21 +6,26 @@ import lombok.ToString;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @ToString
 @Data
-// TODO rename class and have template
-public class Template implements Serializable {
+public class NotificationTemplate implements Serializable {
     private String id;
     private String name;
     private String category;
     private String lob;
     private Type type;
-    private String body;
     private boolean active;
     private LocalDateTime created;
     private LocalDateTime updated;
     private String owner;
+    private String body;
+    private String attachment;
+    private List<String> bcc;
+    private List<String> cc;
+
 
 }
+

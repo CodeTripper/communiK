@@ -52,6 +52,3 @@ dependencyManagement {
 		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
 	}
 }
-clean {
-    delete 'out'     // interpreted relative to the project directory
-}

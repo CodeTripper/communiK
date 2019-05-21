@@ -4,13 +4,13 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface TemplatePersistence {
-    Mono<Template> create(Template template);
+    Mono<NotificationTemplate> create(NotificationTemplate notificationTemplate);
 
-    Mono<Template> update(Template template);
+    Mono<NotificationTemplate> update(NotificationTemplate notificationTemplate);
 
-    Flux<Template> getAll();
+    Flux<NotificationTemplate> getAll();
 
-    Mono<Template> get(String id);
+    Mono<NotificationTemplate> get(String id);
 
     Mono<Void> delete(String id);
 }

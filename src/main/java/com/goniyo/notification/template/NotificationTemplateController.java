@@ -15,7 +15,7 @@ import java.net.URI;
 
 @RestController
 @Slf4j
-public class TemplateController {
+public class NotificationTemplateController {
     @Autowired
     private TemplateService templateService;
     @Autowired
@@ -23,29 +23,29 @@ public class TemplateController {
     private static final String BASE_PATH = "template";
 
     @PostMapping(value = BASE_PATH, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    Publisher<ResponseEntity<Template>> create(@RequestBody TemplateDto templateDto) {
-        log.debug("template controler:{}", templateDto);
-        Template template = templateMapper.templateDtoToTemplate(templateDto);
-        return this.templateService.create(template)
+    Publisher<ResponseEntity<NotificationTemplate>> create(@RequestBody TemplateDto templateDto) {
+        log.debug("notificationTemplate controler:{}", templateDto);
+        NotificationTemplate notificationTemplate = templateMapper.templateDtoToTemplate(templateDto);
+        return this.templateService.create(notificationTemplate)
                 .map(p -> ResponseEntity.created(URI.create(BASE_PATH + "/" + p.getId()))
                         .build());
     }
 
     @GetMapping(value = BASE_PATH + "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    Mono<Template> getTemplate(@NotBlank @PathVariable String id) {
+    Mono<NotificationTemplate> getTemplate(@NotBlank @PathVariable String id) {
         return templateService.get(id);
     }
 
     @GetMapping(value = BASE_PATH + "s", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    Flux<Template> getTemplates() {
+    Flux<NotificationTemplate> getTemplates() {
         return templateService.getAll();
     }
 
     @PutMapping(value = BASE_PATH + "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    Mono<Template> updateTemplate(@NotBlank @PathVariable String id, @RequestBody TemplateDto templateDto) {
+    Mono<NotificationTemplate> updateTemplate(@NotBlank @PathVariable String id, @RequestBody TemplateDto templateDto) {
         templateDto.setId(id);
-        Template template = templateMapper.templateDtoToTemplate(templateDto);
-        return this.templateService.update(template);
+        NotificationTemplate notificationTemplate = templateMapper.templateDtoToTemplate(templateDto);
+        return this.templateService.update(notificationTemplate);
 
     }
 

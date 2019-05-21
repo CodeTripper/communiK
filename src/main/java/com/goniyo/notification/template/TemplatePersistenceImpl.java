@@ -20,9 +20,9 @@ public class TemplatePersistenceImpl implements TemplatePersistence {
 
     @Override
     @HystrixCommand()
-    public Mono<Template> create(Template template) {
-        log.debug("template TemplateServiceImpl:{}", template);
-        TemplateRepoDto templateRepoDto = templateMapper.templateToTemplateRepoDto(template);
+    public Mono<NotificationTemplate> create(NotificationTemplate notificationTemplate) {
+        log.debug("notificationTemplate TemplateServiceImpl:{}", notificationTemplate);
+        TemplateRepoDto templateRepoDto = templateMapper.templateToTemplateRepoDto(notificationTemplate);
         return this.templateRepository
                 .insert(templateRepoDto).map(
                         te ->
@@ -33,9 +33,9 @@ public class TemplatePersistenceImpl implements TemplatePersistence {
 
     @Override
     @HystrixCommand()
-    public Mono<Template> update(Template template) {
-        log.debug("template TemplateServiceImpl:{}", template);
-        TemplateRepoDto templateRepoDto = templateMapper.templateToTemplateRepoDto(template);
+    public Mono<NotificationTemplate> update(NotificationTemplate notificationTemplate) {
+        log.debug("notificationTemplate TemplateServiceImpl:{}", notificationTemplate);
+        TemplateRepoDto templateRepoDto = templateMapper.templateToTemplateRepoDto(notificationTemplate);
         return this.templateRepository
                 .save(templateRepoDto).map(
                         te -> templateMapper.templateRepoDtotoTemplate(te))
@@ -45,14 +45,14 @@ public class TemplatePersistenceImpl implements TemplatePersistence {
 
     @Override
     @HystrixCommand()
-    public Flux<Template> getAll() {
+    public Flux<NotificationTemplate> getAll() {
         return this.templateRepository
                 .findAll().map(te -> templateMapper.templateRepoDtotoTemplate(te));
     }
 
     @Override
     @HystrixCommand()
-    public Mono<Template> get(String id) {
+    public Mono<NotificationTemplate> get(String id) {
         return this.templateRepository
                 .findById(id).map(te -> templateMapper.templateRepoDtotoTemplate(te));
     }

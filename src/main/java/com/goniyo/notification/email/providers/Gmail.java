@@ -4,7 +4,6 @@ import com.goniyo.notification.email.Email;
 import com.goniyo.notification.email.EmailConfiguration;
 import com.goniyo.notification.email.SmtpEmailSender;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Properties;
@@ -12,15 +11,13 @@ import java.util.Properties;
 @Service
 @Slf4j
 public class Gmail extends SmtpEmailSender {
-    @Autowired
-    MailGunConfig mailGunConfig;
     @Override
     protected EmailConfiguration getMailConfiguration() {
         EmailConfiguration emailConfiguration = new EmailConfiguration();
-        emailConfiguration.setHost(mailGunConfig.getHost());
+  /*      emailConfiguration.setHost(mailGunConfig.getHost());
         emailConfiguration.setUsername(mailGunConfig.getUsername());
         emailConfiguration.setPassword(mailGunConfig.getPassword());
-        emailConfiguration.setPort(mailGunConfig.getPort());
+        emailConfiguration.setPort(mailGunConfig.getPort());*/
         return emailConfiguration;
 
     }

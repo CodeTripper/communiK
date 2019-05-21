@@ -2,13 +2,10 @@ package com.goniyo.notification.email;
 
 import com.goniyo.notification.messagegenerator.MessageGenerationException;
 import com.goniyo.notification.messagegenerator.MessageGenerator;
-import com.goniyo.notification.notification.NotificationHandler;
-import com.goniyo.notification.notification.NotificationMessage;
-import com.goniyo.notification.notification.NotificationStatusResponse;
-import com.goniyo.notification.notification.Type;
+import com.goniyo.notification.notification.*;
 import com.goniyo.notification.repository.NotificationPersistence;
 import com.goniyo.notification.repository.mongo.NotificationMessageDto;
-import com.goniyo.notification.template.Template;
+import com.goniyo.notification.template.NotificationTemplate;
 import com.goniyo.notification.template.TemplateService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +19,7 @@ import java.time.LocalDateTime;
 @Slf4j
 class EmailServiceImpl implements EmailService {
     @Autowired
-    private NotificationHandler<Email> notificationHandler;
+    private Notification<Email> notificationHandler;
     @Autowired
     private MessageGenerator messageGenerator;
     @Autowired
@@ -36,12 +33,11 @@ class EmailServiceImpl implements EmailService {
     // TODO add validation here
     public Mono<NotificationStatusResponse> send(EmailDto emailDto) {
         log.debug("Preparing data for Email Notification {}", emailDto);
+        NotificationTemplate template = getTemplate(emailDto.getTemplateId());
+        validate(template);
+
         String message = null;
-        String id = emailDto.getBody().getTemplateId();
-        Template template = getTemplate(id);
         try {
-
-
             message = messageGenerator.generateMessage(template.getBody(), emailDto);
 
         } catch (MessageGenerationException e) {
@@ -66,9 +62,15 @@ class EmailServiceImpl implements EmailService {
 
     }
 
-    private Template getTemplate(String id) {
+    private void validate(NotificationTemplate template) {
+        if (!template.getType().toString().equalsIgnoreCase(Type.EMAIL.toString())) {
+            throw new InvalidRequestException("Notification type and Template mismatch");
+        }
+    }
+
+    private NotificationTemplate getTemplate(String id) {
         // TODO remove block
-        Template template = templateService.get(id).block();
+        NotificationTemplate template = templateService.get(id).block();
         return template;
     }
 

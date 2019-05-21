@@ -15,7 +15,7 @@ public class Email extends NotificationMessage {
     private String subject;
     private String cc;
     private String bcc;
-    private String reply_to;
+    private String reply_to; // TODO
 
 /*    @Builder
     public Email(Type type, String message, String to, String senderIp, Status status, String subject, String attachment,String templateId) {

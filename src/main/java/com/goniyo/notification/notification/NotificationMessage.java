@@ -33,13 +33,12 @@ public class NotificationMessage {
     private LocalDateTime lastUpdated;
     private int attempts;
     private int deadLine;
-
+    private String templateId;
     @Data
     @NoArgsConstructor
     public static class Container {
         private String message;
-        private String templateId;
-        Map<String, Object> dynamicData = new LinkedHashMap<>();
+        Map<String, Object> data = new LinkedHashMap<>();
     }
 
     /*

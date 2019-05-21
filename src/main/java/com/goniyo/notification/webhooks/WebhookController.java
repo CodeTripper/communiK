@@ -1,6 +1,6 @@
 package com.goniyo.notification.webhooks;
 
-import com.goniyo.notification.template.Template;
+import com.goniyo.notification.template.NotificationTemplate;
 import com.goniyo.notification.template.TemplateDto;
 import com.goniyo.notification.template.TemplateMapper;
 import com.goniyo.notification.template.TemplateService;
@@ -28,29 +28,29 @@ public class WebhookController {
     private static final String BASE_PATH = "webhook";
 
     @PostMapping(value = BASE_PATH, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    Publisher<ResponseEntity<Template>> create(@RequestBody TemplateDto templateDto) {
+    Publisher<ResponseEntity<NotificationTemplate>> create(@RequestBody TemplateDto templateDto) {
         log.debug("template controler:{}", templateDto);
-        Template template = templateMapper.templateDtoToTemplate(templateDto);
+        NotificationTemplate template = templateMapper.templateDtoToTemplate(templateDto);
         return this.templateService.create(template)
                 .map(p -> ResponseEntity.created(URI.create(BASE_PATH + "/" + p.getId()))
                         .build());
     }
 
     @GetMapping(value = BASE_PATH + "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    Mono<Template> getTemplate(@NotBlank @PathVariable String id) {
+    Mono<NotificationTemplate> getTemplate(@NotBlank @PathVariable String id) {
         return templateService.get(id);
     }
 
     @GetMapping(value = BASE_PATH + "s", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    Flux<Template> getTemplates() {
+    Flux<NotificationTemplate> getTemplates() {
         return templateService.getAll();
     }
 
     @PutMapping(value = BASE_PATH + "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    Mono<Template> updateTemplate(@NotBlank @PathVariable String id, @RequestBody TemplateDto templateDto) {
+    Mono<NotificationTemplate> updateTemplate(@NotBlank @PathVariable String id, @RequestBody TemplateDto templateDto) {
         templateDto.setId(id);
-        Template template = templateMapper.templateDtoToTemplate(templateDto);
-        return this.templateService.update(template);
+        NotificationTemplate notificationTemplate = templateMapper.templateDtoToTemplate(templateDto);
+        return this.templateService.update(notificationTemplate);
 
     }
 
@@ -60,10 +60,10 @@ public class WebhookController {
     }
 
     @PostMapping(value = BASE_PATH + "/ping", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    Publisher<ResponseEntity<Template>> ping(@RequestBody TemplateDto templateDto) {
-        log.debug("template controler:{}", templateDto);
-        Template template = templateMapper.templateDtoToTemplate(templateDto);
-        return this.templateService.create(template)
+    Publisher<ResponseEntity<NotificationTemplate>> ping(@RequestBody TemplateDto templateDto) {
+        log.debug("notification controler:{}", templateDto);
+        NotificationTemplate notificationTemplate = templateMapper.templateDtoToTemplate(templateDto);
+        return this.templateService.create(notificationTemplate)
                 .map(p -> ResponseEntity.created(URI.create(BASE_PATH + "/" + p.getId()))
                         .build());
     }

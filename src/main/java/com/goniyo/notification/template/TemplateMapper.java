@@ -8,11 +8,11 @@ import org.springframework.stereotype.Component;
 @Component
 public interface TemplateMapper {
 
-    TemplateRepoDto templateToTemplateRepoDto(Template template);
+    TemplateRepoDto templateToTemplateRepoDto(NotificationTemplate notificationTemplate);
 
-    Template templateRepoDtotoTemplate(TemplateRepoDto templateRepoDto);
+    NotificationTemplate templateRepoDtotoTemplate(TemplateRepoDto templateRepoDto);
 
-    TemplateDto templateToTemplateDto(Template template);
+    TemplateDto templateToTemplateDto(NotificationTemplate notificationTemplate);
 
-    Template templateDtoToTemplate(TemplateDto templateDto);
+    NotificationTemplate templateDtoToTemplate(TemplateDto templateDto);
 }
