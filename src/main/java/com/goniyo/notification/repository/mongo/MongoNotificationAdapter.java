@@ -14,20 +14,20 @@ import javax.annotation.PostConstruct;
 
 @Service
 @Slf4j
-public class MongoDbPersistenceHandler implements NotificationPersistence {
+public class MongoNotificationAdapter implements NotificationPersistence {
     @Autowired
-    private MongoRepository mongoRepository;
+    private MongoNotificationRepository mongoNotificationRepository;
     @Autowired
     private NotificationMapper notificationMapper;
 
-    public MongoDbPersistenceHandler(MongoRepository mongoRepository) {
-        this.mongoRepository = mongoRepository;
+    public MongoNotificationAdapter(MongoNotificationRepository mongoNotificationRepository) {
+        this.mongoNotificationRepository = mongoNotificationRepository;
     }
 
     @Override
     public Mono<NotificationStorageResponse> store(NotificationMessage notificationMessage) {
         NotificationMessageDto notificationMessageDto = notificationMapper.mapMessageToDto(notificationMessage);
-        return mongoRepository.insert(notificationMessageDto).
+        return mongoNotificationRepository.insert(notificationMessageDto).
                 map(message -> {
                     NotificationStorageResponse notificationStorageResponse = new NotificationStorageResponse();
                     notificationStorageResponse.setId(message.getId());
@@ -64,7 +64,7 @@ public class MongoDbPersistenceHandler implements NotificationPersistence {
         }
         log.debug("Received for updation to Mongo data {}", notificationMessage);
         NotificationMessageDto notificationMessageDto = notificationMapper.mapMessageToDto(notificationMessage);
-        return mongoRepository.save(notificationMessageDto).
+        return mongoNotificationRepository.save(notificationMessageDto).
                 map(message -> {
                     NotificationStorageResponse notificationStorageResponse = new NotificationStorageResponse();
                     notificationStorageResponse.setId(message.getId());
@@ -82,13 +82,13 @@ public class MongoDbPersistenceHandler implements NotificationPersistence {
     @Override
     public Mono<NotificationMessageDto> status(String id) {
         // TODO add hystrix here
-        return mongoRepository.findById(id);
+        return mongoNotificationRepository.findById(id);
 
     }
 
     @Override
     public Flux<NotificationMessageDto> getAll() {
-        return mongoRepository.findAll();
+        return mongoNotificationRepository.findAll();
     }
 
 }

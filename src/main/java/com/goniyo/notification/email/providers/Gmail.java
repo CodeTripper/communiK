@@ -46,8 +46,4 @@ public class Gmail extends SmtpEmailSender {
     }
 
 
-    @Override
-    public int getTimeout() {
-        return 0;
-    }
 }

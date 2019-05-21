@@ -13,11 +13,6 @@ import reactor.core.publisher.Mono;
 public class GupchupSmsNotifier implements SmsNotifier<Sms> {
 
     @Override
-    public int getTimeout() {
-        return 0;
-    }
-
-    @Override
     public Mono<NotificationStatusResponse> send(Sms sms) throws NotificationFailedException {
         System.out.println("Inside Gupshup Notifier" + sms.toString());
         // ADD web flux webclient to call Gupchup

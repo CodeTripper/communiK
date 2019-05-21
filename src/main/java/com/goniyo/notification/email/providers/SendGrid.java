@@ -17,11 +17,6 @@ public class SendGrid implements EmailNotifier<Email> {
 
 
     @Override
-    public int getTimeout() {
-        return 0;
-    }
-
-    @Override
     public Mono<NotificationStatusResponse> send(Email notificationMessage) throws NotificationFailedException {
         return null;
     }

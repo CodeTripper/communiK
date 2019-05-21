@@ -18,8 +18,8 @@ public class NotificationHandler<T extends NotificationMessage> {
     // Store // DONE
     // Add Timeout for DB // DONE
     // Transform message // DONE
-    // Call primary notifier // DONE
-    // Add Timeout for primary notifier // DONE
+    // Call primary provider // DONE
+    // Add Timeout for primary provider // DONE
     // Update DB or Error Or Failure on a separate Threadpool // TODO
     // Call Fallback Notifier // TODO
     // Update DB or Error Or Failure on a separate Threadpool

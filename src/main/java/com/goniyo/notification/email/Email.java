@@ -13,6 +13,9 @@ import lombok.extern.slf4j.Slf4j;
 @ToString(callSuper = true)
 public class Email extends NotificationMessage {
     private String subject;
+    private String cc;
+    private String bcc;
+    private String reply_to;
 
 /*    @Builder
     public Email(Type type, String message, String to, String senderIp, Status status, String subject, String attachment,String templateId) {

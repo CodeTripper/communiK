@@ -10,10 +10,6 @@ import reactor.core.publisher.Mono;
 
 @Service("OTP")
 public class TwoFactorSmsNotifier implements SmsNotifier<Sms> {
-    @Override
-    public int getTimeout() {
-        return 0;
-    }
 
     @Override
     @HystrixCommand(fallbackMethod = "fallback")
