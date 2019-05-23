@@ -10,7 +10,7 @@ public class NotificationNotFoundException extends RuntimeException {
         super(s);
     }
 
-    public NotificationNotFoundException(String s, RuntimeException e) {
+    public NotificationNotFoundException(String s, Throwable e) {
         // Call constructor of parent Exception
         super(s, e);
     }

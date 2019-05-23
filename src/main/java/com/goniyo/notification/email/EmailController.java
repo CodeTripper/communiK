@@ -4,6 +4,7 @@ package com.goniyo.notification.email;
 import com.goniyo.notification.notification.NotificationStatusResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.CacheControl;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -15,6 +16,8 @@ import javax.validation.Valid;
 @RestController
 @Slf4j
 public class EmailController {
+    CacheControl ccNoStore = CacheControl.noStore();
+
     @Autowired
     private EmailService emailService;
 

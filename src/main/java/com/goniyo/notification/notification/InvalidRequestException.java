@@ -5,7 +5,7 @@ public class InvalidRequestException extends RuntimeException {
         super(s);
     }
 
-    public InvalidRequestException(String s, Exception e) {
+    public InvalidRequestException(String s, Throwable e) {
         super(s, e);
     }
 

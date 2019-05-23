@@ -1,6 +1,10 @@
 package com.goniyo.notification.messagegenerator;
 
 
+import reactor.core.publisher.Mono;
+
 public interface MessageGenerator<T> {
-    String generateMessage(String template, T notificationMessage) throws MessageGenerationException;
+    Mono<String> generateMessage(String template, T notificationMessage) throws MessageGenerationException;
+
+    String generateBlockingMessage(String template, T notificationMessage) throws MessageGenerationException;
 }

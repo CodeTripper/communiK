@@ -6,7 +6,7 @@ public class NotificationFailedException extends RuntimeException {
         super(s);
     }
 
-    public NotificationFailedException(String s, Exception e) {
+    public NotificationFailedException(String s, Throwable e) {
         // Call constructor of parent Exception
         super(s, e);
     }

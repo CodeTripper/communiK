@@ -1,6 +1,5 @@
 package com.goniyo.notification.sms;
 
-import com.goniyo.notification.messagegenerator.MessageGenerationException;
 import com.goniyo.notification.messagegenerator.MessageGenerator;
 import com.goniyo.notification.notification.*;
 import com.goniyo.notification.template.NotificationTemplate;
@@ -28,6 +27,7 @@ class SmsServiceImpl implements SmsService {
     SmsNotifier<Sms> optNotifier;
     @Autowired
     private SmsMapper smsMapper;
+
     // add validation here
     public Mono<NotificationStatusResponse> sendSms(SmsDto smsDto) {
         log.debug("About to send Sms");
@@ -42,37 +42,43 @@ class SmsServiceImpl implements SmsService {
 
     }
 
-    private Mono<NotificationStatusResponse> send(SmsDto smsDto, SmsNotifier<Sms> optNotifier) {
-        NotificationTemplate template = getTemplate(smsDto.getTemplateId());
-        validate(template);
-        String message = null;
-        try {
-            message = messageGenerator.generateMessage(template.getBody(), smsDto);
+    private Mono<NotificationStatusResponse> send(SmsDto smsDto, SmsNotifier<Sms> notifier) {
+        // TODO CACHE
+        // validate all data present in SMS dto?
+        return templateService.get(smsDto.getTemplateId()).
+                single().
+                map(template -> validateTemplate(template)).
+                onErrorMap(original -> new InvalidRequestException("Invalid Request", original)).
+                map(m -> getSms(smsDto, notifier)).
+                flatMap(r -> notificationHandler.sendNotification(r)).doOnError(err -> log.error("Error while sending SMS"));
+    }
 
-        } catch (MessageGenerationException e) {
-            e.printStackTrace();
-        }
-
+    private Sms getSms(SmsDto smsDto, SmsNotifier<Sms> notifier) {
         Sms sms = smsMapper.smsDtoToSms(smsDto);
         NotificationMessage.Notifiers notifiers = new NotificationMessage.Notifiers();
-        notifiers.setPrimary(smsNotifier); // TODO otp vs normal
+        notifiers.setPrimary(notifier);
         //notifiers.setBackup();
         sms.setNotifiers(notifiers);
         NotificationMessage.Meta meta = new NotificationMessage.Meta();
         // get IP
         meta.setSenderIp(null);
         meta.setType(Type.SMS);
-        meta.setCategory(template.getCategory());
-        meta.setLob(template.getLob());
+        // meta.setCategory(template.getCategory());
+        //meta.setLob(template.getLob());
         meta.setCreated(LocalDateTime.now());
         sms.setMeta(meta);
-        return notificationHandler.sendNotification(sms);
+        return sms;
     }
 
-    private void validate(NotificationTemplate template) {
+    private Mono<Boolean> validateTemplate(NotificationTemplate template) {
+        log.debug("validating {}", template);
+        if (template == null) {
+            throw new InvalidRequestException("Template not found");
+        }
         if (!template.getType().toString().equalsIgnoreCase(Type.SMS.toString())) {
             throw new InvalidRequestException("Notification type and Template mismatch");
         }
+        return Mono.empty();
     }
 
     @Override
@@ -81,9 +87,18 @@ class SmsServiceImpl implements SmsService {
         return null;
     }
 
-    private NotificationTemplate getTemplate(String id) {
-        // TODO remove block
-        NotificationTemplate template = templateService.get(id).block();
+    // TODO Cacheable Use CacheMono
+    private Mono<NotificationTemplate> getTemplate(String id) {
+        Mono<NotificationTemplate> template = templateService.get(id);
         return template;
     }
+
+    //  //String message = "THERE IS A MAN";
+    //        /*try {
+    //            message = messageGenerator.generateMessage(template.getBody(), smsDto);
+    //
+    //        } catch (MessageGenerationException e) {
+    //            e.printStackTrace();
+    //        }*/
+
 }

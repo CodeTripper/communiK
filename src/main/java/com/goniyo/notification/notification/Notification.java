@@ -29,7 +29,8 @@ public class Notification<T extends NotificationMessage> {
     public Mono<NotificationStatusResponse> sendNotification(@NonNull T notificationMessage) {
         log.info("About to persist notification for {}", notificationMessage.getTo());
         log.debug("About to persist notification for {}", notificationMessage);
-        // TODO how not to save reruns?
+        // TODO how not to save reruns? Use existing id to bypass
+        // Schedulers.parallel()
         notificationMessage.setStatus(Status.NOTIFICATION_NEW);
         return notificationPersistence.store(notificationMessage)
                 //.timeout(Duration.ofMillis(1800))
@@ -39,7 +40,7 @@ public class Notification<T extends NotificationMessage> {
                     return notificationMessage;
                 })
                 .flatMap(message -> message.getNotifiers().getPrimary().send(message))
-                .flatMap(status -> update(notificationMessage))
+                .flatMap(status -> update(notificationMessage)) // publish on use an executor service .subscribeOn(Schedulers.elastic())
                 .flatMap(status -> getStatus((NotificationStorageResponse) status))
                 // .timeout(Duration.ofMillis(4800))
                 .onErrorResume(message -> notificationMessage.getNotifiers().getPrimary().send(notificationMessage))
@@ -47,7 +48,7 @@ public class Notification<T extends NotificationMessage> {
 
     }
 
-    private Object getStatus(NotificationStorageResponse status) {
+    private Mono<NotificationStatusResponse> getStatus(NotificationStorageResponse status) {
         NotificationStatusResponse notificationStatusResponse = new NotificationStatusResponse();
         NotificationStorageResponse updateStatus = status;
         notificationStatusResponse.setRequestId(updateStatus.getId());

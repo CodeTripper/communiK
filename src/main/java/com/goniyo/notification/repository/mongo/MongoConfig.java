@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.mongodb.config.AbstractReactiveMongoConfiguration;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 
-//@Configuration
+// @Configuration FIXME adding threads
 //@EnableReactiveMongoRepositories(basePackages = "com.goniyo.notification.repository.mongo")
 public class MongoConfig extends AbstractReactiveMongoConfiguration {
     @Value("${port}")

@@ -37,7 +37,7 @@ public class TemplateServiceImpl implements TemplateService {
     }
 
     @Override
-    // TODO check active
+    // TODO cache
     public Mono<NotificationTemplate> get(String id) {
         log.debug("Getting template for id {}", id);
         return templatePersistence.get(id);

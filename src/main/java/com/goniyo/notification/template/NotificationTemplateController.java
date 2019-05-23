@@ -11,6 +11,7 @@ import reactor.core.publisher.Mono;
 
 import javax.validation.constraints.NotBlank;
 import java.net.URI;
+import java.util.Arrays;
 
 
 @RestController
@@ -39,6 +40,11 @@ public class NotificationTemplateController {
     @GetMapping(value = BASE_PATH + "s", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     Flux<NotificationTemplate> getTemplates() {
         return templateService.getAll();
+    }
+
+    @GetMapping(value = BASE_PATH + "/test", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    Flux<String> getTest() {
+        return Flux.fromIterable(Arrays.asList("foo", "bar"));
     }
 
     @PutMapping(value = BASE_PATH + "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
