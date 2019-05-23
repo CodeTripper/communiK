@@ -40,9 +40,11 @@ public class Notification<T extends NotificationMessage> {
                     return notificationMessage;
                 })
                 .flatMap(message -> message.getNotifiers().getPrimary().send(message))
+                // to be put down in the chain
                 .flatMap(status -> update(notificationMessage)) // publish on use an executor service .subscribeOn(Schedulers.elastic())
                 .flatMap(status -> getStatus((NotificationStorageResponse) status))
                 // .timeout(Duration.ofMillis(4800))
+                // create a new request Id
                 .onErrorResume(message -> notificationMessage.getNotifiers().getPrimary().send(notificationMessage))
                 .onErrorReturn(getFailure(notificationMessage));
 

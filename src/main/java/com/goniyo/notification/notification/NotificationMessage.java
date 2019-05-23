@@ -23,7 +23,8 @@ import java.util.Map;
 public class NotificationMessage {
     private String id; // from DB
     private @NotNull String to;
-    private @NotNull NotificationMessage.Container body;
+    private String bodyTobeSent;
+    private @NotNull Container body;
     private Container attachment;
     private Meta meta;
     private Status status;
@@ -65,6 +66,8 @@ public class NotificationMessage {
     @Data
     public static class Action {
         private Notifier notifier;
+        private String requestId;
+        private String responseId;
         private @NotNull LocalDateTime started;
         private @NotNull LocalDateTime ended;
         private @NotNull LocalDateTime callbackAt;

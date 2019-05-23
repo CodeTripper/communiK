@@ -1,4 +1,4 @@
-package com.goniyo.notification.sms.providers.smsgupshup;
+package com.goniyo.notification.sms.providers.gupshup;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.goniyo.notification.notification.NotificationStatusResponse;
@@ -33,14 +33,18 @@ public class GupchupSmsNotifier implements SmsNotifier<Sms> {
     public Mono<NotificationStatusResponse> send(Sms sms) {
         Mono<NotificationStatusResponse> response = null;
         Provider provider = providerService.getProvider(providerId);
+        GupchupRequest gupchupRequest = new GupchupRequest();
+        gupchupRequest.setBody(sms.getBodyTobeSent());
+        gupchupRequest.setTo(sms.getTo());
+        // gupchupRequest.setRequestId(sms.get); from where?
         if (provider.getType().equalsIgnoreCase(Type.SMS.toString())) {
-            log.debug("Sending sms via provider: {}", provider);
+            log.debug("Sending sms via provider: {} with data {}", provider, sms);
             try {
                 WebClient client = WebClient.create(provider.getEndpoints().getBase());
                 response = client.post()
                         .uri(provider.getEndpoints().getSendUri())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body(BodyInserters.fromObject(sms)).retrieve().bodyToMono(GupchupResponse.class).map(gupchupResponse -> {
+                        .body(BodyInserters.fromObject(gupchupRequest)).retrieve().bodyToMono(GupchupResponse.class).map(gupchupResponse -> {
                             NotificationStatusResponse notificationStatusResponse = new NotificationStatusResponse();
                             notificationStatusResponse.setStatus(gupchupResponse.isStatus());
                             notificationStatusResponse.setResponseReceivedAt(LocalDateTime.now());
@@ -66,6 +70,15 @@ public class GupchupSmsNotifier implements SmsNotifier<Sms> {
     @Data
     public static class GupchupResponse {
         private boolean status;
+        private String responseId;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    @Data
+    public static class GupchupRequest {
+        private String to;
+        private String body;
+        private String requestId;
     }
 
 

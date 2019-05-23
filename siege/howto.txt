@@ -1,2 +1,0 @@
-# should have 31 threads
-siege -lbenchmark.log -m "after stubbing out io call " -c 20 -r 10 -T "application/json" -f siege/urls.txt

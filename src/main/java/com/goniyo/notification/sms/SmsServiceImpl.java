@@ -1,5 +1,6 @@
 package com.goniyo.notification.sms;
 
+import com.goniyo.notification.messagegenerator.MessageGenerationException;
 import com.goniyo.notification.messagegenerator.MessageGenerator;
 import com.goniyo.notification.notification.*;
 import com.goniyo.notification.template.NotificationTemplate;
@@ -49,12 +50,15 @@ class SmsServiceImpl implements SmsService {
                 single().
                 map(template -> validateTemplate(template)).
                 onErrorMap(original -> new InvalidRequestException("Invalid Request", original)).
-                map(m -> getSms(smsDto, notifier)).
-                flatMap(r -> notificationHandler.sendNotification(r)).doOnError(err -> log.error("Error while sending SMS"));
+                map(t -> generateMessage(t, smsDto)).
+                map(message -> getSms(smsDto, notifier, message)).
+                flatMap(sms -> notificationHandler.sendNotification(sms)).
+                doOnError(err -> log.error("Error while sending SMS"));
     }
 
-    private Sms getSms(SmsDto smsDto, SmsNotifier<Sms> notifier) {
+    private Sms getSms(SmsDto smsDto, SmsNotifier<Sms> notifier, String body) {
         Sms sms = smsMapper.smsDtoToSms(smsDto);
+        sms.setBodyTobeSent(body);
         NotificationMessage.Notifiers notifiers = new NotificationMessage.Notifiers();
         notifiers.setPrimary(notifier);
         //notifiers.setBackup();
@@ -70,7 +74,7 @@ class SmsServiceImpl implements SmsService {
         return sms;
     }
 
-    private Mono<Boolean> validateTemplate(NotificationTemplate template) {
+    private NotificationTemplate validateTemplate(NotificationTemplate template) {
         log.debug("validating {}", template);
         if (template == null) {
             throw new InvalidRequestException("Template not found");
@@ -78,7 +82,7 @@ class SmsServiceImpl implements SmsService {
         if (!template.getType().toString().equalsIgnoreCase(Type.SMS.toString())) {
             throw new InvalidRequestException("Notification type and Template mismatch");
         }
-        return Mono.empty();
+        return template;
     }
 
     @Override
@@ -87,10 +91,20 @@ class SmsServiceImpl implements SmsService {
         return null;
     }
 
-    // TODO Cacheable Use CacheMono
-    private Mono<NotificationTemplate> getTemplate(String id) {
-        Mono<NotificationTemplate> template = templateService.get(id);
-        return template;
+    private String generateMessage(NotificationTemplate template, SmsDto smsDto) {
+        String message = "";
+        try {
+            if (smsDto.getTemplateId().isEmpty()) {
+                message = smsDto.getBody().getMessage();
+            } else {
+                message = messageGenerator.generateBlockingMessage(template.getBody(), smsDto);
+            }
+        } catch (MessageGenerationException e) {
+            e.printStackTrace();
+        }
+        log.debug("generated message {}", message);
+        return message;
+
     }
 
     //  //String message = "THERE IS A MAN";

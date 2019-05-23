@@ -25,6 +25,7 @@ public class NotificationTemplate implements Serializable {
     private String attachment;
     private List<String> bcc;
     private List<String> cc;
+    private String replyTo;
 
 
 }

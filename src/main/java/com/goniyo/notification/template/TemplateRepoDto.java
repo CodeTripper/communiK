@@ -23,5 +23,6 @@ public class TemplateRepoDto {
     private String attachment;
     private List<String> bcc;
     private List<String> cc;
+    private String replyTo;
 
 }
