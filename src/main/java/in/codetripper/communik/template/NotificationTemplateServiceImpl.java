@@ -13,9 +13,9 @@ import java.time.LocalDateTime;
  */
 @Service
 @Slf4j
-public class TemplateServiceImpl implements TemplateService {
+public class NotificationTemplateServiceImpl implements NotificationTemplateService {
     @Autowired
-    private TemplatePersistence templatePersistence;
+    private NotificationTemplatePersistence templatePersistence;
 
     // TODO add validation
     @Override

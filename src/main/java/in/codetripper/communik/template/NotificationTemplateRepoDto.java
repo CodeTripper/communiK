@@ -9,7 +9,7 @@ import java.util.List;
 
 @Document(collection = "NotificationTemplate")
 @Data
-public class TemplateRepoDto {
+public class NotificationTemplateRepoDto {
     private String id;
     private String name;
     private String category;

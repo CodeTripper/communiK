@@ -3,26 +3,23 @@ package in.codetripper.communik.template;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
 @Slf4j
-public class TemplatePersistenceImpl implements TemplatePersistence {
+public class NotificationTemplatePersistenceImpl implements NotificationTemplatePersistence {
     @Autowired
-    private ApplicationEventPublisher publisher;
+    private NotificationTemplateRepository templateRepository;
     @Autowired
-    private TemplateRepository templateRepository;
-    @Autowired
-    private TemplateMapper templateMapper;
+    private NotificationTemplateMapper templateMapper;
 
     @Override
     @HystrixCommand()
     public Mono<NotificationTemplate> create(NotificationTemplate notificationTemplate) {
-        log.debug("notificationTemplate TemplateServiceImpl:{}", notificationTemplate);
-        TemplateRepoDto templateRepoDto = templateMapper.templateToTemplateRepoDto(notificationTemplate);
+        log.debug("notificationTemplate NotificationTemplateServiceImpl:{}", notificationTemplate);
+        NotificationTemplateRepoDto templateRepoDto = templateMapper.templateToTemplateRepoDto(notificationTemplate);
         return this.templateRepository
                 .insert(templateRepoDto).map(
                         te ->
@@ -34,8 +31,8 @@ public class TemplatePersistenceImpl implements TemplatePersistence {
     @Override
     @HystrixCommand()
     public Mono<NotificationTemplate> update(NotificationTemplate notificationTemplate) {
-        log.debug("notificationTemplate TemplateServiceImpl:{}", notificationTemplate);
-        TemplateRepoDto templateRepoDto = templateMapper.templateToTemplateRepoDto(notificationTemplate);
+        log.debug("notificationTemplate NotificationTemplateServiceImpl:{}", notificationTemplate);
+        NotificationTemplateRepoDto templateRepoDto = templateMapper.templateToTemplateRepoDto(notificationTemplate);
         return this.templateRepository
                 .save(templateRepoDto).map(
                         te -> templateMapper.templateRepoDtotoTemplate(te))

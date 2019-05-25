@@ -4,14 +4,15 @@ It's a Store And Forward API built with Springboot/Reactor and MongoDb to send o
 
 ## Features: 
     
-    1. Send emails/sms/chats by calling a rest endpoint
-    2. Stores the notifications to a DB (mongodb) before sending it
-    3. Register a notification template and pass dynamic data to it via Freemarker
-    4. One can send email attachments (html/pdf) which can be build on the fly
-    5. Retry the failed notifications via multiple fallback providers
-    6. Call webhooks on any failure/success 
-    7. Audit the notifications.
-    8. Everything is injected, so one can change any part of the system as required
+    * Send emails/sms/chats by calling a rest endpoint
+    * Add any number of Email/SMS providers by implementing the Notifier Interface
+    * Stores the notifications to a DB (mongodb) before sending it
+    * Register a notification template and pass dynamic data to it via Freemarker
+    * One can send email attachments (html/pdf) which can be build on the fly
+    * Retry the failed notifications via multiple fallback providers
+    * Call webhooks on any failure/success 
+    * Audit the notifications.
+    * Everything is injected, so one can change any part of the system as required
 
 ## Getting Started
 
@@ -61,6 +62,8 @@ TODO docker
 * [Lombok](https://rometools.github.io/rome/) -
 * [Freemarker](https://rometools.github.io/rome/) -
 * [Seige](https://rometools.github.io/rome/) - To run benchmark
+* [www.ascii-art-generator.org](https://www.ascii-art-generator.org/) - To create the banner
+
 
 
 ## Contributing

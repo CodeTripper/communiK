@@ -6,7 +6,7 @@ import in.codetripper.communik.notification.*;
 import in.codetripper.communik.repository.NotificationPersistence;
 import in.codetripper.communik.repository.mongo.NotificationMessageDto;
 import in.codetripper.communik.template.NotificationTemplate;
-import in.codetripper.communik.template.TemplateService;
+import in.codetripper.communik.template.NotificationTemplateService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -29,7 +29,7 @@ class EmailServiceImpl implements EmailService {
     @Autowired
     private EmailMapper emailMapper;
     @Autowired
-    private TemplateService templateService;
+    private NotificationTemplateService templateService;
     // TODO add validation here
     public Mono<NotificationStatusResponse> send(EmailDto emailDto) {
         log.debug("Preparing data for Email Notification {}", emailDto);

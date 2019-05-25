@@ -1,9 +1,9 @@
 package in.codetripper.communik.webhooks;
 
 import in.codetripper.communik.template.NotificationTemplate;
-import in.codetripper.communik.template.TemplateDto;
-import in.codetripper.communik.template.TemplateMapper;
-import in.codetripper.communik.template.TemplateService;
+import in.codetripper.communik.template.NotificationTemplateDto;
+import in.codetripper.communik.template.NotificationTemplateMapper;
+import in.codetripper.communik.template.NotificationTemplateService;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,14 +21,14 @@ import java.net.URI;
 @Slf4j
 public class WebhookController {
     @Autowired
-    private TemplateService templateService;
+    private NotificationTemplateService templateService;
     private final MediaType mediaType = MediaType.APPLICATION_JSON_UTF8;
     @Autowired
-    private TemplateMapper templateMapper;
+    private NotificationTemplateMapper templateMapper;
     private static final String BASE_PATH = "webhook";
 
     @PostMapping(value = BASE_PATH, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    Publisher<ResponseEntity<NotificationTemplate>> create(@RequestBody TemplateDto templateDto) {
+    Publisher<ResponseEntity<NotificationTemplate>> create(@RequestBody NotificationTemplateDto templateDto) {
         log.debug("template controler:{}", templateDto);
         NotificationTemplate template = templateMapper.templateDtoToTemplate(templateDto);
         return this.templateService.create(template)
@@ -47,7 +47,7 @@ public class WebhookController {
     }
 
     @PutMapping(value = BASE_PATH + "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    Mono<NotificationTemplate> updateTemplate(@NotBlank @PathVariable String id, @RequestBody TemplateDto templateDto) {
+    Mono<NotificationTemplate> updateTemplate(@NotBlank @PathVariable String id, @RequestBody NotificationTemplateDto templateDto) {
         templateDto.setId(id);
         NotificationTemplate notificationTemplate = templateMapper.templateDtoToTemplate(templateDto);
         return this.templateService.update(notificationTemplate);
@@ -60,7 +60,7 @@ public class WebhookController {
     }
 
     @PostMapping(value = BASE_PATH + "/ping", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    Publisher<ResponseEntity<NotificationTemplate>> ping(@RequestBody TemplateDto templateDto) {
+    Publisher<ResponseEntity<NotificationTemplate>> ping(@RequestBody NotificationTemplateDto templateDto) {
         log.debug("notification controler:{}", templateDto);
         NotificationTemplate notificationTemplate = templateMapper.templateDtoToTemplate(templateDto);
         return this.templateService.create(notificationTemplate)

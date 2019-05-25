@@ -4,7 +4,7 @@ import in.codetripper.communik.messagegenerator.MessageGenerationException;
 import in.codetripper.communik.messagegenerator.MessageGenerator;
 import in.codetripper.communik.notification.*;
 import in.codetripper.communik.template.NotificationTemplate;
-import in.codetripper.communik.template.TemplateService;
+import in.codetripper.communik.template.NotificationTemplateService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @Component
 class SmsServiceImpl implements SmsService {
     @Autowired
-    private TemplateService templateService;
+    private NotificationTemplateService templateService;
     @Autowired
     Notification<Sms> notificationHandler;
     @Autowired

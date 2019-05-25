@@ -3,7 +3,7 @@ package in.codetripper.communik.template;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public interface TemplatePersistence {
+public interface NotificationTemplateService {
     Mono<NotificationTemplate> create(NotificationTemplate notificationTemplate);
 
     Mono<NotificationTemplate> update(NotificationTemplate notificationTemplate);

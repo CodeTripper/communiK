@@ -18,13 +18,13 @@ import java.util.Arrays;
 @Slf4j
 public class NotificationTemplateController {
     @Autowired
-    private TemplateService templateService;
+    private NotificationTemplateService templateService;
     @Autowired
-    private TemplateMapper templateMapper;
+    private NotificationTemplateMapper templateMapper;
     private static final String BASE_PATH = "template";
 
     @PostMapping(value = BASE_PATH, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    Publisher<ResponseEntity<NotificationTemplate>> create(@RequestBody TemplateDto templateDto) {
+    Publisher<ResponseEntity<NotificationTemplate>> create(@RequestBody NotificationTemplateDto templateDto) {
         log.debug("notificationTemplate controler:{}", templateDto);
         NotificationTemplate notificationTemplate = templateMapper.templateDtoToTemplate(templateDto);
         return this.templateService.create(notificationTemplate)
@@ -48,7 +48,7 @@ public class NotificationTemplateController {
     }
 
     @PutMapping(value = BASE_PATH + "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    Mono<NotificationTemplate> updateTemplate(@NotBlank @PathVariable String id, @RequestBody TemplateDto templateDto) {
+    Mono<NotificationTemplate> updateTemplate(@NotBlank @PathVariable String id, @RequestBody NotificationTemplateDto templateDto) {
         templateDto.setId(id);
         NotificationTemplate notificationTemplate = templateMapper.templateDtoToTemplate(templateDto);
         return this.templateService.update(notificationTemplate);

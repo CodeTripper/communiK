@@ -11,7 +11,7 @@ import java.util.List;
 
 @ToString
 @Data
-public class TemplateDto implements Serializable {
+public class NotificationTemplateDto implements Serializable {
     private String id;
     private String name;
     private String category;
