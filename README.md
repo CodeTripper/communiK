@@ -9,15 +9,17 @@ It's a Store And Forward API built with Springboot/Reactor and MongoDb to send o
     3. Register a notification template and pass dynamic data to it via Freemarker
     4. One can send email attachments (html/pdf) which can be build on the fly
     5. Retry the failed notifications via multiple fallback providers
-    6. Audit the notifications.
+    6. Call webhooks on any failure/success 
+    7. Audit the notifications.
+    8. Everything is injected, so one can change any part of the system as required
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+Run the springboot application Communik
 
 ### Prerequisites
 
-What things you need to install the software and how to install them
+A mongoDb cluster
 
 ```
 Give examples
@@ -45,25 +47,9 @@ End with an example of getting some data out of the system or using it for a lit
 
 Explain how to run the automated tests for this system
 
-### Break down into end to end tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-### And coding style tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
 ## Deployment
 
-Add additional notes about how to deploy this on a live system
+TODO docker
 
 ## Built With
 
@@ -74,6 +60,8 @@ Add additional notes about how to deploy this on a live system
 * [FlyingSaucer](https://rometools.github.io/rome/) - To generate pdf attachments
 * [Lombok](https://rometools.github.io/rome/) -
 * [Freemarker](https://rometools.github.io/rome/) -
+* [Seige](https://rometools.github.io/rome/) - To run benchmark
+
 
 ## Contributing
 
@@ -110,8 +98,8 @@ Application Config
 Running
 1. Use siege - details in seige/howto.txt
 2. JConsole to view threads and Heap
-3. Run with 200 concurrent requests and repeat 10 times
-4.
+3. Run with 20 concurrent requests and repeat 10 times
+
 
 Results:
     1. Transactions - 200
