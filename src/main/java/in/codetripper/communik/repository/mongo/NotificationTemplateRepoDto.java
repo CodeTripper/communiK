@@ -1,4 +1,4 @@
-package in.codetripper.communik.template;
+package in.codetripper.communik.repository.mongo;
 
 import in.codetripper.communik.notification.Type;
 import lombok.Data;

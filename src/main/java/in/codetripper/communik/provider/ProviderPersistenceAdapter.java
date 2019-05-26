@@ -1,5 +1,6 @@
 package in.codetripper.communik.provider;
 
+import in.codetripper.communik.repository.mongo.ProviderRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,9 +10,9 @@ import reactor.core.publisher.Mono;
 @Service
 @Slf4j
 
-public class ProviderAdapter implements ProviderPersistence {
+public class ProviderPersistenceAdapter implements ProviderPersistence {
     @Autowired
-    private ProviderMongoRepository mongoNotifierRepository;
+    private ProviderRepository mongoNotifierRepository;
     @Autowired
     private ProviderMapper notifierMapper;
 

@@ -20,7 +20,7 @@ public class ProviderService {
     private void init() {
         providerMap = new HashMap<>();
         log.info("ProviderService initialization logic ...");
-        getAllProviders().doOnNext(item -> providerMap.put(item.getId(), item)).doOnError(error -> log.error("Error while initializing providers {}", error)).subscribe();
+        getAllProviders().filter(item -> item.isActive()).doOnNext(item -> providerMap.put(item.getId(), item)).doOnError(error -> log.error("Error while initializing providers {}", error)).subscribe();
     }
 
     public Provider getProvider(String id) {

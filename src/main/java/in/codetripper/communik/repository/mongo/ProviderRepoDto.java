@@ -1,4 +1,4 @@
-package in.codetripper.communik.provider;
+package in.codetripper.communik.repository.mongo;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,7 +10,7 @@ import java.util.List;
 
 @Data
 @Document(collection = "Providers")
-public class ProviderDto {
+public class ProviderRepoDto {
     private @Id
     String id;
     private String name;

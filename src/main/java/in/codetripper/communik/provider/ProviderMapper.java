@@ -1,13 +1,14 @@
 package in.codetripper.communik.provider;
 
+import in.codetripper.communik.repository.mongo.ProviderRepoDto;
 import org.mapstruct.Mapper;
 import org.springframework.stereotype.Component;
 
 @Mapper(componentModel = "spring")
 @Component
 public interface ProviderMapper {
-    Provider mapDtoToNotifier(ProviderDto notifierDto);
+    Provider mapDtoToNotifier(ProviderRepoDto notifierDto);
 
-    ProviderDto mapNotifierToDto(Provider provider);
+    ProviderRepoDto mapNotifierToDto(Provider provider);
 
 }

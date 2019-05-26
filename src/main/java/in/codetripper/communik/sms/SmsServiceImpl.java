@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 @Slf4j
 @Component
 class SmsServiceImpl implements SmsService {
+    private Type notificationType = Type.SMS;
     @Autowired
     private NotificationTemplateService templateService;
     @Autowired
@@ -48,11 +49,11 @@ class SmsServiceImpl implements SmsService {
         // validate all data present in SMS dto?
         return templateService.get(smsDto.getTemplateId()).
                 single().
-                map(template -> validateTemplate(template)).
+                map(this::validateTemplate).
                 onErrorMap(original -> new InvalidRequestException("Invalid Request", original)).
                 map(t -> generateMessage(t, smsDto)).
                 map(message -> getSms(smsDto, notifier, message)).
-                flatMap(sms -> notificationHandler.sendNotification(sms)).
+                flatMap(notificationHandler::sendNotification).
                 doOnError(err -> log.error("Error while sending SMS"));
     }
 
@@ -66,7 +67,7 @@ class SmsServiceImpl implements SmsService {
         NotificationMessage.Meta meta = new NotificationMessage.Meta();
         // get IP
         meta.setSenderIp(null);
-        meta.setType(Type.SMS);
+        meta.setType(notificationType);
         // meta.setCategory(template.getCategory());
         //meta.setLob(template.getLob());
         meta.setCreated(LocalDateTime.now());
@@ -79,7 +80,7 @@ class SmsServiceImpl implements SmsService {
         if (template == null) {
             throw new InvalidRequestException("Template not found");
         }
-        if (!template.getType().toString().equalsIgnoreCase(Type.SMS.toString())) {
+        if (!template.getType().equals(notificationType)) {
             throw new InvalidRequestException("Notification type and Template mismatch");
         }
         return template;

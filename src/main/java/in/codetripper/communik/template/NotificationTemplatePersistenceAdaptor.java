@@ -1,6 +1,8 @@
 package in.codetripper.communik.template;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import in.codetripper.communik.repository.mongo.NotificationTemplateRepoDto;
+import in.codetripper.communik.repository.mongo.NotificationTemplateRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,7 +11,7 @@ import reactor.core.publisher.Mono;
 
 @Service
 @Slf4j
-public class NotificationTemplatePersistenceImpl implements NotificationTemplatePersistence {
+public class NotificationTemplatePersistenceAdaptor implements NotificationTemplatePersistence {
     @Autowired
     private NotificationTemplateRepository templateRepository;
     @Autowired

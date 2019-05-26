@@ -12,7 +12,7 @@ import java.util.List;
 
 @Data
 @Document(collection = "Notifications")
-public class NotificationMessageDto {
+public class NotificationMessageRepoDto {
 
     private @Id
     String id;

@@ -8,10 +8,10 @@ import org.springframework.data.mongodb.core.mapping.event.LoggingEventListener;
 @SpringBootApplication
 //ComponentScan("in.codetripper.notification.repository.mongo")
 @EnableCaching
-public class Communik {
+public class CommuniK {
 
     public static void main(String[] args) {
-        SpringApplication.run(Communik.class, args);
+        SpringApplication.run(CommuniK.class, args);
     }
 
     //@Bean

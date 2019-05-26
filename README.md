@@ -6,6 +6,8 @@ It's a Store And Forward API built with Springboot/Reactor and MongoDb to send o
     
     * Send emails/sms/chats by calling a rest endpoint
     * Add any number of Email/SMS providers by implementing the Notifier Interface
+    * Configure blackouts - WIP
+    * Send bulk notifications - WIP
     * Stores the notifications to a DB (mongodb) before sending it
     * Register a notification template and pass dynamic data to it via Freemarker
     * One can send email attachments (html/pdf) which can be build on the fly
@@ -26,27 +28,27 @@ A mongoDb cluster
 Give examples
 ```
 
-### Installing
+### Running
 
-A step by step series of examples that tell you how to get a development env running
-
-Say what the step will be
+Go to the root of the project directory build and test the projects 
 
 ```
-Give the example
+$ ./gradlew 
 ```
 
-And repeat
+To run the communik application
 
 ```
-until finished
+$ ./gradlew run
 ```
 
-End with an example of getting some data out of the system or using it for a little demo
 
 ## Running the tests
 
-Explain how to run the automated tests for this system
+```
+$ ./gradlew test
+```
+
 
 ## Deployment
 

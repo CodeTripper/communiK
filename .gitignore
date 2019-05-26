@@ -4,6 +4,7 @@ HELP.md
 !gradle/wrapper/gradle-wrapper.jar
 
 /temp/
+/src/main/java/in/codetripper/communik/temp/
 ### STS ###
 .apt_generated
 .classpath

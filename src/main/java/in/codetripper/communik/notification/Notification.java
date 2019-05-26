@@ -1,6 +1,5 @@
 package in.codetripper.communik.notification;
 
-import in.codetripper.communik.repository.NotificationPersistence;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +44,7 @@ public class Notification<T extends NotificationMessage> {
                 .flatMap(status -> getStatus((NotificationStorageResponse) status))
                 // .timeout(Duration.ofMillis(4800))
                 // create a new request Id
+                .doOnError(err -> log.error("Error while sending Notification", err))
                 .onErrorResume(message -> notificationMessage.getNotifiers().getPrimary().send(notificationMessage))
                 .onErrorReturn(getFailure(notificationMessage));
 
@@ -60,7 +60,6 @@ public class Notification<T extends NotificationMessage> {
     }
 
     private Mono<NotificationMessage> update(@NonNull T notificationMessage) {
-        NotificationMessage notificationMessage1 = new NotificationMessage();
         notificationMessage.setStatus(Status.NOTIFICATION_SUCCESS);
         notificationMessage.setAttempts(1);
         NotificationMessage.Action action = new NotificationMessage.Action();

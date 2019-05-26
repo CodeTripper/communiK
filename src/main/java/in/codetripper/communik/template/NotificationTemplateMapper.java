@@ -1,5 +1,6 @@
 package in.codetripper.communik.template;
 
+import in.codetripper.communik.repository.mongo.NotificationTemplateRepoDto;
 import org.mapstruct.Mapper;
 import org.springframework.stereotype.Component;
 
