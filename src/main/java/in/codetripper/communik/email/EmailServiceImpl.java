@@ -1,6 +1,5 @@
 package in.codetripper.communik.email;
 
-import in.codetripper.communik.messagegenerator.MessageGenerationException;
 import in.codetripper.communik.messagegenerator.MessageGenerator;
 import in.codetripper.communik.notification.*;
 import in.codetripper.communik.repository.mongo.NotificationMessageRepoDto;
@@ -13,30 +12,34 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
 class EmailServiceImpl implements EmailService {
-    private Type notificationType = Type.EMAIL;
     @Autowired
     private Notification<Email> notificationHandler;
     @Autowired
     private MessageGenerator messageGenerator;
     @Autowired
-    private EmailNotifier<Email> notifier;
+    private Map<String, EmailNotifier<Email>> providers;
     @Autowired
     private NotificationPersistence<Email> notificationPersistence; // TODO here?
     @Autowired
     private EmailMapper emailMapper;
     @Autowired
     private NotificationTemplateService templateService;
-    // TODO add validation here
+
     public Mono<NotificationStatusResponse> send(EmailDto emailDto) {
         return templateService.get(emailDto.getTemplateId()).
                 single().
                 map(this::validateTemplate).
                 onErrorMap(original -> new InvalidRequestException("Invalid Request", original)).
-                map(t -> generateMessage(t, emailDto)).
+                map(template -> generateMessage(template, emailDto)).
                 map(message -> getEmail(emailDto, message)).
                 flatMap(notificationHandler::sendNotification).
                 doOnError(err -> log.error("Error while sending Email", err));
@@ -49,18 +52,31 @@ class EmailServiceImpl implements EmailService {
     }
 
     private Email getEmail(EmailDto emailDto, String body) {
+        log.debug("email called with provider {} for providers {}", emailDto.getProviderName(), providers);
         Email email = emailMapper.emailDtoToEmail(emailDto);
-        email.setSubject(emailDto.getSubject());
+        //email.setSubject(emailDto.getSubject());
         email.setBodyTobeSent(body);
         NotificationMessage.Notifiers notifiers = new NotificationMessage.Notifiers();
-        // TODO get provider here based on
-        notifiers.setPrimary(notifier);
-        //notifiers.setBackup();
+        Optional<Entry<String, EmailNotifier<Email>>> defaultProvider = providers.entrySet().stream().
+                filter(provider -> provider.getValue().isDefault()).
+                findFirst();
+
+        EmailNotifier<Email> requestedProvider = providers.get(emailDto.getProviderName());
+        if (requestedProvider == null) {
+            requestedProvider = defaultProvider.get().getValue();
+        }
+        List<EmailNotifier<Email>> backups = providers.entrySet().stream().
+                filter(provider -> provider.getKey().equalsIgnoreCase(defaultProvider.get().getKey())).
+                map(Entry::getValue).
+                collect(Collectors.toList());
+
+        notifiers.setPrimary(requestedProvider);
+        notifiers.setBackup(backups);
         email.setNotifiers(notifiers);
         NotificationMessage.Meta meta = new NotificationMessage.Meta();
         // get IP
         meta.setSenderIp(null);
-        meta.setType(notificationType);
+        meta.setType(getType());
         // meta.setCategory(template.getCategory());
         //meta.setLob(template.getLob());
         meta.setCreated(LocalDateTime.now());
@@ -73,7 +89,7 @@ class EmailServiceImpl implements EmailService {
         if (template == null) {
             throw new InvalidRequestException("Template not found");
         }
-        if (!template.getType().equals(notificationType)) {
+        if (!template.getType().equals(getType())) {
             throw new InvalidRequestException("Notification type and Template mismatch");
         }
         return template;
@@ -82,15 +98,12 @@ class EmailServiceImpl implements EmailService {
 
     private String generateMessage(NotificationTemplate template, EmailDto emailDto) {
         String message = "";
-        try {
-            if (emailDto.getTemplateId().isEmpty()) {
-                message = emailDto.getBody().getMessage();
-            } else {
-                message = messageGenerator.generateBlockingMessage(template.getBody(), emailDto);
-            }
-        } catch (MessageGenerationException e) {
-            e.printStackTrace();
+        if (emailDto.getTemplateId().isEmpty()) {
+            message = emailDto.getBody().getMessage();
+        } else {
+            message = messageGenerator.generateBlockingMessage(template.getBody(), emailDto);
         }
+
         log.debug("generated message {}", message);
         return message;
 

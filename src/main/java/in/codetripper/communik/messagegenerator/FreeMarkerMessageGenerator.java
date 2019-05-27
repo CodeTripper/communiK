@@ -1,6 +1,5 @@
 package in.codetripper.communik.messagegenerator;
 
-import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import lombok.extern.slf4j.Slf4j;
@@ -15,14 +14,9 @@ import java.io.StringReader;
 @Service
 @Slf4j
 public class FreeMarkerMessageGenerator<T> implements MessageGenerator<T>, HtmlGenerator {
-    private final Configuration templates;
-
-    public FreeMarkerMessageGenerator(Configuration templates) {
-        this.templates = templates;
-    }
 
     @Override
-    public Mono<String> generateMessage(@NotNull String template, @NotNull T notificationMessage) throws MessageGenerationException {
+    public Mono<String> generateMessage(@NotNull String template, @NotNull T notificationMessage) {
         log.debug("Generating message from template {}", template);
         Mono blockingWrapper = Mono.fromCallable(() -> {
             String message;
@@ -44,19 +38,19 @@ public class FreeMarkerMessageGenerator<T> implements MessageGenerator<T>, HtmlG
     }
 
     @Override
-    public String generateBlockingMessage(String template, T notificationMessage) throws MessageGenerationException {
+    public String generateBlockingMessage(String template, T notificationMessage) {
         log.debug("Generating message from template {}", template);
-        String message;
+        String message = "";
         try {
             // TODO error/failure handling optimize/ non blocking?
             Template templateObj = new Template("name", new StringReader(template), null);
             message = FreeMarkerTemplateUtils.processTemplateIntoString(templateObj, notificationMessage);
             log.debug("Generated message from template with {}", notificationMessage);
-        } catch (IOException e) {
-            throw new MessageGenerationException("Unable to find template", e);
-        } catch (TemplateException e) {
-            throw new MessageGenerationException("Unable to create message from template", e);
+        } catch (IOException | TemplateException e) {
+            //   throw new MessageGenerationException("Unable to find template", e);
+            log.error("Unable to generate message", e);
         }
+
         return message;
 
     }

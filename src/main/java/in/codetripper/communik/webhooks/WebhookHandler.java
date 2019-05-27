@@ -11,6 +11,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.List;
 
+@SuppressWarnings("ALL")
 @Component
 @Slf4j
 public class WebhookHandler implements PropertyChangeListener {

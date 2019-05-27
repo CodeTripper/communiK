@@ -38,7 +38,7 @@ public class Notification<T extends NotificationMessage> {
                     notificationMessage.setId(status.getId());
                     return notificationMessage;
                 })
-                .flatMap(message -> message.getNotifiers().getPrimary().send(message))
+                .flatMap(message -> message.getNotifiers().getPrimary().send(message))// NullPOinterHere if no provider
                 // to be put down in the chain
                 .flatMap(status -> update(notificationMessage)) // publish on use an executor service .subscribeOn(Schedulers.elastic())
                 .flatMap(status -> getStatus((NotificationStorageResponse) status))

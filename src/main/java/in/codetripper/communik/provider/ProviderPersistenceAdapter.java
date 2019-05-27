@@ -19,7 +19,7 @@ public class ProviderPersistenceAdapter implements ProviderPersistence {
     @Override
     public Mono<Provider> getProvider(String id) {
         log.info("Getting provider details for provider {}", id);
-        return mongoNotifierRepository.findById(id).map(notifierDto -> notifierMapper.mapDtoToNotifier(notifierDto)).doOnSuccess(message -> log.debug("Got provider {}", message)).doOnError(error -> log.debug("Exception while retrieving provider from mongo {}", error));
+        return mongoNotifierRepository.findById(id).map(notifierDto -> notifierMapper.mapDtoToNotifier(notifierDto)).doOnSuccess(message -> log.debug("Got provider {0}", message)).doOnError(error -> log.error("Exception while retrieving provider from mongo {}", error));
     }
 
     @Override

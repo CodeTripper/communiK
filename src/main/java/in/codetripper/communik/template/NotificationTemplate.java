@@ -18,6 +18,7 @@ public class NotificationTemplate implements Serializable {
     private String lob;
     private Type type;
     private boolean active;
+    private String providerId;
     private LocalDateTime created;
     private LocalDateTime updated;
     private String owner;

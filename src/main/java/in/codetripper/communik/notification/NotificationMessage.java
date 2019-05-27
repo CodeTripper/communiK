@@ -60,7 +60,7 @@ public class NotificationMessage {
     @Data
     public static class Notifiers {
         private Notifier primary;
-        private List<Notifier> backup;
+        private List<? extends Notifier<? extends NotificationMessage>> backup;
     }
 
     @Data

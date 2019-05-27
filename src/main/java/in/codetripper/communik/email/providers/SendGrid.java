@@ -7,6 +7,7 @@ import in.codetripper.communik.provider.Provider;
 import in.codetripper.communik.provider.ProviderService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -16,17 +17,20 @@ import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 
+import static in.codetripper.communik.email.Constants.SENDGRID;
+
 
 @Service
 @Slf4j
+@Qualifier(SENDGRID)
 public class SendGrid implements EmailNotifier<Email> {
     @Autowired
     private ProviderService providerService;
-    private String providerId = "11002";
-
+    String providerId = "11002";
     @Override
     public Mono<NotificationStatusResponse> send(Email email) {
         Mono<NotificationStatusResponse> response = null;
+
         Provider provider = providerService.getProvider(providerId);
         if (provider.getType().equalsIgnoreCase("EMAIL")) {
             log.debug("Sending email via provider: {}", provider);
@@ -40,10 +44,8 @@ public class SendGrid implements EmailNotifier<Email> {
                             notificationStatusResponse.setStatus(sendGridResponse.isStatus());
                             notificationStatusResponse.setResponseReceivedAt(LocalDateTime.now());
                             return notificationStatusResponse;
-                        }).doOnSuccess((message -> {
-                            log.debug("sent email via DummyMailer successfully");
-                        })).doOnError((message -> {
-                            log.debug("email via DummyMailer failed {}", message);
+                        }).doOnSuccess((message -> log.debug("sent email via DummyMailer successfully"))).doOnError((message -> {
+                            log.debug("email via DummyMailer failed {0}", message);
                             NotificationStatusResponse notificationStatusResponse = new NotificationStatusResponse();
                             notificationStatusResponse.setStatus(false);
                             notificationStatusResponse.setResponseReceivedAt(LocalDateTime.now());
@@ -55,6 +57,11 @@ public class SendGrid implements EmailNotifier<Email> {
             log.warn("Wrong providerid {} configured for {} ", providerId, DummyMailer.class);
         }
         return response;
+    }
+
+    @Override
+    public boolean isDefault() {
+        return providerService.getProvider(providerId).isDefaultProvider();
     }
 
 

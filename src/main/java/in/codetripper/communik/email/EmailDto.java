@@ -21,6 +21,7 @@ public class EmailDto implements Serializable {
     private Container body;
     private Container attachment;
     private String templateId;
+    private String providerName;
     @Data
     @NoArgsConstructor
     public static class Container {

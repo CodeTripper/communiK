@@ -1,6 +1,5 @@
 package in.codetripper.communik.sms;
 
-import in.codetripper.communik.messagegenerator.MessageGenerationException;
 import in.codetripper.communik.messagegenerator.MessageGenerator;
 import in.codetripper.communik.notification.*;
 import in.codetripper.communik.template.NotificationTemplate;
@@ -20,13 +19,13 @@ class SmsServiceImpl implements SmsService {
     @Autowired
     private NotificationTemplateService templateService;
     @Autowired
-    Notification<Sms> notificationHandler;
+    private Notification<Sms> notificationHandler;
     @Autowired
-    MessageGenerator messageGenerator;
+    private MessageGenerator messageGenerator;
     @Autowired
-    SmsNotifier<Sms> smsNotifier;
+    private SmsNotifier<Sms> smsNotifier;
     @Resource(name = "OTP")
-    SmsNotifier<Sms> optNotifier;
+    private SmsNotifier<Sms> optNotifier;
     @Autowired
     private SmsMapper smsMapper;
 
@@ -94,15 +93,12 @@ class SmsServiceImpl implements SmsService {
 
     private String generateMessage(NotificationTemplate template, SmsDto smsDto) {
         String message = "";
-        try {
             if (smsDto.getTemplateId().isEmpty()) {
                 message = smsDto.getBody().getMessage();
             } else {
                 message = messageGenerator.generateBlockingMessage(template.getBody(), smsDto);
             }
-        } catch (MessageGenerationException e) {
-            e.printStackTrace();
-        }
+
         log.debug("generated message {}", message);
         return message;
 

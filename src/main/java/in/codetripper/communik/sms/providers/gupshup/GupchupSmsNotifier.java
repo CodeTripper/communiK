@@ -27,8 +27,7 @@ import java.time.LocalDateTime;
 public class GupchupSmsNotifier implements SmsNotifier<Sms> {
     @Autowired
     private ProviderService providerService;
-    private String providerId = "12001"; // TODO Move to configuration
-
+    String providerId = "12001";
     @Override
     public Mono<NotificationStatusResponse> send(Sms sms) {
         Mono<NotificationStatusResponse> response = null;
@@ -49,10 +48,8 @@ public class GupchupSmsNotifier implements SmsNotifier<Sms> {
                             notificationStatusResponse.setStatus(gupchupResponse.isStatus());
                             notificationStatusResponse.setResponseReceivedAt(LocalDateTime.now());
                             return notificationStatusResponse;
-                        }).doOnSuccess((message -> {
-                            log.debug("sent sms successfully");
-                        })).doOnError((message -> {
-                            log.debug("sms sending failed {}", message);
+                        }).doOnSuccess((message -> log.debug("sent sms successfully"))).doOnError((message -> {
+                            log.debug("sms sending failed {0}", message);
                             NotificationStatusResponse notificationStatusResponse = new NotificationStatusResponse();
                             notificationStatusResponse.setStatus(false);
                             notificationStatusResponse.setResponseReceivedAt(LocalDateTime.now());
@@ -64,6 +61,11 @@ public class GupchupSmsNotifier implements SmsNotifier<Sms> {
             log.warn("Wrong providerid {} configured for {} ", providerId, GupchupSmsNotifier.class);
         }
         return response;
+    }
+
+    @Override
+    public boolean isDefault() {
+        return providerService.getProvider(providerId).isDefaultProvider();
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

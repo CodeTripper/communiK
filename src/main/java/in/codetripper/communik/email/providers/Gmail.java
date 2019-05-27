@@ -3,16 +3,27 @@ package in.codetripper.communik.email.providers;
 import in.codetripper.communik.email.Email;
 import in.codetripper.communik.email.EmailConfiguration;
 import in.codetripper.communik.email.SmtpEmailSender;
+import in.codetripper.communik.provider.Provider;
+import in.codetripper.communik.provider.ProviderService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.Properties;
 
+import static in.codetripper.communik.email.Constants.GMAIL;
+
 @Service
 @Slf4j
+@Qualifier(GMAIL)
 public class Gmail extends SmtpEmailSender {
+    @Autowired
+    private ProviderService providerService;
+    String providerId = "11004";
     @Override
     protected EmailConfiguration getMailConfiguration() {
+        Provider provider = providerService.getProvider(providerId);
         EmailConfiguration emailConfiguration = new EmailConfiguration();
   /*      emailConfiguration.setHost(mailGunConfig.getHost());
         emailConfiguration.setUsername(mailGunConfig.getUsername());
@@ -43,4 +54,8 @@ public class Gmail extends SmtpEmailSender {
     }
 
 
+    @Override
+    public boolean isDefault() {
+        return providerService.getProvider(providerId).isDefaultProvider();
+    }
 }

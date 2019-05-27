@@ -35,12 +35,7 @@ public class NotificationPersistenceAdapter implements NotificationPersistence {
                     return notificationStorageResponse;
                 })
                 .onErrorMap(error -> new NotificationPersistenceException("Unable to save notification", error))
-                .doOnSuccess((message -> {
-                    log.debug("Saved message to Mongo with data {}", message);
-
-                })).doOnError((message -> {
-                    log.debug("could not save message to Mongo with data {}", message);
-                }));
+                .doOnSuccess((message -> log.debug("Saved message to Mongo with data {}", message))).doOnError((message -> log.debug("could not save message to Mongo with data {0}", message)));
 
     }
 
@@ -73,12 +68,7 @@ public class NotificationPersistenceAdapter implements NotificationPersistence {
                     return notificationStorageResponse;
                 })
                 .onErrorMap(error -> new NotificationPersistenceException("Unable to update notification", error))
-                .doOnSuccess((message -> {
-                    log.debug("Updated message to Mongo with data {}", message);
-
-                })).doOnError((message -> {
-                    log.debug("could not update message to Mongo with data {}", message);
-                }));
+                .doOnSuccess((message -> log.debug("Updated message to Mongo with data {}", message))).doOnError((message -> log.debug("could not update message to Mongo with data {0}", message)));
     }
 
     @Override
