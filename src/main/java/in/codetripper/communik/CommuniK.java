@@ -14,7 +14,6 @@ public class CommuniK {
         SpringApplication.run(CommuniK.class, args);
     }
 
-    //@Bean
     public LoggingEventListener mongoEventListener() {
         return new LoggingEventListener();
     }

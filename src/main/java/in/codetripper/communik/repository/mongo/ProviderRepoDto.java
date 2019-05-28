@@ -20,6 +20,7 @@ public class ProviderRepoDto {
     private String type;
     private int timeOutInMs;
     private boolean active;
+    private boolean primary;
     private LocalDateTime activatedOn;
     private Endpoints endpoints;
     private String authType;

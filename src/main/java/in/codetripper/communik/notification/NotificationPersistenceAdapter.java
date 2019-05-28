@@ -1,28 +1,26 @@
 package in.codetripper.communik.notification;
 
+import in.codetripper.communik.exceptions.NotificationPersistenceException;
 import in.codetripper.communik.repository.mongo.NotificationMessageRepoDto;
 import in.codetripper.communik.repository.mongo.NotificationMessageRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.annotation.PostConstruct;
+import static in.codetripper.communik.exceptions.ExceptionConstants.*;
 
 @Service
 @Slf4j
 @Primary
+@RequiredArgsConstructor
 public class NotificationPersistenceAdapter implements NotificationPersistence {
-    @Autowired
-    private NotificationMessageRepository notificationRepository;
-    @Autowired
-    private NotificationMapper notificationMapper;
+    // TODO add hystrix in all methods
+    private final NotificationMessageRepository notificationRepository;
+    private final NotificationMapper notificationMapper;
 
-    public NotificationPersistenceAdapter(NotificationMessageRepository notificationRepository) {
-        this.notificationRepository = notificationRepository;
-    }
 
     @Override
     public Mono<NotificationStorageResponse> store(NotificationMessage notificationMessage) {
@@ -34,7 +32,7 @@ public class NotificationPersistenceAdapter implements NotificationPersistence {
                     notificationStorageResponse.setStatus(true);
                     return notificationStorageResponse;
                 })
-                .onErrorMap(error -> new NotificationPersistenceException("Unable to save notification", error))
+                .onErrorMap(error -> new NotificationPersistenceException(NOTIFICATION_PERSISTENCE_UNABLE_TO_SAVE, error))
                 .doOnSuccess((message -> log.debug("Saved message to Mongo with data {}", message))).doOnError((message -> log.debug("could not save message to Mongo with data {0}", message)));
 
     }
@@ -45,17 +43,10 @@ public class NotificationPersistenceAdapter implements NotificationPersistence {
         return Mono.just(notificationStatusResponse);
     }
 
-    @PostConstruct
-    public void init() {
-        System.out.println("repo from @service");
-    }
-
     @Override
     public Mono<NotificationStorageResponse> update(NotificationMessage notificationMessage) {
-        // TODO add hystrix here
-        // WARN DO NOT UPDATE STATUS OF notificationMessage HERE
         if (notificationMessage.getId().isBlank()) {
-            throw new RuntimeException("Id is required");
+            new NotificationPersistenceException(NOTIFICATION_PERSISTENCE_ID_NOT_PRESENT);
         }
         log.debug("Received for updation to Mongo pre mapped data {}", notificationMessage);
         NotificationMessageRepoDto notificationMessageDto = notificationMapper.mapMessageToDto(notificationMessage);
@@ -67,13 +58,12 @@ public class NotificationPersistenceAdapter implements NotificationPersistence {
                     notificationStorageResponse.setStatus(true);
                     return notificationStorageResponse;
                 })
-                .onErrorMap(error -> new NotificationPersistenceException("Unable to update notification", error))
+                .onErrorMap(error -> new NotificationPersistenceException(NOTIFICATION_PERSISTENCE_UNABLE_TO_UPDATE, error))
                 .doOnSuccess((message -> log.debug("Updated message to Mongo with data {}", message))).doOnError((message -> log.debug("could not update message to Mongo with data {0}", message)));
     }
 
     @Override
     public Mono<NotificationMessageRepoDto> status(String id) {
-        // TODO add hystrix here
         return notificationRepository.findById(id);
 
     }

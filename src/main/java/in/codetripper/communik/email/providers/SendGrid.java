@@ -2,11 +2,12 @@ package in.codetripper.communik.email.providers;
 
 import in.codetripper.communik.email.Email;
 import in.codetripper.communik.email.EmailNotifier;
+import in.codetripper.communik.exceptions.NotificationSendFailedException;
 import in.codetripper.communik.notification.NotificationStatusResponse;
 import in.codetripper.communik.provider.Provider;
 import in.codetripper.communik.provider.ProviderService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -23,12 +24,12 @@ import static in.codetripper.communik.email.Constants.SENDGRID;
 @Service
 @Slf4j
 @Qualifier(SENDGRID)
+@RequiredArgsConstructor
 public class SendGrid implements EmailNotifier<Email> {
-    @Autowired
-    private ProviderService providerService;
-    String providerId = "11002";
+    private final ProviderService providerService;
+    String providerId = "11001";
     @Override
-    public Mono<NotificationStatusResponse> send(Email email) {
+    public Mono<NotificationStatusResponse> send(Email email) throws NotificationSendFailedException {
         Mono<NotificationStatusResponse> response = null;
 
         Provider provider = providerService.getProvider(providerId);
@@ -52,6 +53,7 @@ public class SendGrid implements EmailNotifier<Email> {
                         }));
             } catch (WebClientException webClientException) {
                 log.error("webClientException");
+                throw new NotificationSendFailedException("webClientException received", webClientException);
             }
         } else {
             log.warn("Wrong providerid {} configured for {} ", providerId, DummyMailer.class);
@@ -61,7 +63,7 @@ public class SendGrid implements EmailNotifier<Email> {
 
     @Override
     public boolean isDefault() {
-        return providerService.getProvider(providerId).isDefaultProvider();
+        return providerService.getProvider(providerId).isPrimary();
     }
 
 

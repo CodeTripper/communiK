@@ -1,29 +1,31 @@
 package in.codetripper.communik.notification;
 
+import in.codetripper.communik.exceptions.NotificationPersistenceException;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static in.codetripper.communik.Constants.DB_WRITE_TIMEOUT;
+import static in.codetripper.communik.Constants.PROVIDER_TIMEOUT;
+
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class Notification<T extends NotificationMessage> {
-    @Autowired
-    private NotificationPersistence<T> notificationPersistence;
-    // Store // DONE
-    // Add Timeout for DB // DONE
-    // Transform message // DONE
-    // Call primary provider // DONE
-    // Add Timeout for primary provider // DONE
+
+    private final NotificationPersistence<T> notificationPersistence;
     // Update DB or Error Or Failure on a separate Threadpool // TODO
     // Call Fallback Notifier // TODO
     // Update DB or Error Or Failure on a separate Threadpool
-    // If Failed send a generic Error
-
+    /*public Notification(NotificationPersistence<T> notificationPersistence){
+        this.notificationPersistence=notificationPersistence;
+    }*/
 
     public Mono<NotificationStatusResponse> sendNotification(@NonNull T notificationMessage) {
         log.info("About to persist notification for {}", notificationMessage.getTo());
@@ -32,50 +34,66 @@ public class Notification<T extends NotificationMessage> {
         // Schedulers.parallel()
         notificationMessage.setStatus(Status.NOTIFICATION_NEW);
         return notificationPersistence.store(notificationMessage)
-                //.timeout(Duration.ofMillis(1800))
+                .timeout(Duration.ofMillis(DB_WRITE_TIMEOUT))
                 .map(status -> {
                     notificationMessage.setStatus(Status.NOTIFICATION_STORED);
                     notificationMessage.setId(status.getId());
                     return notificationMessage;
                 })
-                .flatMap(message -> message.getNotifiers().getPrimary().send(message))// NullPOinterHere if no provider
-                // to be put down in the chain
-                .flatMap(status -> update(notificationMessage)) // publish on use an executor service .subscribeOn(Schedulers.elastic())
-                .flatMap(status -> getStatus((NotificationStorageResponse) status))
-                // .timeout(Duration.ofMillis(4800))
-                // create a new request Id
+                .flatMap(message -> {
+                    NotificationMessage.Notifiers<T> noti = notificationMessage.getNotifiers();
+                    return noti.getPrimary().send(notificationMessage);
+                })
+                .timeout(Duration.ofMillis(PROVIDER_TIMEOUT))
+                .flatMap(status -> update(notificationMessage))
+                .timeout(Duration.ofMillis(DB_WRITE_TIMEOUT))
+                .flatMap(this::createResponse)
                 .doOnError(err -> log.error("Error while sending Notification", err))
-                .onErrorResume(message -> notificationMessage.getNotifiers().getPrimary().send(notificationMessage))
-                .onErrorReturn(getFailure(notificationMessage));
+                .onErrorResume(error ->
+                {
+                    log.info("primary provider failed to send notification {0}", error);
+                    if (error instanceof NotificationPersistenceException) {
+                        return Mono.error(error);
+                    } else {
+                        log.warn("retrying again as primary provider failed to send notification");
+                        NotificationMessage.Notifiers<T> noti = notificationMessage.getNotifiers();
+                        return noti.getPrimary().send(notificationMessage);
+                    }
+
+                })
+                // .flatMap(status -> update(notificationMessage))
+                .onErrorReturn(getFailure());
 
     }
 
-    private Mono<NotificationStatusResponse> getStatus(NotificationStorageResponse status) {
+    private Mono<NotificationStatusResponse> createResponse(NotificationStorageResponse status) {
         NotificationStatusResponse notificationStatusResponse = new NotificationStatusResponse();
-        NotificationStorageResponse updateStatus = status;
-        notificationStatusResponse.setRequestId(updateStatus.getId());
-        notificationStatusResponse.setStatus(updateStatus.isStatus());
+        notificationStatusResponse.setRequestId(status.getId());
+        notificationStatusResponse.setStatus(status.isStatus());
         notificationStatusResponse.setResponseReceivedAt(LocalDateTime.now());
         return Mono.just(notificationStatusResponse);
     }
 
-    private Mono<NotificationMessage> update(@NonNull T notificationMessage) {
+    private Mono<NotificationStorageResponse> update(@NonNull T notificationMessage) {
         notificationMessage.setStatus(Status.NOTIFICATION_SUCCESS);
         notificationMessage.setAttempts(1);
-        NotificationMessage.Action action = new NotificationMessage.Action();
+        NotificationMessage.Action<T> action = new NotificationMessage.Action<>();
         action.setEnded(LocalDateTime.now());
         action.setStatus(false);
-        action.setNotifier(notificationMessage.getNotifiers().getPrimary());
+        NotificationMessage.Notifiers<T> primary = notificationMessage.getNotifiers();
+        Notifier<T> test = primary.getPrimary();
+        action.setNotifier(test.getClass().getName());
         notificationMessage.setActions(List.of(action));
         return notificationPersistence.update(notificationMessage);
     }
 
-    private Mono<NotificationStatusResponse> getFailure(@NonNull T notificationMessage) {
+    private NotificationStatusResponse getFailure() {
         NotificationStatusResponse notificationStatusResponse = new NotificationStatusResponse();
-        notificationStatusResponse.setRequestId(notificationMessage.getId());
+        //  notificationStatusResponse.setRequestId(notificationMessage.getId()); // FIXME
         notificationStatusResponse.setStatus(false);
         notificationStatusResponse.setResponseReceivedAt(LocalDateTime.now());
-        return Mono.just(notificationStatusResponse);
+        return notificationStatusResponse;
     }
 
 }
+

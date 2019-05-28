@@ -1,8 +1,8 @@
 package in.codetripper.communik.template;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,11 +16,10 @@ import java.util.Arrays;
 
 @RestController
 @Slf4j
+@RequiredArgsConstructor
 public class NotificationTemplateController {
-    @Autowired
-    private NotificationTemplateService templateService;
-    @Autowired
-    private NotificationTemplateMapper templateMapper;
+    private final NotificationTemplateService templateService;
+    private final NotificationTemplateMapper templateMapper;
     private static final String BASE_PATH = "template";
 
     @PostMapping(value = BASE_PATH, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)

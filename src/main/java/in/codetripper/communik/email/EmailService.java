@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono;
 
 // create base service and move common methods up
 public interface EmailService extends NotificationService {
-    Mono<NotificationStatusResponse> send(EmailDto emailDto);
+    Mono<NotificationStatusResponse> sendEmail(EmailDto emailDto);
 
     Flux<NotificationMessageRepoDto> getAllEmails();
 

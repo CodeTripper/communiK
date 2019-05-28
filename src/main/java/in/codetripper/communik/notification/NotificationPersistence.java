@@ -7,7 +7,7 @@ import reactor.core.publisher.Mono;
 public interface NotificationPersistence<T extends NotificationMessage> {
     Mono<NotificationStorageResponse> store(T notificationMessage);
 
-    Mono<NotificationMessage> update(T notificationMessage);
+    Mono<NotificationStorageResponse> update(T notificationMessage);
 
     Mono<NotificationMessageRepoDto> status(String id);
 

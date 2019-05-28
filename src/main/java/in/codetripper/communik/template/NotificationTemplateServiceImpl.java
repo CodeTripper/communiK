@@ -1,7 +1,7 @@
 package in.codetripper.communik.template;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -13,9 +13,9 @@ import java.time.LocalDateTime;
  */
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class NotificationTemplateServiceImpl implements NotificationTemplateService {
-    @Autowired
-    private NotificationTemplatePersistence templatePersistence;
+    private final NotificationTemplatePersistence templatePersistence;
 
     // TODO add validation
     @Override

@@ -12,7 +12,7 @@ import java.util.List;
 
 @Data
 @Document(collection = "Notifications")
-public class NotificationMessageRepoDto {
+public class NotificationMessageRepoDto<T> {
 
     private @Id
     String id;
@@ -21,18 +21,15 @@ public class NotificationMessageRepoDto {
     private NotificationMessage.Container attachment;
     private NotificationMessage.Meta meta;
     private Status status;
-    private NotificationMessage.Notifiers notifiers;
-    private List<NotificationMessage.Action> actions;
-    private List<NotificationMessage.BlackOut> blackouts;
     private LocalDateTime lastUpdated;
     private int attempts;
     private String subject;
     private String templateId;
-    public final Status getStatus() {
-        return this.status;
-    }
-
+    private List<NotificationMessage.BlackOut> blackouts;
+    private List<NotificationMessage.Action<? extends NotificationMessage>> actions;
     public final int getAttempts() {
         return this.actions != null ? this.actions.size() : 0;
     }
+
+
 }

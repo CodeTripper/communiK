@@ -1,6 +1,7 @@
 package in.codetripper.communik.sms.providers.gupshup;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import in.codetripper.communik.exceptions.NotificationSendFailedException;
 import in.codetripper.communik.notification.NotificationStatusResponse;
 import in.codetripper.communik.notification.Type;
 import in.codetripper.communik.provider.Provider;
@@ -8,8 +9,8 @@ import in.codetripper.communik.provider.ProviderService;
 import in.codetripper.communik.sms.Sms;
 import in.codetripper.communik.sms.SmsNotifier;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -24,12 +25,12 @@ import java.time.LocalDateTime;
 @Service
 @Slf4j
 @Primary
+@RequiredArgsConstructor
 public class GupchupSmsNotifier implements SmsNotifier<Sms> {
-    @Autowired
-    private ProviderService providerService;
+    private final ProviderService providerService;
     String providerId = "12001";
     @Override
-    public Mono<NotificationStatusResponse> send(Sms sms) {
+    public Mono<NotificationStatusResponse> send(Sms sms) throws NotificationSendFailedException {
         Mono<NotificationStatusResponse> response = null;
         Provider provider = providerService.getProvider(providerId);
         GupchupRequest gupchupRequest = new GupchupRequest();
@@ -48,14 +49,18 @@ public class GupchupSmsNotifier implements SmsNotifier<Sms> {
                             notificationStatusResponse.setStatus(gupchupResponse.isStatus());
                             notificationStatusResponse.setResponseReceivedAt(LocalDateTime.now());
                             return notificationStatusResponse;
-                        }).doOnSuccess((message -> log.debug("sent sms successfully"))).doOnError((message -> {
-                            log.debug("sms sending failed {0}", message);
+                        }).doOnSuccess((message -> log.debug("sent sms successfully"))).doOnError((error -> {
+                            log.debug("sms sending failed", error);
                             NotificationStatusResponse notificationStatusResponse = new NotificationStatusResponse();
                             notificationStatusResponse.setStatus(false);
                             notificationStatusResponse.setResponseReceivedAt(LocalDateTime.now());
                         }));
             } catch (WebClientException webClientException) {
-                log.error("webClientException");
+                log.error("webClientException", webClientException);
+                throw new NotificationSendFailedException("webClientException received", webClientException);
+            } catch (Exception ex) {
+                log.error("ex", ex);
+                throw new NotificationSendFailedException("webClientException received", ex);
             }
         } else {
             log.warn("Wrong providerid {} configured for {} ", providerId, GupchupSmsNotifier.class);
@@ -65,7 +70,7 @@ public class GupchupSmsNotifier implements SmsNotifier<Sms> {
 
     @Override
     public boolean isDefault() {
-        return providerService.getProvider(providerId).isDefaultProvider();
+        return providerService.getProvider(providerId).isPrimary();
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

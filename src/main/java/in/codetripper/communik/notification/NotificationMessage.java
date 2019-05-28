@@ -20,7 +20,7 @@ import java.util.Map;
 @Slf4j
 @NoArgsConstructor
 
-public class NotificationMessage {
+public class NotificationMessage<T> {
     private String id; // from DB
     private @NotNull String to;
     private String bodyTobeSent;
@@ -28,9 +28,9 @@ public class NotificationMessage {
     private Container attachment;
     private Meta meta;
     private Status status;
-    private Notifiers notifiers;
-    private List<Action> actions;
-    private List<BlackOut> blackouts;
+    private Notifiers<? extends NotificationMessage> notifiers;
+    private List<NotificationMessage.Action> actions;
+    private List<NotificationMessage.BlackOut> blackouts;
     private LocalDateTime lastUpdated;
     private int attempts;
     private int deadLine;
@@ -58,14 +58,14 @@ public class NotificationMessage {
     }
 
     @Data
-    public static class Notifiers {
-        private Notifier primary;
-        private List<? extends Notifier<? extends NotificationMessage>> backup;
+    public static class Notifiers<K extends NotificationMessage> {
+        private Notifier<K> primary;
+        private List<? extends Notifier<K>> backup;
     }
 
     @Data
-    public static class Action {
-        private Notifier notifier;
+    public static class Action<K extends NotificationMessage> {
+        private String notifier;
         private String requestId;
         private String responseId;
         private @NotNull LocalDateTime started;

@@ -1,4 +1,4 @@
-package in.codetripper.communik.notification;
+package in.codetripper.communik.exceptions;
 
 public class InvalidRequestException extends RuntimeException {
     public InvalidRequestException(String s) {

@@ -1,6 +1,6 @@
 package in.codetripper.communik.email;
 
-import in.codetripper.communik.notification.NotificationFailedException;
+import in.codetripper.communik.exceptions.NotificationSendFailedException;
 import in.codetripper.communik.notification.NotificationStatusResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.FileSystemResource;
@@ -24,14 +24,14 @@ public abstract class SmtpEmailSender implements EmailNotifier<Email> {
     }
 
     @Override
-    public final Mono<NotificationStatusResponse> send(Email email) throws NotificationFailedException {
+    public final Mono<NotificationStatusResponse> send(Email email) throws NotificationSendFailedException {
         log.debug("starting email sender");
         try {
             preProcess(email);
             process(email);
             postProcess(email);
         } catch (MessagingException | MailException e) {
-            throw new NotificationFailedException("Unable to send Email", e);
+            throw new NotificationSendFailedException("Unable to sendEmail Email", e);
         }
         return null;
     }

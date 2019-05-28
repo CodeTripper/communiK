@@ -1,48 +1,62 @@
 package in.codetripper.communik.email;
 
+import in.codetripper.communik.exceptions.InvalidRequestException;
+import in.codetripper.communik.exceptions.NotificationPersistenceException;
+import in.codetripper.communik.exceptions.NotificationSendFailedException;
 import in.codetripper.communik.messagegenerator.MessageGenerator;
-import in.codetripper.communik.notification.*;
+import in.codetripper.communik.notification.Notification;
+import in.codetripper.communik.notification.NotificationMessage;
+import in.codetripper.communik.notification.NotificationPersistence;
+import in.codetripper.communik.notification.NotificationStatusResponse;
 import in.codetripper.communik.repository.mongo.NotificationMessageRepoDto;
 import in.codetripper.communik.template.NotificationTemplate;
 import in.codetripper.communik.template.NotificationTemplateService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
+
+import static in.codetripper.communik.Constants.DB_READ_TIMEOUT;
+import static in.codetripper.communik.exceptions.ExceptionConstants.*;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 class EmailServiceImpl implements EmailService {
-    @Autowired
-    private Notification<Email> notificationHandler;
-    @Autowired
-    private MessageGenerator messageGenerator;
-    @Autowired
-    private Map<String, EmailNotifier<Email>> providers;
-    @Autowired
-    private NotificationPersistence<Email> notificationPersistence; // TODO here?
-    @Autowired
-    private EmailMapper emailMapper;
-    @Autowired
-    private NotificationTemplateService templateService;
+    private final Notification<Email> notificationHandler;
+    private final MessageGenerator<EmailDto> messageGenerator;
+    private final Map<String, EmailNotifier<Email>> providers;
+    private final NotificationPersistence<Email> notificationPersistence; // TODO here?
+    private final EmailMapper emailMapper;
+    private final NotificationTemplateService templateService;
 
-    public Mono<NotificationStatusResponse> send(EmailDto emailDto) {
+    public Mono<NotificationStatusResponse> sendEmail(EmailDto emailDto) {
         return templateService.get(emailDto.getTemplateId()).
+                timeout(Duration.ofMillis(DB_READ_TIMEOUT)).
                 single().
                 map(this::validateTemplate).
-                onErrorMap(original -> new InvalidRequestException("Invalid Request", original)).
-                map(template -> generateMessage(template, emailDto)).
+                onErrorMap(original -> {
+                    if (original instanceof TimeoutException) {
+                        return new NotificationPersistenceException(NOTIFICATION_PERSISTENCE_DB_TIMED_OUT);
+                    } else {
+                        return new InvalidRequestException(INVALID_REQUEST_TEMPLATE_NOT_FOUND);
+                    }
+                }).
+                map(t -> generateMessage(t, emailDto)).
                 map(message -> getEmail(emailDto, message)).
                 flatMap(notificationHandler::sendNotification).
-                doOnError(err -> log.error("Error while sending Email", err));
+                doOnError(err -> log.error("Error while sending Email", err)).
+                onErrorMap(original -> new NotificationSendFailedException(NOTIFICATION_SEND_FAILURE));
 
     }
 
@@ -56,14 +70,18 @@ class EmailServiceImpl implements EmailService {
         Email email = emailMapper.emailDtoToEmail(emailDto);
         //email.setSubject(emailDto.getSubject());
         email.setBodyTobeSent(body);
-        NotificationMessage.Notifiers notifiers = new NotificationMessage.Notifiers();
+        NotificationMessage.Notifiers<Email> notifiers = new NotificationMessage.Notifiers<>();
         Optional<Entry<String, EmailNotifier<Email>>> defaultProvider = providers.entrySet().stream().
                 filter(provider -> provider.getValue().isDefault()).
                 findFirst();
 
         EmailNotifier<Email> requestedProvider = providers.get(emailDto.getProviderName());
         if (requestedProvider == null) {
-            requestedProvider = defaultProvider.get().getValue();
+            if (defaultProvider.isPresent()) {
+                requestedProvider = defaultProvider.get().getValue();
+            } else {
+                throw new RuntimeException(NO_DEFAULT_PROVIDER);
+            }
         }
         List<EmailNotifier<Email>> backups = providers.entrySet().stream().
                 filter(provider -> provider.getKey().equalsIgnoreCase(defaultProvider.get().getKey())).
@@ -85,19 +103,19 @@ class EmailServiceImpl implements EmailService {
     }
 
     private NotificationTemplate validateTemplate(NotificationTemplate template) {
-        log.debug("validating {}", template);
+        log.debug("validating template {}", template);
         if (template == null) {
-            throw new InvalidRequestException("Template not found");
+            throw new InvalidRequestException(INVALID_REQUEST_TEMPLATE_NOT_FOUND);
         }
         if (!template.getType().equals(getType())) {
-            throw new InvalidRequestException("Notification type and Template mismatch");
+            throw new InvalidRequestException(INVALID_REQUEST_TEMPLATE_MISMATCH);
         }
         return template;
     }
 
 
     private String generateMessage(NotificationTemplate template, EmailDto emailDto) {
-        String message = "";
+        String message;
         if (emailDto.getTemplateId().isEmpty()) {
             message = emailDto.getBody().getMessage();
         } else {

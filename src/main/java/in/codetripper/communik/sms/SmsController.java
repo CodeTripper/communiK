@@ -1,8 +1,8 @@
 package in.codetripper.communik.sms;
 
 import in.codetripper.communik.notification.NotificationStatusResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -12,9 +12,9 @@ import javax.validation.Valid;
 @RestController
 @EnableAutoConfiguration
 @Slf4j
+@RequiredArgsConstructor
 public class SmsController {
-    @Autowired
-    private SmsService smsService;
+    private final SmsService smsService;
 
     @PostMapping("/sms")
     public Mono<NotificationStatusResponse> sms(@Valid @RequestBody SmsDto smsDto) {

@@ -11,10 +11,12 @@ import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static in.codetripper.communik.exceptions.ExceptionConstants.VALIDATION_EMAIL_VALID_EMAIL;
+
 @Data
 @ToString
 public class EmailDto implements Serializable {
-    @Email(message = "Email should be valid")
+    @Email(message = VALIDATION_EMAIL_VALID_EMAIL)
     private String to;
     private String subject;
     private Type type = Type.EMAIL;

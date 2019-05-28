@@ -1,7 +1,7 @@
 package in.codetripper.communik.provider;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
@@ -11,9 +11,9 @@ import java.util.Map;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class ProviderService {
-    @Autowired
-    private ProviderPersistence providerPersistence;
+    private final ProviderPersistence providerPersistence;
     private Map<String, Provider> providerMap;
 
     @PostConstruct
@@ -28,7 +28,6 @@ public class ProviderService {
         return providerMap.get(id);
     }
 
-    // TODO filter active
     public Flux<Provider> getAllProviders() {
         log.info("Getting all providers...");
         return providerPersistence.getAll();
