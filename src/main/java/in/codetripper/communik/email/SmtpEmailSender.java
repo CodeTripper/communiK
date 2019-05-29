@@ -15,6 +15,9 @@ import java.io.File;
 import java.util.Properties;
 
 @Slf4j
+/*
+    WARNING DO NOT USE. SMTP is blocking.This is only for test purpose.
+ */
 public abstract class SmtpEmailSender implements EmailNotifier<Email> {
     private final JavaMailSenderImpl sender;
 
@@ -48,7 +51,7 @@ public abstract class SmtpEmailSender implements EmailNotifier<Email> {
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
         helper.setTo(email.getTo());
         helper.setSubject(email.getSubject());
-        helper.setText(email.getBody().getMessage());
+        helper.setText(email.getBodyTobeSent());
 
         if (email.getAttachment() != null) {
             FileSystemResource file = new FileSystemResource(new File(email.getAttachment().getMessage()));

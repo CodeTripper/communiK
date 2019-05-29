@@ -22,8 +22,10 @@ public class Provider {
     private LocalDateTime activatedOn;
     private Endpoints endpoints;
     private String authType;
+    private String from;
     private BearerAuthentication bearerAuthentication;
     private BasicAuthentication basicAuthentication;
+    private Server server;
 
     @Data
     @NoArgsConstructor
@@ -45,6 +47,15 @@ public class Provider {
         private String base;
         private String sendUri;
         private String statusUri;
+    }
+
+    @Data
+    @NoArgsConstructor
+    public static class Server {
+        private String host;
+        private int port;
+        private String protocol;
+        private boolean tls;
     }
 }
 

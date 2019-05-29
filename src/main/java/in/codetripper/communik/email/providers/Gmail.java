@@ -17,30 +17,31 @@ import static in.codetripper.communik.email.Constants.GMAIL;
 @Service
 @Slf4j
 @Qualifier(GMAIL)
-@RequiredArgsConstructor
+@RequiredArgsConstructor()
 public class Gmail extends SmtpEmailSender {
     private final ProviderService providerService;
-    String providerId = "11004";
+    String providerId = "11003";
     @Override
     protected EmailConfiguration getMailConfiguration() {
         // TODO add in providerDB
         Provider provider = providerService.getProvider(providerId);
         EmailConfiguration emailConfiguration = new EmailConfiguration();
-  /*      emailConfiguration.setHost(mailGunConfig.getHost());
-        emailConfiguration.setUsername(mailGunConfig.getUsername());
-        emailConfiguration.setPassword(mailGunConfig.getPassword());
-        emailConfiguration.setPort(mailGunConfig.getPort());*/
+        emailConfiguration.setHost(provider.getServer().getHost());
+        emailConfiguration.setUsername(provider.getBasicAuthentication().getUserId());
+        emailConfiguration.setPassword(provider.getBasicAuthentication().getPassword());
+        emailConfiguration.setPort(provider.getServer().getPort());
         return emailConfiguration;
 
     }
 
     @Override
     protected Properties getMailProperties() {
+        Provider provider = providerService.getProvider(providerId);
         Properties props = new Properties();
-        props.put("mail.transport.protocol", "smtp");
+        props.put("mail.transport.protocol", provider.getServer().getProtocol());
         props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.debug", "true");
+        props.put("mail.smtp.starttls.enable", provider.getServer().isTls());
+        props.put("mail.debug", "false");
         return props;
     }
 

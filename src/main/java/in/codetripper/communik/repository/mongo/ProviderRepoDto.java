@@ -1,5 +1,6 @@
 package in.codetripper.communik.repository.mongo;
 
+import in.codetripper.communik.provider.Provider;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
@@ -24,9 +25,10 @@ public class ProviderRepoDto {
     private LocalDateTime activatedOn;
     private Endpoints endpoints;
     private String authType;
+    private String from;
     private BearerAuthentication bearerAuthentication;
     private BasicAuthentication basicAuthentication;
-
+    private Provider.Server server;
     @Data
     @NoArgsConstructor
     public static class BearerAuthentication {

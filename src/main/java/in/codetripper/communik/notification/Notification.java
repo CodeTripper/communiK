@@ -10,6 +10,7 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static in.codetripper.communik.Constants.DB_WRITE_TIMEOUT;
 import static in.codetripper.communik.Constants.PROVIDER_TIMEOUT;
@@ -42,9 +43,8 @@ public class Notification<T extends NotificationMessage> {
                 })
                 .flatMap(message -> {
                     NotificationMessage.Notifiers<T> noti = notificationMessage.getNotifiers();
-                    return noti.getPrimary().send(notificationMessage);
+                    return noti.getPrimary().send(notificationMessage).timeout(Duration.ofMillis(PROVIDER_TIMEOUT));
                 })
-                .timeout(Duration.ofMillis(PROVIDER_TIMEOUT))
                 .flatMap(status -> update(notificationMessage))
                 .timeout(Duration.ofMillis(DB_WRITE_TIMEOUT))
                 .flatMap(this::createResponse)
@@ -57,7 +57,12 @@ public class Notification<T extends NotificationMessage> {
                     } else {
                         log.warn("retrying again as primary provider failed to send notification");
                         NotificationMessage.Notifiers<T> noti = notificationMessage.getNotifiers();
-                        return noti.getPrimary().send(notificationMessage);
+                        Optional<? extends Notifier<T>> backup = noti.getBackup().stream().findFirst();
+                        if (backup.isPresent()) {
+                            return backup.get().send(notificationMessage);
+                        } else {
+                            return Mono.empty();
+                        }
                     }
 
                 })

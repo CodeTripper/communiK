@@ -1,14 +1,12 @@
 package in.codetripper.communik.email.providers;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import in.codetripper.communik.email.Email;
 import in.codetripper.communik.email.EmailNotifier;
 import in.codetripper.communik.exceptions.NotificationSendFailedException;
 import in.codetripper.communik.notification.NotificationStatusResponse;
 import in.codetripper.communik.provider.Provider;
 import in.codetripper.communik.provider.ProviderService;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,34 +14,45 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.util.Base64Utils;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientException;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 
 import java.time.LocalDateTime;
-import java.util.*;
 
-import static in.codetripper.communik.email.Constants.SENDGRID;
+import static in.codetripper.communik.email.Constants.MAILGUN;
+import static io.netty.util.CharsetUtil.UTF_8;
 
 
 @Service
 @Slf4j
-@Qualifier(SENDGRID)
+@Qualifier(MAILGUN)
 @RequiredArgsConstructor
-public class SendGrid implements EmailNotifier<Email> {
+public class MailGun implements EmailNotifier<Email> {
     private final ProviderService providerService;
-    protected String providerId = "11002";
+    protected String providerId = "11001";
     private boolean logRequestResponse = false;
 
     @Override
     public Mono<NotificationStatusResponse> send(Email email) throws NotificationSendFailedException {
         Mono<NotificationStatusResponse> response = null;
+
         Provider provider = providerService.getProvider(providerId);
         if (provider.getType().equalsIgnoreCase("EMAIL")) {
             log.debug("Sending email via provider: {}", provider);
-            SendGridRequest sendGridRequest = createSendGridRequest(provider, email);
+            MultiValueMap<String, Object> formMap = new LinkedMultiValueMap<>();
+            formMap.add("from", provider.getFrom());
+            formMap.add("cc", email.getCc());
+            formMap.add("bcc", email.getBcc());
+            formMap.add("subject", email.getSubject());
+            formMap.add("to", email.getTo());
+            formMap.add("html", email.getBodyTobeSent());
+            //formMap.add("attachment", email.getA());
+            log.debug("Sending email with data : {}", formMap);
             try {
                 WebClient client = WebClient.builder()
                         .clientConnector(new ReactorClientHttpConnector(
@@ -52,16 +61,22 @@ public class SendGrid implements EmailNotifier<Email> {
                         .baseUrl(provider.getEndpoints().getBase())
                         .build();
                 response = client.post()
-                        .uri(provider.getEndpoints().getSendUri())
-                        .header("Authorization", "Bearer " + provider.getBearerAuthentication().getApiKey())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .body(BodyInserters.fromObject(sendGridRequest)).retrieve().bodyToMono(SendGridResponse.class).map(sendGridResponse -> {
+                        .uri(provider.getEndpoints().getSendUri()).
+                                header("Authorization", "Basic " + Base64Utils
+                                        .encodeToString((provider.getBasicAuthentication().getUserId() + ":" + provider.getBasicAuthentication().getPassword()).getBytes(UTF_8)))
+
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
+                        .syncBody(formMap)
+                        .retrieve().bodyToMono(MailgunResponse.class).map(mailgunResponse -> {
+                            log.debug("mailgunResponse {}", mailgunResponse);
                             NotificationStatusResponse notificationStatusResponse = new NotificationStatusResponse();
-                            notificationStatusResponse.setStatus(sendGridResponse.isStatus());
+                            notificationStatusResponse.setStatus(mailgunResponse.isStatus());
                             notificationStatusResponse.setResponseReceivedAt(LocalDateTime.now());
+                            notificationStatusResponse.setProviderResponseId(mailgunResponse.getId());
+                            notificationStatusResponse.setProviderResponseMessage(mailgunResponse.getMessage());
                             return notificationStatusResponse;
-                        }).doOnSuccess((message -> log.debug("sent email via SendGrid successfully {}", message))).doOnError((error -> {
-                            log.error("email via SendGrid failed ", error);
+                        }).doOnSuccess((message -> log.debug("sent email via MailGun successfully"))).doOnError((error -> {
+                            log.error("email via MailGun failed ", error);
                             NotificationStatusResponse notificationStatusResponse = new NotificationStatusResponse();
                             notificationStatusResponse.setStatus(false);
                             notificationStatusResponse.setResponseReceivedAt(LocalDateTime.now());
@@ -76,20 +91,6 @@ public class SendGrid implements EmailNotifier<Email> {
         return response;
     }
 
-    private SendGridRequest createSendGridRequest(Provider provider, Email email) {
-
-        SendGridRequest sendGridRequest = new SendGridRequest();
-        Personalization personalization = new Personalization();
-        Personalization.EmailEntity from = new Personalization.EmailEntity(provider.getFrom());
-        Personalization.EmailEntity to = new Personalization.EmailEntity(email.getTo());
-        personalization.addTo(to);
-        sendGridRequest.setFrom(from);
-        sendGridRequest.setSubject(email.getSubject());
-        sendGridRequest.setContent(Arrays.asList(Map.of("type", "text/html", "value", email.getBodyTobeSent())));
-        sendGridRequest.setPersonalizations(Arrays.asList(personalization));
-        return sendGridRequest;
-    }
-
     @Override
     public boolean isDefault() {
         return providerService.getProvider(providerId).isPrimary();
@@ -97,58 +98,11 @@ public class SendGrid implements EmailNotifier<Email> {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     @Data
-    public static class SendGridResponse {
+    public static class MailgunResponse {
         private boolean status;
         private String id;
         private String message;
     }
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    @Data
-    public static class SendGridRequest {
-
-        private List<Personalization> personalizations;
-        private Personalization.EmailEntity from;
-        private String subject;
-        private List<Map<String, String>> content;
-    }
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    @Data
-    public static class Personalization {
-        @JsonProperty("to")
-        private List<EmailEntity> tos;
-
-        @Data
-        @AllArgsConstructor
-        public static class EmailEntity {
-            private String email;
-            //private String email;
-        }
-
-        @Data
-        @AllArgsConstructor
-        public static class ToHolder {
-            private List<EmailEntity> to;
-            //private String email;
-        }
-
-        @JsonProperty("to")
-        public List<EmailEntity> getTos() {
-            if (tos == null)
-                return Collections.emptyList();
-            return tos;
-        }
-
-        public void addTo(Personalization.EmailEntity newEmail) {
-            if (tos == null) {
-                tos = new ArrayList<>();
-                tos.add(newEmail);
-            } else {
-                tos.add(newEmail);
-            }
-        }
-    }
 
 }
-
