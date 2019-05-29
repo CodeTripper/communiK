@@ -57,7 +57,7 @@ public class SendGrid implements EmailNotifier<Email> {
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(BodyInserters.fromObject(sendGridRequest)).retrieve().bodyToMono(SendGridResponse.class).map(sendGridResponse -> {
                             NotificationStatusResponse notificationStatusResponse = new NotificationStatusResponse();
-                            notificationStatusResponse.setStatus(sendGridResponse.isStatus());
+                            notificationStatusResponse.setStatus(true);
                             notificationStatusResponse.setResponseReceivedAt(LocalDateTime.now());
                             return notificationStatusResponse;
                         }).doOnSuccess((message -> log.debug("sent email via SendGrid successfully {}", message))).doOnError((error -> {
@@ -71,7 +71,7 @@ public class SendGrid implements EmailNotifier<Email> {
                 throw new NotificationSendFailedException("webClientException received", webClientException);
             }
         } else {
-            log.warn("Wrong providerid {} configured for {} ", providerId, DummyMailer.class);
+            log.warn("Wrong providerid {} configured for {} ", providerId, SendGrid.class);
         }
         return response;
     }

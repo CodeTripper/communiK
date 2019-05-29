@@ -44,14 +44,7 @@ public class MailGun implements EmailNotifier<Email> {
         Provider provider = providerService.getProvider(providerId);
         if (provider.getType().equalsIgnoreCase("EMAIL")) {
             log.debug("Sending email via provider: {}", provider);
-            MultiValueMap<String, Object> formMap = new LinkedMultiValueMap<>();
-            formMap.add("from", provider.getFrom());
-            formMap.add("cc", email.getCc());
-            formMap.add("bcc", email.getBcc());
-            formMap.add("subject", email.getSubject());
-            formMap.add("to", email.getTo());
-            formMap.add("html", email.getBodyTobeSent());
-            //formMap.add("attachment", email.getA());
+            MultiValueMap<String, Object> formMap = getStringObjectMultiValueMap(email, provider);
             log.debug("Sending email with data : {}", formMap);
             try {
                 WebClient client = WebClient.builder()
@@ -67,7 +60,7 @@ public class MailGun implements EmailNotifier<Email> {
 
                         .contentType(MediaType.MULTIPART_FORM_DATA)
                         .syncBody(formMap)
-                        .retrieve().bodyToMono(MailgunResponse.class).map(mailgunResponse -> {
+                        .retrieve().bodyToMono(MailGunResponse.class).map(mailgunResponse -> {
                             log.debug("mailgunResponse {}", mailgunResponse);
                             NotificationStatusResponse notificationStatusResponse = new NotificationStatusResponse();
                             notificationStatusResponse.setStatus(mailgunResponse.isStatus());
@@ -91,6 +84,23 @@ public class MailGun implements EmailNotifier<Email> {
         return response;
     }
 
+    private MultiValueMap<String, Object> getStringObjectMultiValueMap(Email email, Provider provider) {
+        MultiValueMap<String, Object> formMap = new LinkedMultiValueMap<>();
+        formMap.add("from", provider.getFrom());
+        if (email.getCc() != null) {
+            formMap.add("cc", email.getCc());
+        }
+        if (email.getBcc() != null) {
+            formMap.add("bcc", email.getBcc());
+        }
+
+        formMap.add("subject", email.getSubject());
+        formMap.add("to", email.getTo());
+        formMap.add("html", email.getBodyTobeSent());
+        //formMap.add("attachment", email.getA());
+        return formMap;
+    }
+
     @Override
     public boolean isDefault() {
         return providerService.getProvider(providerId).isPrimary();
@@ -98,7 +108,7 @@ public class MailGun implements EmailNotifier<Email> {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     @Data
-    public static class MailgunResponse {
+    public static class MailGunResponse {
         private boolean status;
         private String id;
         private String message;
