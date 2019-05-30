@@ -8,9 +8,13 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.service.ApiInfo;
+import springfox.documentation.service.Contact;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2WebFlux;
+
+import java.util.Collections;
 
 @Configuration
 @EnableSwagger2WebFlux
@@ -26,6 +30,17 @@ public class SwaggerConfig {
                 .select()
                 .apis(RequestHandlerSelectors.any())
                 .paths(PathSelectors.any())
-                .build();
+                .build().apiInfo(metaInfo());
+    }
+
+    private ApiInfo metaInfo() {
+        return new ApiInfo(
+                "Communik API",
+                "Communik API - centralizes all your notifications",
+                "API TOS",
+                "Terms of service",
+                new Contact("Code Tripper", "https://github.com/CodeTripper/", "admin@condetripper.in"),
+                "MIT",
+                "API license URL", Collections.emptyList());
     }
 }
