@@ -107,7 +107,7 @@ class SmsServiceImpl implements SmsService {
             if (smsDto.getTemplateId().isEmpty()) {
                 message = smsDto.getBody().getMessage();
             } else {
-                message = messageGenerator.generateBlockingMessage(template.getBody(), smsDto);
+                message = messageGenerator.generateMessage(template.getBody(), smsDto);
             }
 
         log.debug("generated message {}", message);

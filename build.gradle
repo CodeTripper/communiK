@@ -16,6 +16,8 @@ targetCompatibility = 12
 
 repositories {
 	mavenCentral()
+	maven { url 'http://oss.jfrog.org/artifactory/oss-snapshot-local/' }
+
 }
 
 ext {
@@ -34,6 +36,10 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-hystrix'
+    implementation 'io.springfox:springfox-swagger2:3.0.0-SNAPSHOT'
+    implementation 'io.springfox:springfox-swagger-ui:3.0.0-SNAPSHOT'
+    implementation 'io.springfox:springfox-spring-webflux:3.0.0-SNAPSHOT'
+
 	compileOnly 'org.projectlombok:lombok:1.18.8'
     implementation "org.mapstruct:mapstruct:${mapstructVersion}"
     implementation "org.xhtmlrenderer:flying-saucer-core:${flyingsaucerVersion}"

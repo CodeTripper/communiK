@@ -119,7 +119,7 @@ class EmailServiceImpl implements EmailService {
         if (emailDto.getTemplateId().isEmpty()) {
             message = emailDto.getBody().getMessage();
         } else {
-            message = messageGenerator.generateBlockingMessage(template.getBody(), emailDto);
+            message = messageGenerator.generateMessage(template.getBody(), emailDto);
         }
 
         log.debug("generated message {}", message);

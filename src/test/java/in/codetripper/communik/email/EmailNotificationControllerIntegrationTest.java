@@ -24,7 +24,7 @@ public class EmailNotificationControllerIntegrationTest {
 
     @Autowired
     protected WebApplicationContext wac;
-    @Autowired
+
     EmailController notificationController;
 
     @Before

@@ -23,7 +23,6 @@ public class Gmail extends SmtpEmailSender {
     String providerId = "11003";
     @Override
     protected EmailConfiguration getMailConfiguration() {
-        // TODO add in providerDB
         Provider provider = providerService.getProvider(providerId);
         EmailConfiguration emailConfiguration = new EmailConfiguration();
         emailConfiguration.setHost(provider.getServer().getHost());
