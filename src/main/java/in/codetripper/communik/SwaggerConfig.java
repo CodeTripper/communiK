@@ -15,6 +15,7 @@ import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2WebFlux;
 
 import java.util.Collections;
+import java.util.function.Predicate;
 
 @Configuration
 @EnableSwagger2WebFlux
@@ -30,9 +31,13 @@ public class SwaggerConfig {
                 .select()
                 .apis(RequestHandlerSelectors.any())
                 .paths(PathSelectors.any())
+                .paths(paths())
                 .build().apiInfo(metaInfo());
     }
 
+    private Predicate<String> paths() {
+        return Predicate.not(PathSelectors.regex("/actuator.*"));
+    }
     private ApiInfo metaInfo() {
         return new ApiInfo(
                 "Communik API",
