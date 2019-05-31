@@ -47,7 +47,6 @@ class SmsServiceImpl implements SmsService {
     }
 
     private Mono<NotificationStatusResponse> send(SmsDto smsDto, SmsNotifier<Sms> notifier) {
-        // TODO CACHE
         // validate all data present in SMS dto?
         return templateService.get(smsDto.getTemplateId()).
                 timeout(Duration.ofMillis(DB_READ_TIMEOUT)).
@@ -63,7 +62,7 @@ class SmsServiceImpl implements SmsService {
                 map(t -> generateMessage(t, smsDto)).
                 map(message -> getSms(smsDto, notifier, message)).
                 flatMap(notificationHandler::sendNotification).
-                onErrorMap(original -> new NotificationSendFailedException(NOTIFICATION_SEND_FAILURE));
+                onErrorMap(error -> new NotificationSendFailedException(error.getMessage()));
         //doOnError(err -> log.error("Error while sending SMS",err));
     }
 
@@ -115,12 +114,5 @@ class SmsServiceImpl implements SmsService {
 
     }
 
-    //  //String message = "THERE IS A MAN";
-    //        /*try {
-    //            message = messageGenerator.generateMessage(template.getBody(), smsDto);
-    //
-    //        } catch (MessageGenerationException e) {
-    //            e.printStackTrace();
-    //        }*/
 
 }

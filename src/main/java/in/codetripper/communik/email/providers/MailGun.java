@@ -63,16 +63,13 @@ public class MailGun implements EmailNotifier<Email> {
                         .retrieve().bodyToMono(MailGunResponse.class).map(mailgunResponse -> {
                             log.debug("mailgunResponse {}", mailgunResponse);
                             NotificationStatusResponse notificationStatusResponse = new NotificationStatusResponse();
-                            notificationStatusResponse.setStatus(mailgunResponse.isStatus());
-                            notificationStatusResponse.setResponseReceivedAt(LocalDateTime.now());
+                            notificationStatusResponse.setStatus(200);
+                            notificationStatusResponse.setTimestamp(LocalDateTime.now());
                             notificationStatusResponse.setProviderResponseId(mailgunResponse.getId());
                             notificationStatusResponse.setProviderResponseMessage(mailgunResponse.getMessage());
                             return notificationStatusResponse;
                         }).doOnSuccess((message -> log.debug("sent email via MailGun successfully"))).doOnError((error -> {
                             log.error("email via MailGun failed ", error);
-                            NotificationStatusResponse notificationStatusResponse = new NotificationStatusResponse();
-                            notificationStatusResponse.setStatus(false);
-                            notificationStatusResponse.setResponseReceivedAt(LocalDateTime.now());
                         }));
             } catch (WebClientException webClientException) {
                 log.error("webClientException");

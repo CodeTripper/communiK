@@ -6,11 +6,13 @@ import java.time.LocalDateTime;
 
 @Data
 public class NotificationStatusResponse {
-    private boolean status;
-    private String clientRequestId;
-    private String requestId;
+    private LocalDateTime timestamp;
+    private int status;
+    private String message;
+    private String traceId;
+    private String responseId;
     private String providerResponseId;
     private String providerResponseMessage;
-    private String responseMessage;
-    private LocalDateTime responseReceivedAt;
+
+
 }

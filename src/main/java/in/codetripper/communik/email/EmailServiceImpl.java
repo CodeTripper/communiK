@@ -56,8 +56,7 @@ class EmailServiceImpl implements EmailService {
                 map(message -> getEmail(emailDto, message)).
                 flatMap(notificationHandler::sendNotification).
                 doOnError(err -> log.error("Error while sending Email", err)).
-                onErrorMap(original -> new NotificationSendFailedException(NOTIFICATION_SEND_FAILURE));
-
+                onErrorMap(original -> new NotificationSendFailedException(original.getMessage()));
     }
 
     @Override
@@ -84,7 +83,14 @@ class EmailServiceImpl implements EmailService {
             }
         }
         List<EmailNotifier<Email>> backups = providers.entrySet().stream().
-                filter(provider -> provider.getKey().equalsIgnoreCase(defaultProvider.get().getKey())).
+                filter(provider -> {
+                    if (defaultProvider.isPresent()) {
+                        return provider.getKey().equalsIgnoreCase(defaultProvider.get().getKey());
+                    } else {
+                        return true;
+                    }
+
+                }).
                 map(Entry::getValue).
                 collect(Collectors.toList());
 

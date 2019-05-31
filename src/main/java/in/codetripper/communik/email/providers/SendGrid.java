@@ -55,16 +55,15 @@ public class SendGrid implements EmailNotifier<Email> {
                         .uri(provider.getEndpoints().getSendUri())
                         .header("Authorization", "Bearer " + provider.getBearerAuthentication().getApiKey())
                         .contentType(MediaType.APPLICATION_JSON)
+                        // FIXME empty return?
                         .body(BodyInserters.fromObject(sendGridRequest)).retrieve().bodyToMono(SendGridResponse.class).map(sendGridResponse -> {
+                            log.debug("getting response from SendGrid {}", sendGridResponse);
                             NotificationStatusResponse notificationStatusResponse = new NotificationStatusResponse();
-                            notificationStatusResponse.setStatus(true);
-                            notificationStatusResponse.setResponseReceivedAt(LocalDateTime.now());
+                            notificationStatusResponse.setStatus(200);
+                            notificationStatusResponse.setTimestamp(LocalDateTime.now());
                             return notificationStatusResponse;
                         }).doOnSuccess((message -> log.debug("sent email via SendGrid successfully {}", message))).doOnError((error -> {
                             log.error("email via SendGrid failed ", error);
-                            NotificationStatusResponse notificationStatusResponse = new NotificationStatusResponse();
-                            notificationStatusResponse.setStatus(false);
-                            notificationStatusResponse.setResponseReceivedAt(LocalDateTime.now());
                         }));
             } catch (WebClientException webClientException) {
                 log.error("webClientException");

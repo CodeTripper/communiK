@@ -36,7 +36,7 @@ public class GupchupSmsNotifier implements SmsNotifier<Sms> {
         GupchupRequest gupchupRequest = new GupchupRequest();
         gupchupRequest.setBody(sms.getBodyTobeSent());
         gupchupRequest.setTo(sms.getTo());
-        // gupchupRequest.setRequestId(sms.get); from where?
+        // gupchupRequest.setResponseId(sms.get); from where?
         if (provider.getType().equalsIgnoreCase(Type.SMS.toString())) {
             log.debug("Sending sms via provider: {} with data {}", provider, sms);
             try {
@@ -46,14 +46,14 @@ public class GupchupSmsNotifier implements SmsNotifier<Sms> {
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(BodyInserters.fromObject(gupchupRequest)).retrieve().bodyToMono(GupchupResponse.class).map(gupchupResponse -> {
                             NotificationStatusResponse notificationStatusResponse = new NotificationStatusResponse();
-                            notificationStatusResponse.setStatus(gupchupResponse.isStatus());
-                            notificationStatusResponse.setResponseReceivedAt(LocalDateTime.now());
+                            notificationStatusResponse.setStatus(200);
+                            notificationStatusResponse.setTimestamp(LocalDateTime.now());
                             return notificationStatusResponse;
                         }).doOnSuccess((message -> log.debug("sent sms successfully"))).doOnError((error -> {
                             log.debug("sms sending failed", error);
                             NotificationStatusResponse notificationStatusResponse = new NotificationStatusResponse();
-                            notificationStatusResponse.setStatus(false);
-                            notificationStatusResponse.setResponseReceivedAt(LocalDateTime.now());
+                            notificationStatusResponse.setStatus(500);
+                            notificationStatusResponse.setTimestamp(LocalDateTime.now());
                         }));
             } catch (WebClientException webClientException) {
                 log.error("webClientException", webClientException);

@@ -1,6 +1,7 @@
 package in.codetripper.communik.notification;
 
 import in.codetripper.communik.exceptions.NotificationPersistenceException;
+import in.codetripper.communik.exceptions.NotificationSendFailedException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,7 @@ import java.util.Optional;
 
 import static in.codetripper.communik.Constants.DB_WRITE_TIMEOUT;
 import static in.codetripper.communik.Constants.PROVIDER_TIMEOUT;
+import static in.codetripper.communik.exceptions.ExceptionConstants.NOTIFICATION_SEND_FAILURE;
 
 @Component
 @Slf4j
@@ -45,13 +47,9 @@ public class Notification<T extends NotificationMessage> {
                     NotificationMessage.Notifiers<T> noti = notificationMessage.getNotifiers();
                     return noti.getPrimary().send(notificationMessage).timeout(Duration.ofMillis(PROVIDER_TIMEOUT));
                 })
-                .flatMap(status -> update(notificationMessage))
-                .timeout(Duration.ofMillis(DB_WRITE_TIMEOUT))
-                .flatMap(this::createResponse)
-                .doOnError(err -> log.error("Error while sending Notification", err))
                 .onErrorResume(error ->
                 {
-                    log.info("primary provider failed to send notification {0}", error);
+                    log.info("primary provider failed to send notification ", error);
                     if (error instanceof NotificationPersistenceException) {
                         return Mono.error(error);
                     } else {
@@ -59,23 +57,30 @@ public class Notification<T extends NotificationMessage> {
                         NotificationMessage.Notifiers<T> noti = notificationMessage.getNotifiers();
                         Optional<? extends Notifier<T>> backup = noti.getBackup().stream().findFirst();
                         if (backup.isPresent()) {
-                            return backup.get().send(notificationMessage);
+                            return backup.get().send(notificationMessage).timeout(Duration.ofMillis(PROVIDER_TIMEOUT));
                         } else {
-                            return Mono.empty();
+                            return Mono.error(new NotificationSendFailedException(NOTIFICATION_SEND_FAILURE));
                         }
                     }
 
                 })
+                .flatMap(status -> update(notificationMessage))
+                .timeout(Duration.ofMillis(DB_WRITE_TIMEOUT))
+                .flatMap(this::createResponse)
                 // .flatMap(status -> update(notificationMessage))
-                .onErrorReturn(getFailure());
+                .onErrorResume(error ->
+                {
+                    return Mono.error(new NotificationSendFailedException(NOTIFICATION_SEND_FAILURE));
+                });
 
     }
 
     private Mono<NotificationStatusResponse> createResponse(NotificationStorageResponse status) {
         NotificationStatusResponse notificationStatusResponse = new NotificationStatusResponse();
-        notificationStatusResponse.setRequestId(status.getId());
-        notificationStatusResponse.setStatus(status.isStatus());
-        notificationStatusResponse.setResponseReceivedAt(LocalDateTime.now());
+        notificationStatusResponse.setResponseId(status.getId());
+        notificationStatusResponse.setStatus(200);
+        notificationStatusResponse.setMessage("SUCCESS");
+        notificationStatusResponse.setTimestamp(LocalDateTime.now());
         return Mono.just(notificationStatusResponse);
     }
 
@@ -92,12 +97,14 @@ public class Notification<T extends NotificationMessage> {
         return notificationPersistence.update(notificationMessage);
     }
 
-    private NotificationStatusResponse getFailure() {
-        NotificationStatusResponse notificationStatusResponse = new NotificationStatusResponse();
-        //  notificationStatusResponse.setRequestId(notificationMessage.getId()); // FIXME
+    private Mono<Object> getFailure() {
+        /*NotificationStatusResponse notificationStatusResponse = new NotificationStatusResponse();
+        //  notificationStatusResponse.setResponseId(notificationMessage.getId()); // FIXME
         notificationStatusResponse.setStatus(false);
-        notificationStatusResponse.setResponseReceivedAt(LocalDateTime.now());
-        return notificationStatusResponse;
+        notificationStatusResponse.setTimestamp(LocalDateTime.now());
+        return notificationStatusResponse;*/
+        //notificationStatusResponse.setResponseId(status.getId());
+        return Mono.error(new NotificationSendFailedException(NOTIFICATION_SEND_FAILURE));
     }
 
 }
