@@ -1,4 +1,4 @@
-package in.codetripper.communik;
+package in.codetripper.communik.config;
 
 import in.codetripper.communik.email.EmailController;
 import in.codetripper.communik.sms.SmsController;

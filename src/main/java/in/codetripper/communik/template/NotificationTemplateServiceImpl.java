@@ -2,11 +2,14 @@ package in.codetripper.communik.template;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
+
+import static in.codetripper.communik.Constants.CACHE_TEMPLATE;
 
 /*
  All domain logic to reside here , no reference of DTos here.
@@ -14,6 +17,7 @@ import java.time.LocalDateTime;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+
 public class NotificationTemplateServiceImpl implements NotificationTemplateService {
     private final NotificationTemplatePersistence templatePersistence;
 
@@ -37,7 +41,7 @@ public class NotificationTemplateServiceImpl implements NotificationTemplateServ
     }
 
     @Override
-    // TODO cache
+    @Cacheable(cacheNames = CACHE_TEMPLATE)
     public Mono<NotificationTemplate> get(String id) {
         log.debug("Getting template for id {}", id);
         return templatePersistence.get(id);

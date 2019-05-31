@@ -1,4 +1,4 @@
-package in.codetripper.communik;
+package in.codetripper.communik.config;
 
 import org.springframework.web.reactive.config.ResourceHandlerRegistry;
 
