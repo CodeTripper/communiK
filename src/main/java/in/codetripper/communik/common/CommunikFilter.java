@@ -15,12 +15,22 @@ import reactor.core.publisher.Mono;
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 1)
 public class CommunikFilter implements WebFilter {
+    private final ReqTracer tracer;
+
+    private CommunikFilter(ReqTracer tracer) {
+        this.tracer = tracer;
+    }
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         return chain.filter(exchange).compose((call) -> filter(exchange, call));
     }
 
     private Publisher<Void> filter(ServerWebExchange exchange, Mono<Void> call) {
+//        Extract the existing span context from the inter-process transport (HTTP, etc)
+//          Start new trace if no span is present
+//        Start the span
+//        Store the current trace state
+
         long start = System.nanoTime();
         return call.doOnSuccess((done) -> onSuccess(exchange, start))
                 .doOnError((cause) -> onError(exchange, start, cause));
@@ -43,6 +53,7 @@ public class CommunikFilter implements WebFilter {
     }
 
     private void record(ServerWebExchange exchange, long start, Throwable cause) {
+        // TODO Finish the span
         log.debug("Time Taken to process in nanos{}", System.nanoTime() - start);
     }
 }

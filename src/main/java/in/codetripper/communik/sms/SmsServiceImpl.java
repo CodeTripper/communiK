@@ -102,7 +102,7 @@ class SmsServiceImpl implements SmsService {
     }
 
     private String generateMessage(NotificationTemplate template, SmsDto smsDto) {
-        String message = "";
+        String message;
             if (smsDto.getTemplateId().isEmpty()) {
                 message = smsDto.getBody().getMessage();
             } else {

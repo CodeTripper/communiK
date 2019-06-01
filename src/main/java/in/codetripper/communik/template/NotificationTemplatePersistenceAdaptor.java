@@ -23,8 +23,7 @@ public class NotificationTemplatePersistenceAdaptor implements NotificationTempl
         NotificationTemplateRepoDto templateRepoDto = templateMapper.templateToTemplateRepoDto(notificationTemplate);
         return this.templateRepository
                 .insert(templateRepoDto).map(
-                        te ->
-                                templateMapper.templateRepoDtotoTemplate(te))
+                        templateMapper::templateRepoDtotoTemplate)
                 .doOnSuccess(templateDto -> {
                 });
     }
@@ -36,7 +35,7 @@ public class NotificationTemplatePersistenceAdaptor implements NotificationTempl
         NotificationTemplateRepoDto templateRepoDto = templateMapper.templateToTemplateRepoDto(notificationTemplate);
         return this.templateRepository
                 .save(templateRepoDto).map(
-                        te -> templateMapper.templateRepoDtotoTemplate(te))
+                        templateMapper::templateRepoDtotoTemplate)
                 .doOnSuccess(templateDto -> {
                 });
     }
@@ -45,14 +44,14 @@ public class NotificationTemplatePersistenceAdaptor implements NotificationTempl
     @HystrixCommand()
     public Flux<NotificationTemplate> getAll() {
         return this.templateRepository
-                .findAll().map(te -> templateMapper.templateRepoDtotoTemplate(te));
+                .findAll().map(templateMapper::templateRepoDtotoTemplate);
     }
 
     @Override
     @HystrixCommand()
     public Mono<NotificationTemplate> get(String id) {
         return this.templateRepository
-                .findById(id).map(te -> templateMapper.templateRepoDtotoTemplate(te));
+                .findById(id).map(templateMapper::templateRepoDtotoTemplate);
     }
 
     @Override

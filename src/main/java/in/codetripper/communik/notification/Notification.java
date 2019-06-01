@@ -59,7 +59,7 @@ public class Notification<T extends NotificationMessage> {
                         if (backup.isPresent()) {
                             return backup.get().send(notificationMessage).timeout(Duration.ofMillis(PROVIDER_TIMEOUT));
                         } else {
-                            return Mono.error(new NotificationSendFailedException(NOTIFICATION_SEND_FAILURE));
+                            return Mono.error(new NotificationSendFailedException(error.getMessage()));
                         }
                     }
 
@@ -69,9 +69,7 @@ public class Notification<T extends NotificationMessage> {
                 .flatMap(this::createResponse)
                 // .flatMap(status -> update(notificationMessage))
                 .onErrorResume(error ->
-                {
-                    return Mono.error(new NotificationSendFailedException(NOTIFICATION_SEND_FAILURE));
-                });
+                        Mono.error(new NotificationSendFailedException(error.getMessage())));
 
     }
 

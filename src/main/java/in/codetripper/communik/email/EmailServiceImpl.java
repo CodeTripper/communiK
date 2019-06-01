@@ -19,10 +19,8 @@ import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
@@ -70,11 +68,11 @@ class EmailServiceImpl implements EmailService {
         //email.setSubject(emailDto.getSubject());
         email.setBodyTobeSent(body);
         NotificationMessage.Notifiers<Email> notifiers = new NotificationMessage.Notifiers<>();
-        Optional<Entry<String, EmailNotifier<Email>>> defaultProvider = providers.entrySet().stream().
+        var defaultProvider = providers.entrySet().stream().
                 filter(provider -> provider.getValue().isDefault()).
                 findFirst();
 
-        EmailNotifier<Email> requestedProvider = providers.get(emailDto.getProviderName());
+        var requestedProvider = providers.get(emailDto.getProviderName());
         if (requestedProvider == null) {
             if (defaultProvider.isPresent()) {
                 requestedProvider = defaultProvider.get().getValue();
@@ -82,15 +80,8 @@ class EmailServiceImpl implements EmailService {
                 throw new RuntimeException(NO_DEFAULT_PROVIDER);
             }
         }
-        List<EmailNotifier<Email>> backups = providers.entrySet().stream().
-                filter(provider -> {
-                    if (defaultProvider.isPresent()) {
-                        return provider.getKey().equalsIgnoreCase(defaultProvider.get().getKey());
-                    } else {
-                        return true;
-                    }
-
-                }).
+        var backups = providers.entrySet().stream().
+                filter(provider -> defaultProvider.map(notifierEntry -> provider.getKey().equalsIgnoreCase(notifierEntry.getKey())).orElse(true)).
                 map(Entry::getValue).
                 collect(Collectors.toList());
 

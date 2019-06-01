@@ -5,16 +5,17 @@ It's a Store And Forward API built with Springboot/Reactor and MongoDb to send o
 ## Features: 
     
     * Send emails/sms/chats by calling a rest endpoint
-    * Add any number of Email/SMS providers by implementing the Notifier Interface
+    * Add your own Email/SMS providers by implementing the Notifier Interface
     * Configure blackouts - WIP
     * Send bulk notifications - WIP
-    * Stores the notifications to a DB (mongodb) before sending it
+    * Stores the notifications to a DB (mongodb/cassandra) before sending it
     * Register a notification template and pass dynamic data to it via Freemarker
-    * One can send email attachments (html/pdf) which can be build on the fly
+    * One can send email attachments (html/pdf) which can be built on the fly
     * Retry the failed notifications via multiple fallback providers
     * Call webhooks on any failure/success 
     * Audit the notifications.
     * Everything is injected, so one can change any part of the system as required
+    * OpenTracing Integration
 
 ## Getting Started
 

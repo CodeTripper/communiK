@@ -15,11 +15,11 @@ import static in.codetripper.communik.Constants.ERROR_UNABLE_TO_PROCESS;
 
 @Slf4j
 @Component
-class DomainExceptionWrapper extends DefaultErrorAttributes {
+class CustomErrorAttributes extends DefaultErrorAttributes {
 
     private final ReqTracer tracer;
 
-    DomainExceptionWrapper(ReqTracer tracer) {
+    private CustomErrorAttributes(ReqTracer tracer) {
         super(false);
         this.tracer = tracer;
     }
@@ -27,6 +27,7 @@ class DomainExceptionWrapper extends DefaultErrorAttributes {
     @Override
     public Map<String, Object> getErrorAttributes(ServerRequest request, boolean includeStackTrace) {
         final var error = getError(request);
+
         final var errorAttributes = super.getErrorAttributes(request, false);
         errorAttributes.put(ErrorAttribute.TRACE_ID.value, tracer.traceId());
         if (error instanceof NotificationSendFailedException || error instanceof NotificationPersistenceException) {

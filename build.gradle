@@ -25,7 +25,7 @@ ext {
 	set('springStatemachineVersion', '2.0.1.RELEASE')
     set('mapstructVersion', '1.3.0.Final')
     set('flyingsaucerVersion', '9.1.18')
-
+    set('errorproneVersion', '0.92')
 }
 
 dependencies {
