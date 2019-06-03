@@ -5,17 +5,17 @@ import in.codetripper.communik.repository.mongo.NotificationMessageRepoDto;
 import in.codetripper.communik.repository.mongo.NotificationMessageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Service;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import static in.codetripper.communik.exceptions.ExceptionConstants.*;
 
-@Service
+@Repository
 @Slf4j
-@Primary
 @RequiredArgsConstructor
+@ConditionalOnProperty(value = "notification.persistence", havingValue = "mongo", matchIfMissing = true)
 public class NotificationPersistenceAdapter implements NotificationPersistence {
     // TODO add hystrix in all methods
     private final NotificationMessageRepository notificationRepository;

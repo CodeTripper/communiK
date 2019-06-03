@@ -1,8 +1,5 @@
-package in.codetripper.communik.common;
+package in.codetripper.communik.exceptions;
 
-import in.codetripper.communik.exceptions.InvalidRequestException;
-import in.codetripper.communik.exceptions.NotificationPersistenceException;
-import in.codetripper.communik.exceptions.NotificationSendFailedException;
 import io.opentracing.Tracer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

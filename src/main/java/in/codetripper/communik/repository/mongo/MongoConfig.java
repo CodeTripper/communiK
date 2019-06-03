@@ -1,24 +1,37 @@
 package in.codetripper.communik.repository.mongo;
 
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
+import in.codetripper.communik.trace.MongoTraceListener;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.mongodb.config.AbstractReactiveMongoConfiguration;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
+import org.springframework.stereotype.Component;
 
-// @Configuration FIXME adding threads
-//@EnableReactiveMongoRepositories(basePackages = "in.codetripper.notification.repository.mongo")
+@Slf4j
+@Component
+@RequiredArgsConstructor
 public class MongoConfig extends AbstractReactiveMongoConfiguration {
-    @Value("${port}")
-    private String port;
-
-    @Value("${dbname}")
+    private final MongoTraceListener mongoTracer;
+    @Value("${mongodb.dbname}")
     private String dbName;
+
+    @Value("${mongodb.uri}")
+    private String uri;
 
     @Override
     public MongoClient reactiveMongoClient() {
-        return MongoClients.create();
+        log.debug("Creating MongoClient with trace");
+        MongoClient mongoClient = MongoClients.create(
+                MongoClientSettings.builder().applyConnectionString(new ConnectionString(uri))
+                        .addCommandListener(mongoTracer.getListener())
+                        .build());
+        return mongoClient;
     }
 
     @Override
