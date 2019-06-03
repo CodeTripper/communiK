@@ -7,6 +7,9 @@ import in.codetripper.communik.exceptions.NotificationSendFailedException;
 import in.codetripper.communik.notification.NotificationStatusResponse;
 import in.codetripper.communik.provider.Provider;
 import in.codetripper.communik.provider.ProviderService;
+import in.codetripper.communik.trace.WebClientDecorator;
+import io.opentracing.Tracer;
+import io.opentracing.contrib.spring.web.client.TracingExchangeFilterFunction;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +26,7 @@ import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 
 import static in.codetripper.communik.email.Constants.MAILGUN;
 import static io.netty.util.CharsetUtil.UTF_8;
@@ -33,9 +37,11 @@ import static io.netty.util.CharsetUtil.UTF_8;
 @Qualifier(MAILGUN)
 @RequiredArgsConstructor
 public class MailGun implements EmailNotifier<Email> {
+    private String className = DummyMailer.class.getSimpleName();
     private final ProviderService providerService;
     protected String providerId = "11001";
     private boolean logRequestResponse = false;
+    private final Tracer tracer;
 
     @Override
     public Mono<NotificationStatusResponse> send(Email email) throws NotificationSendFailedException {
@@ -48,6 +54,7 @@ public class MailGun implements EmailNotifier<Email> {
             log.debug("Sending email with data : {}", formMap);
             try {
                 WebClient client = WebClient.builder()
+                        .filter(new TracingExchangeFilterFunction(tracer, Collections.singletonList(new WebClientDecorator("sendEmail", className))))
                         .clientConnector(new ReactorClientHttpConnector(
                                 HttpClient.create().wiretap(logRequestResponse)
                         ))

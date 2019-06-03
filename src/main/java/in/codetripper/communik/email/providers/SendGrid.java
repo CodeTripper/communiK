@@ -8,6 +8,9 @@ import in.codetripper.communik.exceptions.NotificationSendFailedException;
 import in.codetripper.communik.notification.NotificationStatusResponse;
 import in.codetripper.communik.provider.Provider;
 import in.codetripper.communik.provider.ProviderService;
+import in.codetripper.communik.trace.WebClientDecorator;
+import io.opentracing.Tracer;
+import io.opentracing.contrib.spring.web.client.TracingExchangeFilterFunction;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -33,10 +36,11 @@ import static in.codetripper.communik.email.Constants.SENDGRID;
 @Qualifier(SENDGRID)
 @RequiredArgsConstructor
 public class SendGrid implements EmailNotifier<Email> {
+    private String className = DummyMailer.class.getSimpleName();
     private final ProviderService providerService;
     protected String providerId = "11002";
     private boolean logRequestResponse = false;
-
+    private final Tracer tracer;
     @Override
     public Mono<NotificationStatusResponse> send(Email email) throws NotificationSendFailedException {
         Mono<NotificationStatusResponse> response = null;
@@ -49,6 +53,7 @@ public class SendGrid implements EmailNotifier<Email> {
                         .clientConnector(new ReactorClientHttpConnector(
                                 HttpClient.create().wiretap(logRequestResponse)
                         ))
+                        .filter(new TracingExchangeFilterFunction(tracer, Collections.singletonList(new WebClientDecorator("sendEmail", className))))
                         .baseUrl(provider.getEndpoints().getBase())
                         .build();
                 response = client.post()

@@ -1,6 +1,7 @@
 package in.codetripper.communik;
 
 import io.jaegertracing.internal.JaegerTracer;
+import io.jaegertracing.internal.samplers.ProbabilisticSampler;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -16,7 +17,7 @@ public class CommuniK {
 
     @Bean
     public io.opentracing.Tracer tracer() {
-        return new JaegerTracer.Builder("communik-service").build();
+        return new JaegerTracer.Builder("communik-service").withSampler(new ProbabilisticSampler(1.0)).build();
     }
 
     public LoggingEventListener mongoEventListener() {

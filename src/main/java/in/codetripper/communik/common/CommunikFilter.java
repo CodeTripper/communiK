@@ -1,5 +1,7 @@
 package in.codetripper.communik.common;
 
+import io.opentracing.Tracer;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
 import org.springframework.core.Ordered;
@@ -14,12 +16,11 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 1)
+@RequiredArgsConstructor
 public class CommunikFilter implements WebFilter {
-    private final ReqTracer tracer;
+    private final Tracer tracer;
 
-    private CommunikFilter(ReqTracer tracer) {
-        this.tracer = tracer;
-    }
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         return chain.filter(exchange).compose((call) -> filter(exchange, call));
@@ -30,10 +31,10 @@ public class CommunikFilter implements WebFilter {
 //          Start new trace without any references if no span is present
 //         else  Start the span with ChildOf spanContext
 //        Store the current trace state
-
+        //exchange.getRequest().getPath()
         long start = System.nanoTime();
-        return call.doOnSuccess((done) -> onSuccess(exchange, start))
-                .doOnError((cause) -> onError(exchange, start, cause));
+        return call.doOnSuccess(done -> onSuccess(exchange, start))
+                .doOnError(cause -> onError(exchange, start, cause));
     }
 
     private void onSuccess(ServerWebExchange exchange, long start) {

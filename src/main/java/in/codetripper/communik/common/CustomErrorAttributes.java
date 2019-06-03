@@ -3,7 +3,9 @@ package in.codetripper.communik.common;
 import in.codetripper.communik.exceptions.InvalidRequestException;
 import in.codetripper.communik.exceptions.NotificationPersistenceException;
 import in.codetripper.communik.exceptions.NotificationSendFailedException;
+import io.opentracing.Tracer;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.reactive.error.DefaultErrorAttributes;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -16,10 +18,10 @@ import static in.codetripper.communik.Constants.ERROR_UNABLE_TO_PROCESS;
 @Slf4j
 @Component
 class CustomErrorAttributes extends DefaultErrorAttributes {
+    @Autowired
+    private final Tracer tracer;
 
-    private final ReqTracer tracer;
-
-    private CustomErrorAttributes(ReqTracer tracer) {
+    private CustomErrorAttributes(Tracer tracer) {
         super(false);
         this.tracer = tracer;
     }
@@ -29,7 +31,7 @@ class CustomErrorAttributes extends DefaultErrorAttributes {
         final var error = getError(request);
 
         final var errorAttributes = super.getErrorAttributes(request, false);
-        errorAttributes.put(ErrorAttribute.TRACE_ID.value, tracer.traceId());
+        errorAttributes.put(ErrorAttribute.TRACE_ID.value, "");
         if (error instanceof NotificationSendFailedException || error instanceof NotificationPersistenceException) {
             log.debug("Caught an instance of: {}, err: {}", NotificationSendFailedException.class, error);
             errorAttributes.replace(ErrorAttribute.STATUS.value, 500);

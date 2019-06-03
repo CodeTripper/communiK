@@ -29,7 +29,6 @@ public class Notification<T extends NotificationMessage> {
     /*public Notification(NotificationPersistence<T> notificationPersistence){
         this.notificationPersistence=notificationPersistence;
     }*/
-
     public Mono<NotificationStatusResponse> sendNotification(@NonNull T notificationMessage) {
         log.info("About to persist notification for {}", notificationMessage.getTo());
         log.debug("About to persist notification for {}", notificationMessage);
