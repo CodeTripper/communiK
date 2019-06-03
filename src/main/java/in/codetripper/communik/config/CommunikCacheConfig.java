@@ -21,7 +21,7 @@ public class CommunikCacheConfig extends CachingConfigurerSupport {
     @Override
     @Bean
     public CacheManager cacheManager() {
-        CaffeineCache notificationCache = buildCache(CACHE_TEMPLATE, 60);
+        CaffeineCache notificationCache = buildCache(CACHE_TEMPLATE, 60); // TODO cache to be in config
         CaffeineCache defaultCache = buildCache(CACHE_DEFAULT, 300);
         SimpleCacheManager manager = new SimpleCacheManager();
         manager.setCaches(Arrays.asList(notificationCache, defaultCache));

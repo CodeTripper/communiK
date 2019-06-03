@@ -54,7 +54,7 @@ public class MailGun implements EmailNotifier<Email> {
             log.debug("Sending email with data : {}", formMap);
             try {
                 WebClient client = WebClient.builder()
-                        .filter(new TracingExchangeFilterFunction(tracer, Collections.singletonList(new WebClientDecorator("sendEmail", className))))
+                        .filter(new TracingExchangeFilterFunction(tracer, Collections.singletonList(new WebClientDecorator("email.send", className))))
                         .clientConnector(new ReactorClientHttpConnector(
                                 HttpClient.create().wiretap(logRequestResponse)
                         ))

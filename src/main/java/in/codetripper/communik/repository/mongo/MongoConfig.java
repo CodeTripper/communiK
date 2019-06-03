@@ -7,6 +7,7 @@ import com.mongodb.reactivestreams.client.MongoClients;
 import in.codetripper.communik.trace.MongoTraceListener;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.mongodb.config.AbstractReactiveMongoConfiguration;
@@ -23,7 +24,8 @@ public class MongoConfig extends AbstractReactiveMongoConfiguration {
 
     @Value("${mongodb.uri}")
     private String uri;
-
+    @Autowired
+    MongoClient mongoClient;
     @Override
     public MongoClient reactiveMongoClient() {
         log.debug("Creating MongoClient with trace");

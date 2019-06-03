@@ -53,7 +53,7 @@ public class SendGrid implements EmailNotifier<Email> {
                         .clientConnector(new ReactorClientHttpConnector(
                                 HttpClient.create().wiretap(logRequestResponse)
                         ))
-                        .filter(new TracingExchangeFilterFunction(tracer, Collections.singletonList(new WebClientDecorator("sendEmail", className))))
+                        .filter(new TracingExchangeFilterFunction(tracer, Collections.singletonList(new WebClientDecorator("email.send", className))))
                         .baseUrl(provider.getEndpoints().getBase())
                         .build();
                 response = client.post()

@@ -12,11 +12,12 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class MongoTraceListener {
     private final Tracer tracer;
-
+    private String PREFIX = "mongo.";
     public TracingCommandListener getListener() {
         log.info("Tracing is enabled for MongoDb");
+        // TODO disable mongo document log
         return new TracingCommandListener.Builder(tracer)
-                .withSpanNameProvider(new PrefixSpanNameProvider("mongo."))
+                .withSpanNameProvider(new PrefixSpanNameProvider(PREFIX))
                 .build();
     }
 }
