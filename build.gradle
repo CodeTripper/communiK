@@ -41,6 +41,15 @@ dependencies {
     implementation 'io.springfox:springfox-spring-webflux:3.0.0-SNAPSHOT'
     implementation 'com.github.ben-manes.caffeine:caffeine:2.7.0'
 
+    implementation  'io.opentracing:opentracing-api:0.31.0'
+    implementation  'io.opentracing:opentracing-util:0.31.0'
+    implementation group: 'io.opentracing.contrib', name: 'opentracing-spring-jaeger-starter', version: '1.0.3'
+    implementation group: 'io.opentracing.contrib', name: 'opentracing-spring-cloud-starter', version: '0.2.6'
+
+    //compile group: 'io.opentracing.contrib', name: 'opentracing-spring-cloud-starter-jaeger', version: '0.1.13'
+
+
+
 	compileOnly 'org.projectlombok:lombok:1.18.8'
     implementation "org.mapstruct:mapstruct:${mapstructVersion}"
     implementation "org.xhtmlrenderer:flying-saucer-core:${flyingsaucerVersion}"

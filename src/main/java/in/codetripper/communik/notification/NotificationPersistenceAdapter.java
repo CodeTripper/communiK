@@ -24,6 +24,7 @@ public class NotificationPersistenceAdapter implements NotificationPersistence {
 
     @Override
     public Mono<NotificationStorageResponse> store(NotificationMessage notificationMessage) {
+
         NotificationMessageRepoDto notificationMessageDto = notificationMapper.mapMessageToDto(notificationMessage);
         return notificationRepository.insert(notificationMessageDto).
                 map(message -> {

@@ -27,8 +27,8 @@ public class CommunikFilter implements WebFilter {
 
     private Publisher<Void> filter(ServerWebExchange exchange, Mono<Void> call) {
 //        Extract the existing span context from the inter-process transport (HTTP, etc)
-//          Start new trace if no span is present
-//        Start the span
+//          Start new trace without any references if no span is present
+//         else  Start the span with ChildOf spanContext
 //        Store the current trace state
 
         long start = System.nanoTime();
