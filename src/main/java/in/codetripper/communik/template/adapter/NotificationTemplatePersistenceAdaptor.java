@@ -1,10 +1,14 @@
-package in.codetripper.communik.template;
+package in.codetripper.communik.template.adapter;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import in.codetripper.communik.repository.mongo.NotificationTemplateRepoDto;
 import in.codetripper.communik.repository.mongo.NotificationTemplateRepository;
+import in.codetripper.communik.template.NotificationTemplate;
+import in.codetripper.communik.template.NotificationTemplateMapper;
+import in.codetripper.communik.template.NotificationTemplatePersistence;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -12,6 +16,7 @@ import reactor.core.publisher.Mono;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@ConditionalOnProperty(value = "notification.template.location", havingValue = "mongo", matchIfMissing = true)
 public class NotificationTemplatePersistenceAdaptor implements NotificationTemplatePersistence {
     private final NotificationTemplateRepository templateRepository;
     private final NotificationTemplateMapper templateMapper;

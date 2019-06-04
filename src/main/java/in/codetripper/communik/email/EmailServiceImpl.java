@@ -43,8 +43,9 @@ class EmailServiceImpl implements EmailService {
                 timeout(Duration.ofMillis(DB_READ_TIMEOUT)).
                 single().
                 map(this::validateTemplate).
-                onErrorMap(original -> {
-                    if (original instanceof TimeoutException) {
+                onErrorMap(error -> {
+                    log.error("error while processing template", error);
+                    if (error instanceof TimeoutException) {
                         return new NotificationPersistenceException(NOTIFICATION_PERSISTENCE_DB_TIMED_OUT);
                     } else {
                         return new InvalidRequestException(INVALID_REQUEST_TEMPLATE_NOT_FOUND);

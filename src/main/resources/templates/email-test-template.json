@@ -1,0 +1,10 @@
+{
+  "id": 101,
+  "name": "templateTest",
+  "category": "Tansactional",
+  "lob": "bank",
+  "type": "EMAIL",
+  "active": true,
+  "owner": "HK",
+  "body": "Hi ${to}<br/>Your salary ${body.message} and ${body.data.timestamp}has been <#list body.data.mapTest as key, value>   ${key} = ${value} </#list> credited on  <br/>Go Niyo Team"
+}

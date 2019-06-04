@@ -1,0 +1,10 @@
+{
+  "id": 201,
+  "name": "templateTest",
+  "category": "Tansactional",
+  "lob": "bank",
+  "type": "SMS",
+  "active": true,
+  "owner": "HK",
+  "body": "Hi ${to} Your salary ${body.message} and ${body.data.timestamp}has been credited on  "
+}
