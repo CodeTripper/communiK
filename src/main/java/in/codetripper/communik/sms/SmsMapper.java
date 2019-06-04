@@ -21,8 +21,8 @@ import org.springframework.stereotype.Component;
 @Component
 public interface SmsMapper {
 
-    Sms smsDtoToSms(SmsDto smsDto);
+  Sms smsDtoToSms(SmsDto smsDto);
 
-    SmsDto smsToSmsDto(Sms sms);
+  SmsDto smsToSmsDto(Sms sms);
 
 }

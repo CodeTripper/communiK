@@ -32,32 +32,31 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class MongoConfig extends AbstractReactiveMongoConfiguration {
 
-    private final MongoTraceListener mongoTracer;
-    @Value("${mongodb.dbname:communik}")
-    private String dbName;
+  private final MongoTraceListener mongoTracer;
+  @Value("${mongodb.dbname:communik}")
+  private String dbName;
 
-    @Value("${mongodb.uri:mongodb://localhost:27017}")
-    private String uri;
-    @Autowired
-    MongoClient mongoClient;
+  @Value("${mongodb.uri:mongodb://localhost:27017}")
+  private String uri;
+  @Autowired
+  MongoClient mongoClient;
 
-    @Override
-    public MongoClient reactiveMongoClient() {
-        log.debug("Creating MongoClient with trace");
-        MongoClient mongoClient = MongoClients
-                .create(MongoClientSettings.builder()
-                        .applyConnectionString(new ConnectionString(uri))
-                        .addCommandListener(mongoTracer.getListener()).build());
-        return mongoClient;
-    }
+  @Override
+  public MongoClient reactiveMongoClient() {
+    log.debug("Creating MongoClient with trace");
+    MongoClient mongoClient = MongoClients
+        .create(MongoClientSettings.builder().applyConnectionString(new ConnectionString(uri))
+            .addCommandListener(mongoTracer.getListener()).build());
+    return mongoClient;
+  }
 
-    @Override
-    protected String getDatabaseName() {
-        return dbName;
-    }
+  @Override
+  protected String getDatabaseName() {
+    return dbName;
+  }
 
-    @Bean
-    public ReactiveMongoTemplate reactiveMongoTemplate() {
-        return new ReactiveMongoTemplate(reactiveMongoClient(), getDatabaseName());
-    }
+  @Bean
+  public ReactiveMongoTemplate reactiveMongoTemplate() {
+    return new ReactiveMongoTemplate(reactiveMongoClient(), getDatabaseName());
+  }
 }

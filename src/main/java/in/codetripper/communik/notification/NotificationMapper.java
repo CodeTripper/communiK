@@ -25,20 +25,20 @@ import org.springframework.stereotype.Component;
 public interface NotificationMapper {
 
 
-    NotificationMessage mapDtoToMessage(NotificationMessageRepoDto notificationMessageDto);
+  NotificationMessage mapDtoToMessage(NotificationMessageRepoDto notificationMessageDto);
 
-    NotificationMessageRepoDto mapMessageToDto(Email email);
+  NotificationMessageRepoDto mapMessageToDto(Email email);
 
-    NotificationMessageRepoDto mapMessageToDto(Sms email);
+  NotificationMessageRepoDto mapMessageToDto(Sms email);
 
-    default NotificationMessageRepoDto mapMessageToDto(NotificationMessage notificationMessage) {
-        if (notificationMessage instanceof Email) {
-            return mapMessageToDto((Email) notificationMessage);
-        } else if (notificationMessage instanceof Sms) {
-            return mapMessageToDto((Sms) notificationMessage);
-        } else {
-            return null;
-        }
+  default NotificationMessageRepoDto mapMessageToDto(NotificationMessage notificationMessage) {
+    if (notificationMessage instanceof Email) {
+      return mapMessageToDto((Email) notificationMessage);
+    } else if (notificationMessage instanceof Sms) {
+      return mapMessageToDto((Sms) notificationMessage);
+    } else {
+      return null;
     }
+  }
 
 }

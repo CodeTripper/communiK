@@ -20,7 +20,7 @@ import reactor.core.publisher.Mono;
 
 public interface ProviderPersistence {
 
-    Mono<Provider> getProvider(String id);
+  Mono<Provider> getProvider(String id);
 
-    Flux<Provider> getAll() throws IOException;
+  Flux<Provider> getAll() throws IOException;
 }

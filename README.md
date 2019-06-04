@@ -4,26 +4,29 @@ It's a Store And Forward API built with Springboot/Reactor and MongoDb to send o
 
 ## Features: 
     
+    * Centralizes your notification requirements
     * Send emails/sms/chats by calling a rest endpoint
     * Add your own Email/SMS providers by implementing the Notifier Interface
     * Configure blackouts - WIP
     * Send bulk notifications - WIP
-    * Stores the notifications to a DB (mongodb/cassandra/Noop) before sending it
+    * Can store the notifications to a DB (mongodb/cassandra) before sending it
     * Register a notification template and pass dynamic data to it via Freemarker
-    * One can send email attachments (html/pdf) which can be built on the fly
+    * Locale aware
+    * Generate and send attachments (html/pdf) which can be built on the fly
     * Retry the failed notifications via multiple fallback providers
     * Call webhooks on any failure/success 
     * Audit the notifications.
     * Easily extendable, so one can change any part of the system as required
-    * OpenTracing (Jaegar) Integration
+    * OpenTracing (Jaegar) integrated
+    * Promotheus metrics
 
 ## Getting Started
 
 Run the springboot application Communik
 
-### Prerequisites
+### Optional
 
-A mongoDb cluster
+If you want to store the messages, a mongoDb cluster or cassandra is required
 
 ```
 Give examples

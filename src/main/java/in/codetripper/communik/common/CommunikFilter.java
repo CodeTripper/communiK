@@ -63,6 +63,7 @@ public class CommunikFilter implements WebFilter {
   }
 
   private void record(ServerWebExchange exchange, long start, Throwable cause) {
+    // TODO Is this required?
     log.debug("Time Taken to process in nanos{}", System.nanoTime() - start);
   }
 }

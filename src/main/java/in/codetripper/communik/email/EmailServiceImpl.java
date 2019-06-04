@@ -19,6 +19,7 @@ import static in.codetripper.communik.exceptions.ExceptionConstants.INVALID_REQU
 import static in.codetripper.communik.exceptions.ExceptionConstants.NOTIFICATION_PERSISTENCE_DB_TIMED_OUT;
 import static in.codetripper.communik.exceptions.ExceptionConstants.NO_DEFAULT_PROVIDER;
 
+import com.google.common.base.Strings;
 import in.codetripper.communik.exceptions.InvalidRequestException;
 import in.codetripper.communik.exceptions.NotificationPersistenceException;
 import in.codetripper.communik.exceptions.NotificationSendFailedException;
@@ -32,6 +33,7 @@ import in.codetripper.communik.template.NotificationTemplate;
 import in.codetripper.communik.template.NotificationTemplateService;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeoutException;
@@ -47,99 +49,102 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 class EmailServiceImpl implements EmailService {
 
-    private final Notification<Email> notificationHandler;
-    private final MessageGenerator<EmailDto> messageGenerator;
-    private final Map<String, EmailNotifier<Email>> providers;
-    private final NotificationPersistence<Email> notificationPersistence; // TODO here?
-    private final EmailMapper emailMapper;
-    private final NotificationTemplateService templateService;
+  private final Notification<Email> notificationHandler;
+  private final MessageGenerator<EmailDto> messageGenerator;
+  private final Map<String, EmailNotifier<Email>> providers;
+  private final NotificationPersistence<Email> notificationPersistence; // TODO here?
+  private final EmailMapper emailMapper;
+  private final NotificationTemplateService templateService;
 
-    public Mono<NotificationStatusResponse> sendEmail(EmailDto emailDto) {
-        return templateService.get(emailDto.getTemplateId())
-                .timeout(Duration.ofMillis(DB_READ_TIMEOUT))
-                .single().map(this::validateTemplate).onErrorMap(error -> {
-                    log.error("error while processing template", error);
-                    if (error instanceof TimeoutException) {
-                        return new NotificationPersistenceException(
-                                NOTIFICATION_PERSISTENCE_DB_TIMED_OUT);
-                    } else {
-                        return new InvalidRequestException(INVALID_REQUEST_TEMPLATE_NOT_FOUND);
-                    }
-                }).map(t -> generateMessage(t, emailDto))
-                .onErrorMap(original -> new NotificationSendFailedException(original.getMessage()))
-                .map(message -> getEmail(emailDto, message))
-                .flatMap(notificationHandler::sendNotification)
-                .doOnError(err -> log.error("Error while sending Email", err))
-                .onErrorMap(original -> new NotificationSendFailedException(original.getMessage()));
+  public Mono<NotificationStatusResponse> sendEmail(EmailDto emailDto) {
+    return templateService.get(emailDto.getTemplateId()).timeout(Duration.ofMillis(DB_READ_TIMEOUT))
+        .single().map(this::validateTemplate).onErrorMap(error -> {
+          log.error("error while processing template", error);
+          if (error instanceof TimeoutException) {
+            return new NotificationPersistenceException(NOTIFICATION_PERSISTENCE_DB_TIMED_OUT);
+          } else {
+            return new InvalidRequestException(INVALID_REQUEST_TEMPLATE_NOT_FOUND);
+          }
+        }).map(t -> generateMessage(t, emailDto))
+        .onErrorMap(original -> new NotificationSendFailedException(original.getMessage()))
+        .map(message -> getEmail(emailDto, message)).flatMap(notificationHandler::sendNotification)
+        .doOnError(err -> log.error("Error while sending Email", err))
+        .onErrorMap(original -> new NotificationSendFailedException(original.getMessage()));
+  }
+
+  @Override
+  public Flux<NotificationMessageRepoDto> getAllEmails() {
+    return notificationPersistence.getAll();
+  }
+
+  private Email getEmail(EmailDto emailDto, String body) {
+    log.debug("email called with provider {} for providers {}", emailDto.getProviderName(),
+        providers);
+    Email email = emailMapper.emailDtoToEmail(emailDto);
+    // email.setSubject(emailDto.getSubject());
+    email.setBodyTobeSent(body);
+    NotificationMessage.Notifiers<Email> notifiers = new NotificationMessage.Notifiers<>();
+    // TODO do not need to call all for default
+    var defaultProvider = providers.entrySet().stream()
+        .filter(provider -> provider.getValue().isDefault()).findFirst();
+
+    var requestedProvider = providers.get(emailDto.getProviderName());
+    if (requestedProvider == null) {
+      if (defaultProvider.isPresent()) {
+        requestedProvider = defaultProvider.get().getValue();
+      } else {
+        throw new RuntimeException(NO_DEFAULT_PROVIDER);
+      }
+    }
+    var backups = providers.entrySet().stream()
+        .filter(provider -> defaultProvider
+            .map(notifierEntry -> provider.getKey().equalsIgnoreCase(notifierEntry.getKey()))
+            .orElse(true))
+        .map(Entry::getValue).collect(Collectors.toList());
+
+    notifiers.setPrimary(requestedProvider);
+    notifiers.setBackup(backups);
+    email.setNotifiers(notifiers);
+    NotificationMessage.Meta meta = new NotificationMessage.Meta();
+    // get IP
+    meta.setSenderIp(null);
+    meta.setType(getType());
+    // meta.setCategory(template.getCategory());
+    // meta.setLob(template.getLob());
+    meta.setCreated(LocalDateTime.now());
+    email.setMeta(meta);
+    return email;
+  }
+
+  private NotificationTemplate validateTemplate(NotificationTemplate template) {
+    log.debug("validating template {}", template);
+    if (template == null) {
+      throw new InvalidRequestException(INVALID_REQUEST_TEMPLATE_NOT_FOUND);
+    }
+    if (!template.getType().equals(getType())) {
+      throw new InvalidRequestException(INVALID_REQUEST_TEMPLATE_MISMATCH);
+    }
+    return template;
+  }
+
+
+  private String generateMessage(NotificationTemplate template, EmailDto emailDto) {
+    String message;
+    Locale userLocale;
+    if (Strings.isNullOrEmpty(emailDto.getLocale())) {
+      userLocale = Locale.getDefault();
+    } else {
+      userLocale = Locale.forLanguageTag(emailDto.getLocale());
+    }
+    if (emailDto.getTemplateId().isEmpty()) {
+      message = emailDto.getBody().getMessage();
+    } else {
+      message = messageGenerator.generateMessage(template.getBody(), emailDto, userLocale);
     }
 
-    @Override
-    public Flux<NotificationMessageRepoDto> getAllEmails() {
-        return notificationPersistence.getAll();
-    }
+    log.debug("generated message {}", message);
+    return message;
 
-    private Email getEmail(EmailDto emailDto, String body) {
-        log.debug("email called with provider {} for providers {}", emailDto.getProviderName(),
-                providers);
-        Email email = emailMapper.emailDtoToEmail(emailDto);
-        // email.setSubject(emailDto.getSubject());
-        email.setBodyTobeSent(body);
-        NotificationMessage.Notifiers<Email> notifiers = new NotificationMessage.Notifiers<>();
-        var defaultProvider = providers.entrySet().stream()
-                .filter(provider -> provider.getValue().isDefault()).findFirst();
-
-        var requestedProvider = providers.get(emailDto.getProviderName());
-        if (requestedProvider == null) {
-            if (defaultProvider.isPresent()) {
-                requestedProvider = defaultProvider.get().getValue();
-            } else {
-                throw new RuntimeException(NO_DEFAULT_PROVIDER);
-            }
-        }
-        var backups = providers.entrySet().stream()
-                .filter(provider -> defaultProvider
-                        .map(notifierEntry -> provider.getKey()
-                                .equalsIgnoreCase(notifierEntry.getKey()))
-                        .orElse(true))
-                .map(Entry::getValue).collect(Collectors.toList());
-
-        notifiers.setPrimary(requestedProvider);
-        notifiers.setBackup(backups);
-        email.setNotifiers(notifiers);
-        NotificationMessage.Meta meta = new NotificationMessage.Meta();
-        // get IP
-        meta.setSenderIp(null);
-        meta.setType(getType());
-        // meta.setCategory(template.getCategory());
-        // meta.setLob(template.getLob());
-        meta.setCreated(LocalDateTime.now());
-        email.setMeta(meta);
-        return email;
-    }
-
-    private NotificationTemplate validateTemplate(NotificationTemplate template) {
-        log.debug("validating template {}", template);
-        if (template == null) {
-            throw new InvalidRequestException(INVALID_REQUEST_TEMPLATE_NOT_FOUND);
-        }
-        if (!template.getType().equals(getType())) {
-            throw new InvalidRequestException(INVALID_REQUEST_TEMPLATE_MISMATCH);
-        }
-        return template;
-    }
-
-
-    private String generateMessage(NotificationTemplate template, EmailDto emailDto) {
-        String message;
-        if (emailDto.getTemplateId().isEmpty()) {
-            message = emailDto.getBody().getMessage();
-        } else {
-            message = messageGenerator.generateMessage(template.getBody(), emailDto);
-        }
-
-        log.debug("generated message {}", message);
-        return message;
-
-    }
+  }
 
 }

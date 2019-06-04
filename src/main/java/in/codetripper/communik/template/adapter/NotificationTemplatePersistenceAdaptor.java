@@ -30,50 +30,50 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @RequiredArgsConstructor
 @ConditionalOnProperty(value = "notification.template.location", havingValue = "mongo",
-        matchIfMissing = true)
+    matchIfMissing = true)
 public class NotificationTemplatePersistenceAdaptor implements NotificationTemplatePersistence {
 
-    private final NotificationTemplateRepository templateRepository;
-    private final NotificationTemplateMapper templateMapper;
+  private final NotificationTemplateRepository templateRepository;
+  private final NotificationTemplateMapper templateMapper;
 
-    @Override
-    @HystrixCommand()
-    public Mono<NotificationTemplate> create(NotificationTemplate notificationTemplate) {
-        log.debug("notificationTemplate NotificationTemplateServiceImpl:{}", notificationTemplate);
-        NotificationTemplateRepoDto templateRepoDto =
-                templateMapper.templateToTemplateRepoDto(notificationTemplate);
-        return this.templateRepository.insert(templateRepoDto)
-                .map(templateMapper::templateRepoDtotoTemplate).doOnSuccess(templateDto -> {
-                });
-    }
+  @Override
+  @HystrixCommand()
+  public Mono<NotificationTemplate> create(NotificationTemplate notificationTemplate) {
+    log.debug("notificationTemplate NotificationTemplateServiceImpl:{}", notificationTemplate);
+    NotificationTemplateRepoDto templateRepoDto =
+        templateMapper.templateToTemplateRepoDto(notificationTemplate);
+    return this.templateRepository.insert(templateRepoDto)
+        .map(templateMapper::templateRepoDtotoTemplate).doOnSuccess(templateDto -> {
+        });
+  }
 
-    @Override
-    @HystrixCommand()
-    public Mono<NotificationTemplate> update(NotificationTemplate notificationTemplate) {
-        log.debug("notificationTemplate NotificationTemplateServiceImpl:{}", notificationTemplate);
-        NotificationTemplateRepoDto templateRepoDto =
-                templateMapper.templateToTemplateRepoDto(notificationTemplate);
-        return this.templateRepository.save(templateRepoDto)
-                .map(templateMapper::templateRepoDtotoTemplate).doOnSuccess(templateDto -> {
-                });
-    }
+  @Override
+  @HystrixCommand()
+  public Mono<NotificationTemplate> update(NotificationTemplate notificationTemplate) {
+    log.debug("notificationTemplate NotificationTemplateServiceImpl:{}", notificationTemplate);
+    NotificationTemplateRepoDto templateRepoDto =
+        templateMapper.templateToTemplateRepoDto(notificationTemplate);
+    return this.templateRepository.save(templateRepoDto)
+        .map(templateMapper::templateRepoDtotoTemplate).doOnSuccess(templateDto -> {
+        });
+  }
 
-    @Override
-    @HystrixCommand()
-    public Flux<NotificationTemplate> getAll() {
-        return this.templateRepository.findAll().map(templateMapper::templateRepoDtotoTemplate);
-    }
+  @Override
+  @HystrixCommand()
+  public Flux<NotificationTemplate> getAll() {
+    return this.templateRepository.findAll().map(templateMapper::templateRepoDtotoTemplate);
+  }
 
-    @Override
-    @HystrixCommand()
-    public Mono<NotificationTemplate> get(String id) {
-        return this.templateRepository.findById(id).map(templateMapper::templateRepoDtotoTemplate);
-    }
+  @Override
+  @HystrixCommand()
+  public Mono<NotificationTemplate> get(String id) {
+    return this.templateRepository.findById(id).map(templateMapper::templateRepoDtotoTemplate);
+  }
 
-    @Override
-    @HystrixCommand()
-    public Mono<Void> delete(String id) {
-        return this.templateRepository.deleteById(id);
-    }
+  @Override
+  @HystrixCommand()
+  public Mono<Void> delete(String id) {
+    return this.templateRepository.deleteById(id);
+  }
 
 }

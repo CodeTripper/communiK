@@ -21,13 +21,13 @@ import org.springframework.data.mongodb.core.mapping.event.LoggingEventListener;
 // ComponentScan("in.codetripper.notification.repository.mongo")
 public class CommuniK {
 
-    public static void main(String[] args) {
-        SpringApplication.run(CommuniK.class, args);
-    }
+  public static void main(String[] args) {
+    SpringApplication.run(CommuniK.class, args);
+  }
 
 
-    public LoggingEventListener mongoEventListener() {
-        return new LoggingEventListener();
-    }
+  public LoggingEventListener mongoEventListener() {
+    return new LoggingEventListener();
+  }
 
 }

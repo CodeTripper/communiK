@@ -19,6 +19,7 @@ import static in.codetripper.communik.Constants.CACHE_TEMPLATE;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurerSupport;
 import org.springframework.cache.annotation.EnableCaching;
@@ -31,32 +32,36 @@ import org.springframework.context.annotation.Configuration;
 @EnableCaching
 public class CommunikCacheConfig extends CachingConfigurerSupport {
 
-    @Override
-    @Bean
-    public CacheManager cacheManager() {
-        CaffeineCache notificationCache = buildCache(CACHE_TEMPLATE,
-                60); // TODO cache to be in config
-        CaffeineCache defaultCache = buildCache(CACHE_DEFAULT, 300);
-        SimpleCacheManager manager = new SimpleCacheManager();
-        manager.setCaches(Arrays.asList(notificationCache, defaultCache));
-        return manager;
-    }
+  @Value("${notification.cache.template.ttl:60}")
+  private int templateTtl;
+  @Value("${notification.cache.default.ttl:300}")
+  private int defaultTtl;
 
-    /*
-     * Can be used like this @Cacheable(cacheNames = CACHE_TEMPLATE, cacheManager =
-     * "distributedCacheManager")
-     */
-    @Bean
-    public CacheManager distributedCacheManager() {
-        CaffeineCache notificationCache = buildCache(CACHE_TEMPLATE, 10);
-        CaffeineCache defaultCache = buildCache(CACHE_DEFAULT, 300);
-        SimpleCacheManager manager = new SimpleCacheManager();
-        manager.setCaches(Arrays.asList(notificationCache, defaultCache));
-        return manager;
-    }
+  @Override
+  @Bean
+  public CacheManager cacheManager() {
+    CaffeineCache notificationCache = buildCache(CACHE_TEMPLATE, templateTtl);
+    CaffeineCache defaultCache = buildCache(CACHE_DEFAULT, defaultTtl);
+    SimpleCacheManager manager = new SimpleCacheManager();
+    manager.setCaches(Arrays.asList(notificationCache, defaultCache));
+    return manager;
+  }
 
-    private CaffeineCache buildCache(String name, int secondsToExpire) {
-        return new CaffeineCache(name, Caffeine.newBuilder()
-                .expireAfterWrite(secondsToExpire, TimeUnit.SECONDS).maximumSize(100).build());
-    }
+  /*
+   * Can be used like this @Cacheable(cacheNames = CACHE_TEMPLATE, cacheManager =
+   * "distributedCacheManager")
+   */
+  @Bean
+  public CacheManager distributedCacheManager() {
+    CaffeineCache notificationCache = buildCache(CACHE_TEMPLATE, templateTtl);
+    CaffeineCache defaultCache = buildCache(CACHE_DEFAULT, defaultTtl);
+    SimpleCacheManager manager = new SimpleCacheManager();
+    manager.setCaches(Arrays.asList(notificationCache, defaultCache));
+    return manager;
+  }
+
+  private CaffeineCache buildCache(String name, int secondsToExpire) {
+    return new CaffeineCache(name, Caffeine.newBuilder()
+        .expireAfterWrite(secondsToExpire, TimeUnit.SECONDS).maximumSize(100).build());
+  }
 }

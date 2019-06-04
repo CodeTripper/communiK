@@ -26,23 +26,23 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "Notifications")
 public class NotificationMessageRepoDto<T> {
 
-    private @Id
-    String id;
-    private @NotNull List<String> to;
-    private @NotNull NotificationMessage.Container body;
-    private NotificationMessage.Container attachment;
-    private NotificationMessage.Meta meta;
-    private Status status;
-    private LocalDateTime lastUpdated;
-    private int attempts;
-    private String subject;
-    private String templateId;
-    private List<NotificationMessage.BlackOut> blackouts;
-    private List<NotificationMessage.Action<? extends NotificationMessage>> actions;
+  private @Id
+  String id;
+  private @NotNull List<String> to;
+  private @NotNull NotificationMessage.Container body;
+  private NotificationMessage.Container attachment;
+  private NotificationMessage.Meta meta;
+  private Status status;
+  private LocalDateTime lastUpdated;
+  private int attempts;
+  private String subject;
+  private String templateId;
+  private List<NotificationMessage.BlackOut> blackouts;
+  private List<NotificationMessage.Action<? extends NotificationMessage>> actions;
 
-    public final int getAttempts() {
-        return this.actions != null ? this.actions.size() : 0;
-    }
+  public final int getAttempts() {
+    return this.actions != null ? this.actions.size() : 0;
+  }
 
 
 }

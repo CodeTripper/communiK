@@ -28,23 +28,25 @@ import lombok.ToString;
 @ToString
 public class SmsDto implements Serializable {
 
-    @NotBlank(message = "To field cannot be empty")
-    private List<String> to;
-    private Type type = Type.SMS;
-    private Container body;
-    private String templateId;
+  @NotBlank(message = "To field cannot be empty")
+  private List<String> to;
+  private Type type = Type.SMS;
+  private Container body;
+  private String templateId;
+  private String providerName;
+  private String locale;
 
-    @Data
-    @NoArgsConstructor
-    public static class Container {
+  @Data
+  @NoArgsConstructor
+  public static class Container {
 
-        private String message;
-        Map<String, Object> data = new LinkedHashMap<>();
+    private String message;
+    Map<String, Object> data = new LinkedHashMap<>();
 
-        @JsonAnySetter
-        void setDetail(String key, Object value) {
-            data.put(key, value);
+    @JsonAnySetter
+    void setDetail(String key, Object value) {
+      data.put(key, value);
 
-        }
     }
+  }
 }

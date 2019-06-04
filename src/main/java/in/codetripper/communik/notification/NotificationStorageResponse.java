@@ -18,6 +18,6 @@ import lombok.Data;
 @Data
 public class NotificationStorageResponse {
 
-    private boolean status;
-    private String id;
+  private boolean status;
+  private String id;
 }

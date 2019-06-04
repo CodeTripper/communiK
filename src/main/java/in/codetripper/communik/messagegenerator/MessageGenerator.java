@@ -14,7 +14,9 @@
 package in.codetripper.communik.messagegenerator;
 
 
+import java.util.Locale;
+
 public interface MessageGenerator<T> {
 
-    String generateMessage(String template, T notificationMessage);
+  String generateMessage(String template, T notificationMessage, Locale locale);
 }

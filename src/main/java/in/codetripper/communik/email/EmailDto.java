@@ -30,27 +30,28 @@ import lombok.ToString;
 @ToString
 public class EmailDto implements Serializable {
 
-    @NotEmpty(message = VALIDATION_EMAIL_EMPTY_EMAIL)
-    // @Email(message = VALIDATION_EMAIL_INVALID_EMAIL)
-    private List<String> to;
-    private String subject;
-    private Type type = Type.EMAIL;
-    private Container body;
-    private Container attachment;
-    private String templateId;
-    private String providerName;
+  @NotEmpty(message = VALIDATION_EMAIL_EMPTY_EMAIL)
+  // @Email(message = VALIDATION_EMAIL_INVALID_EMAIL)
+  private List<String> to;
+  private String subject;
+  private Type type = Type.EMAIL;
+  private Container body;
+  private Container attachment;
+  private String templateId;
+  private String providerName;
+  private String locale;
 
-    @Data
-    @NoArgsConstructor
-    public static class Container {
+  @Data
+  @NoArgsConstructor
+  public static class Container {
 
-        private String message;
-        Map<String, Object> data = new LinkedHashMap<>();
+    private String message;
+    Map<String, Object> data = new LinkedHashMap<>();
 
-        @JsonAnySetter
-        void setDetail(String key, Object value) {
-            data.put(key, value);
+    @JsonAnySetter
+    void setDetail(String key, Object value) {
+      data.put(key, value);
 
-        }
     }
+  }
 }

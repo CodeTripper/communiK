@@ -3,7 +3,7 @@ plugins {
 	id 'java'
   id 'net.ltgt.apt' version '0.20'
   id "com.diffplug.gradle.spotless" version "3.23.0"
-  id "io.freefair.lombok" version "3.6.4"
+  //id "io.freefair.lombok" version "3.6.4"
 
 }
 
@@ -50,6 +50,8 @@ dependencies {
   implementation "org.xhtmlrenderer:flying-saucer-core:${flyingsaucerVersion}"
   implementation "org.xhtmlrenderer:flying-saucer-pdf-openpdf:${flyingsaucerVersion}"
   annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+  compileOnly 'org.projectlombok:lombok:1.18.8'
+
   runtimeOnly 'org.springframework.boot:spring-boot-devtools'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'io.projectreactor:reactor-test:3.2.9.RELEASE'

@@ -34,93 +34,94 @@ import lombok.extern.slf4j.Slf4j;
 
 public class NotificationMessage<T> {
 
-    private String id; // from DB
-    private @NotNull List<String> to;
-    private String bodyTobeSent;
-    private @NotNull Container body;
-    private Container attachment;
-    private Meta meta;
-    private Status status;
-    private Notifiers<? extends NotificationMessage> notifiers;
-    private List<NotificationMessage.Action> actions;
-    private List<NotificationMessage.BlackOut> blackouts;
-    private LocalDateTime lastUpdated;
-    private int attempts;
-    private int deadLine;
-    private String templateId;
+  private String id; // from DB
+  private @NotNull List<String> to;
+  private String bodyTobeSent;
+  private @NotNull Container body;
+  private Container attachment;
+  private Meta meta;
+  private Status status;
+  private Notifiers<? extends NotificationMessage> notifiers;
+  private List<NotificationMessage.Action> actions;
+  private List<NotificationMessage.BlackOut> blackouts;
+  private LocalDateTime lastUpdated;
+  private int attempts;
+  private int deadLine;
+  private String templateId;
+  private String locale;
 
-    @Data
-    @NoArgsConstructor
-    public static class Container {
+  @Data
+  @NoArgsConstructor
+  public static class Container {
 
-        private String message;
-        Map<String, Object> data = new LinkedHashMap<>();
-    }
+    private String message;
+    Map<String, Object> data = new LinkedHashMap<>();
+  }
 
-    /*
-     * All meta data of the message to ne here. Immutable
-     */
-    @Data
-    public static class Meta {
+  /*
+   * All meta data of the message to ne here. Immutable
+   */
+  @Data
+  public static class Meta {
 
-        private Type type;
-        private String senderIp;
-        private String category;
-        private String lob;
-        private int maxRetry; // from template
-        private @NotNull LocalDateTime created; // by Timestam
-        private @NotNull LocalDateTime expireBy;
+    private Type type;
+    private String senderIp;
+    private String category;
+    private String lob;
+    private int maxRetry; // from template
+    private @NotNull LocalDateTime created; // by Timestam
+    private @NotNull LocalDateTime expireBy;
 
-    }
+  }
 
-    @Data
-    public static class Notifiers<K extends NotificationMessage> {
+  @Data
+  public static class Notifiers<K extends NotificationMessage> {
 
-        private Notifier<K> primary;
-        private List<? extends Notifier<K>> backup;
-    }
+    private Notifier<K> primary;
+    private List<? extends Notifier<K>> backup;
+  }
 
-    @Data
-    public static class Action<K extends NotificationMessage> {
+  @Data
+  public static class Action<K extends NotificationMessage> {
 
-        private String notifier;
-        private String requestId;
-        private String responseId;
-        private @NotNull LocalDateTime started;
-        private @NotNull LocalDateTime ended;
-        private @NotNull LocalDateTime callbackAt;
-        private boolean status;
-    }
+    private String notifier;
+    private String requestId;
+    private String responseId;
+    private @NotNull LocalDateTime started;
+    private @NotNull LocalDateTime ended;
+    private @NotNull LocalDateTime callbackAt;
+    private boolean status;
+  }
 
-    /*
-     * Should be populated from category, but should be overridable
-     */
-    @Data
-    public static class BlackOut {
+  /*
+   * Should be populated from category, but should be overridable
+   */
+  @Data
+  public static class BlackOut {
 
-        // by category
-        private Type type;
-        private LocalTime start;
-        private LocalTime end;
-    }
+    // by category
+    private Type type;
+    private LocalTime start;
+    private LocalTime end;
+  }
 
 
-    /*
-     * public NotificationMessage(Type type, String message, String to, String senderIp, Status
-     * status, String templateId) { this.id = UUID.randomUUID().toString(); this.type = type;
-     * this.message = message; this.to = to; this.senderIp = senderIp; this.status = status;
-     * this.created = LocalDateTime.now(); this.templateId = templateId; }
-     */
+  /*
+   * public NotificationMessage(Type type, String message, String to, String senderIp, Status
+   * status, String templateId) { this.id = UUID.randomUUID().toString(); this.type = type;
+   * this.message = message; this.to = to; this.senderIp = senderIp; this.status = status;
+   * this.created = LocalDateTime.now(); this.templateId = templateId; }
+   */
 
-    public final void setStatus(Status status) {
-        this.status = status;
-    }
+  public final void setStatus(Status status) {
+    this.status = status;
+  }
 
-    public final Status getStatus() {
-        return this.status;
-    }
+  public final Status getStatus() {
+    return this.status;
+  }
 
-    public final int getAttempts() {
-        return this.actions != null ? this.actions.size() : 0;
-    }
+  public final int getAttempts() {
+    return this.actions != null ? this.actions.size() : 0;
+  }
 }

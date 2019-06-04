@@ -35,42 +35,41 @@ import reactor.core.publisher.Mono;
 @ConditionalOnProperty(value = "notification.provider.location", havingValue = "filesystem")
 public class ProviderFileSystemPersistenceAdapter implements ProviderPersistence {
 
-    private final ResourceLoader resourceLoader;
+  private final ResourceLoader resourceLoader;
 
 
-    @Value("${notification.provider.location.filesystem:classpath:providers}")
-    private String providersPath;
+  @Value("${notification.provider.location.filesystem:classpath:providers}")
+  private String providersPath;
 
-    @Override
-    public Mono<Provider> getProvider(String id) {
-        Resource resource = resourceLoader.getResource(providersPath + "/" + id + ".json");
-        log.debug("template resource {}", id);
-        Provider provider = apply(resource);
-        log.debug("returning template {}", provider);
-        return Mono.justOrEmpty(provider);
+  @Override
+  public Mono<Provider> getProvider(String id) {
+    Resource resource = resourceLoader.getResource(providersPath + "/" + id + ".json");
+    log.debug("template resource {}", id);
+    Provider provider = apply(resource);
+    log.debug("returning template {}", provider);
+    return Mono.justOrEmpty(provider);
 
+  }
+
+  @Override
+  public Flux<Provider> getAll() throws IOException {
+    return Flux.fromIterable(Arrays.asList(loadResources(providersPath + "/*.json")))
+        .map(ProviderFileSystemPersistenceAdapter::apply);
+
+  }
+
+  private static Provider apply(Resource p) {
+    Provider provider = null;
+    ObjectMapper objectMapper = new ObjectMapper();
+    try {
+      provider = objectMapper.readValue(p.getFile(), Provider.class);
+    } catch (IOException e) {
+      log.error("Error while mapping all provider jsons", e);
     }
+    return provider;
+  }
 
-    @Override
-    public Flux<Provider> getAll() throws IOException {
-        return Flux.fromIterable(Arrays.asList(loadResources(providersPath + "/*.json")))
-                .map(ProviderFileSystemPersistenceAdapter::apply);
-
-    }
-
-    private static Provider apply(Resource p) {
-        Provider provider = null;
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            provider = objectMapper.readValue(p.getFile(), Provider.class);
-        } catch (IOException e) {
-            log.error("Error while mapping all provider jsons", e);
-        }
-        return provider;
-    }
-
-    Resource[] loadResources(String pattern) throws IOException {
-        return ResourcePatternUtils.getResourcePatternResolver(resourceLoader)
-                .getResources(pattern);
-    }
+  Resource[] loadResources(String pattern) throws IOException {
+    return ResourcePatternUtils.getResourcePatternResolver(resourceLoader).getResources(pattern);
+  }
 }

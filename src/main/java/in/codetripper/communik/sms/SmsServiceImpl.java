@@ -18,6 +18,7 @@ import static in.codetripper.communik.exceptions.ExceptionConstants.INVALID_REQU
 import static in.codetripper.communik.exceptions.ExceptionConstants.INVALID_REQUEST_TEMPLATE_NOT_FOUND;
 import static in.codetripper.communik.exceptions.ExceptionConstants.NOTIFICATION_PERSISTENCE_DB_TIMED_OUT;
 
+import com.google.common.base.Strings;
 import in.codetripper.communik.exceptions.InvalidRequestException;
 import in.codetripper.communik.exceptions.NotificationPersistenceException;
 import in.codetripper.communik.exceptions.NotificationSendFailedException;
@@ -29,6 +30,7 @@ import in.codetripper.communik.template.NotificationTemplate;
 import in.codetripper.communik.template.NotificationTemplateService;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Locale;
 import java.util.concurrent.TimeoutException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -112,10 +114,16 @@ class SmsServiceImpl implements SmsService {
 
   private String generateMessage(NotificationTemplate template, SmsDto smsDto) {
     String message;
+    Locale userLocale;
+    if (Strings.isNullOrEmpty(smsDto.getLocale())) {
+      userLocale = Locale.getDefault();
+    } else {
+      userLocale = Locale.forLanguageTag(smsDto.getLocale());
+    }
     if (smsDto.getTemplateId().isEmpty()) {
       message = smsDto.getBody().getMessage();
     } else {
-      message = messageGenerator.generateMessage(template.getBody(), smsDto);
+      message = messageGenerator.generateMessage(template.getBody(), smsDto, userLocale);
     }
 
     log.debug("generated message {}", message);

@@ -32,25 +32,24 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2WebFlux;
 @Configuration
 @EnableSwagger2WebFlux
 @ComponentScan(basePackageClasses = {EmailController.class, SmsController.class,
-        NotificationTemplateController.class})
+    NotificationTemplateController.class})
 public class SwaggerConfig {
 
 
-    @Bean
-    public Docket api() {
-        return new Docket(DocumentationType.SWAGGER_2).select().apis(RequestHandlerSelectors.any())
-                .paths(PathSelectors.any()).paths(paths()).build().apiInfo(metaInfo());
-    }
+  @Bean
+  public Docket api() {
+    return new Docket(DocumentationType.SWAGGER_2).select().apis(RequestHandlerSelectors.any())
+        .paths(PathSelectors.any()).paths(paths()).build().apiInfo(metaInfo());
+  }
 
-    private Predicate<String> paths() {
-        return Predicate.not(PathSelectors.regex("/actuator.*"));
-    }
+  private Predicate<String> paths() {
+    return Predicate.not(PathSelectors.regex("/actuator.*"));
+  }
 
-    private ApiInfo metaInfo() {
-        return new ApiInfo("Communik API", "Communik API - centralizes all your notifications",
-                "API TOS", "Terms of service",
-                new Contact("Code Tripper", "https://github.com/CodeTripper/",
-                        "admin@condetripper.in"),
-                "MIT", "API license URL", Collections.emptyList());
-    }
+  private ApiInfo metaInfo() {
+    return new ApiInfo("Communik API", "Communik API - centralizes all your notifications",
+        "API TOS", "Terms of service",
+        new Contact("Code Tripper", "https://github.com/CodeTripper/", "admin@condetripper.in"),
+        "MIT", "API license URL", Collections.emptyList());
+  }
 }

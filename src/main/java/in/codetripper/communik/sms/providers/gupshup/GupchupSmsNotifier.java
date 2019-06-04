@@ -40,75 +40,72 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class GupchupSmsNotifier implements SmsNotifier<Sms> {
 
-    private final ProviderService providerService;
-    String providerId = "12001";
+  private final ProviderService providerService;
+  String providerId = "12001";
 
-    @Override
-    public Mono<NotificationStatusResponse> send(Sms sms) throws NotificationSendFailedException {
-        Mono<NotificationStatusResponse> response = null;
-        Provider provider = providerService.getProvider(providerId);
-        GupchupRequest gupchupRequest = new GupchupRequest();
-        gupchupRequest.setBody(sms.getBodyTobeSent());
-        String to = (String) sms.getTo().get(0);
-        gupchupRequest.setTo(to);
-        // gupchupRequest.setResponseId(sms.get); from where?
-        if (provider.getType().equalsIgnoreCase(Type.SMS.toString())) {
-            log.debug("Sending sms via provider: {} with data {}", provider, sms);
-            try {
-                WebClient client = WebClient.create(provider.getEndpoints().getBase());
-                response = client.post().uri(provider.getEndpoints().getSendUri())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .body(BodyInserters.fromObject(gupchupRequest))
-                        .retrieve().bodyToMono(GupchupResponse.class).map(gupchupResponse -> {
-                            NotificationStatusResponse notificationStatusResponse =
-                                    new NotificationStatusResponse();
-                            notificationStatusResponse.setStatus(200);
-                            notificationStatusResponse.setTimestamp(LocalDateTime.now());
-                            return notificationStatusResponse;
-                        }).doOnSuccess((message -> log.debug("sent sms successfully")))
-                        .doOnError((error -> {
-                            log.debug("sms sending failed", error);
-                            NotificationStatusResponse notificationStatusResponse =
-                                    new NotificationStatusResponse();
-                            notificationStatusResponse.setStatus(500);
-                            notificationStatusResponse.setTimestamp(LocalDateTime.now());
-                        }));
-            } catch (WebClientException webClientException) {
-                log.error("webClientException", webClientException);
-                throw new NotificationSendFailedException("webClientException received",
-                        webClientException);
-            } catch (Exception ex) {
-                log.error("ex", ex);
-                throw new NotificationSendFailedException("webClientException received", ex);
-            }
-        } else {
-            log.warn("Wrong providerid {} configured for {} ", providerId,
-                    GupchupSmsNotifier.class);
-        }
-        return response;
+  @Override
+  public Mono<NotificationStatusResponse> send(Sms sms) throws NotificationSendFailedException {
+    Mono<NotificationStatusResponse> response = null;
+    Provider provider = providerService.getProvider(providerId);
+    GupchupRequest gupchupRequest = new GupchupRequest();
+    gupchupRequest.setBody(sms.getBodyTobeSent());
+    String to = (String) sms.getTo().get(0);
+    gupchupRequest.setTo(to);
+    // gupchupRequest.setResponseId(sms.get); from where?
+    if (provider.getType().equalsIgnoreCase(Type.SMS.toString())) {
+      log.debug("Sending sms via provider: {} with data {}", provider, sms);
+      try {
+        WebClient client = WebClient.create(provider.getEndpoints().getBase());
+        response = client.post().uri(provider.getEndpoints().getSendUri())
+            .contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromObject(gupchupRequest))
+            .retrieve().bodyToMono(GupchupResponse.class).map(gupchupResponse -> {
+              NotificationStatusResponse notificationStatusResponse =
+                  new NotificationStatusResponse();
+              notificationStatusResponse.setStatus(200);
+              notificationStatusResponse.setTimestamp(LocalDateTime.now());
+              return notificationStatusResponse;
+            }).doOnSuccess((message -> log.debug("sent sms successfully"))).doOnError((error -> {
+              log.debug("sms sending failed", error);
+              NotificationStatusResponse notificationStatusResponse =
+                  new NotificationStatusResponse();
+              notificationStatusResponse.setStatus(500);
+              notificationStatusResponse.setTimestamp(LocalDateTime.now());
+            }));
+      } catch (WebClientException webClientException) {
+        log.error("webClientException", webClientException);
+        throw new NotificationSendFailedException("webClientException received",
+            webClientException);
+      } catch (Exception ex) {
+        log.error("ex", ex);
+        throw new NotificationSendFailedException("webClientException received", ex);
+      }
+    } else {
+      log.warn("Wrong providerid {} configured for {} ", providerId, GupchupSmsNotifier.class);
     }
+    return response;
+  }
 
-    @Override
-    public boolean isDefault() {
-        return providerService.getProvider(providerId).isPrimary();
-    }
+  @Override
+  public boolean isDefault() {
+    return providerService.getProvider(providerId).isPrimary();
+  }
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    @Data
-    public static class GupchupResponse {
+  @JsonIgnoreProperties(ignoreUnknown = true)
+  @Data
+  public static class GupchupResponse {
 
-        private boolean status;
-        private String responseId;
-    }
+    private boolean status;
+    private String responseId;
+  }
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    @Data
-    public static class GupchupRequest {
+  @JsonIgnoreProperties(ignoreUnknown = true)
+  @Data
+  public static class GupchupRequest {
 
-        private String to;
-        private String body;
-        private String requestId;
-    }
+    private String to;
+    private String body;
+    private String requestId;
+  }
 
 
 }
