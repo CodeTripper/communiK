@@ -1,17 +1,30 @@
+/*
+ * Copyright 2019 CodeTripper
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
 package in.codetripper.communik.trace;
 
 import io.opentracing.Span;
 import io.opentracing.contrib.spring.web.client.WebClientSpanDecorator;
 import io.opentracing.tag.Tags;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ClientResponse;
 
-import java.util.HashMap;
-import java.util.Map;
-
 @Slf4j
 public class WebClientDecorator implements WebClientSpanDecorator {
+
     static final String COMPONENT_NAME = "webclient";
     private final String operationName;
     private final String peerService;
@@ -34,12 +47,14 @@ public class WebClientDecorator implements WebClientSpanDecorator {
     }
 
     @Override
-    public void onResponse(final ClientRequest clientRequest, final ClientResponse clientResponse, final Span span) {
+    public void onResponse(final ClientRequest clientRequest, final ClientResponse clientResponse,
+            final Span span) {
         Tags.HTTP_STATUS.set(span, clientResponse.rawStatusCode());
     }
 
     @Override
-    public void onError(final ClientRequest clientRequest, final Throwable throwable, final Span span) {
+    public void onError(final ClientRequest clientRequest, final Throwable throwable,
+            final Span span) {
         Tags.ERROR.set(span, Boolean.TRUE);
         span.log(errorLogs(throwable));
     }

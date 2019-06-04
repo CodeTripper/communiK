@@ -1,4 +1,20 @@
+/*
+ * Copyright 2019 CodeTripper
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
 package in.codetripper.communik.email.providers;
+
+import static in.codetripper.communik.email.Constants.MAILGUN;
+import static io.netty.util.CharsetUtil.UTF_8;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import in.codetripper.communik.email.Email;
@@ -10,6 +26,9 @@ import in.codetripper.communik.provider.ProviderService;
 import in.codetripper.communik.trace.WebClientDecorator;
 import io.opentracing.Tracer;
 import io.opentracing.contrib.spring.web.client.TracingExchangeFilterFunction;
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.stream.Collectors;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,19 +44,13 @@ import org.springframework.web.reactive.function.client.WebClientException;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.stream.Collectors;
-
-import static in.codetripper.communik.email.Constants.MAILGUN;
-import static io.netty.util.CharsetUtil.UTF_8;
-
 
 @Service
 @Slf4j
 @Qualifier(MAILGUN)
 @RequiredArgsConstructor
 public class MailGun implements EmailNotifier<Email> {
+
     private String className = DummyMailer.class.getSimpleName();
     private final ProviderService providerService;
     protected String providerId = "11001";
@@ -45,7 +58,8 @@ public class MailGun implements EmailNotifier<Email> {
     private final Tracer tracer;
 
     @Override
-    public Mono<NotificationStatusResponse> send(Email email) throws NotificationSendFailedException {
+    public Mono<NotificationStatusResponse> send(Email email)
+            throws NotificationSendFailedException {
         Mono<NotificationStatusResponse> response = null;
 
         Provider provider = providerService.getProvider(providerId);
@@ -55,33 +69,41 @@ public class MailGun implements EmailNotifier<Email> {
             log.debug("Sending email with data : {}", formMap);
             try {
                 WebClient client = WebClient.builder()
-                        .filter(new TracingExchangeFilterFunction(tracer, Collections.singletonList(new WebClientDecorator("email.send", className))))
-                        .clientConnector(new ReactorClientHttpConnector(
-                                HttpClient.create().wiretap(logRequestResponse)
-                        ))
-                        .baseUrl(provider.getEndpoints().getBase())
-                        .build();
-                response = client.post()
-                        .uri(provider.getEndpoints().getSendUri()).
-                                header("Authorization", "Basic " + Base64Utils
-                                        .encodeToString((provider.getBasicAuthentication().getUserId() + ":" + provider.getBasicAuthentication().getPassword()).getBytes(UTF_8)))
+                        .filter(new TracingExchangeFilterFunction(tracer,
+                                Collections.singletonList(
+                                        new WebClientDecorator("email.send", className))))
+                        .clientConnector(
+                                new ReactorClientHttpConnector(
+                                        HttpClient.create().wiretap(logRequestResponse)))
+                        .baseUrl(provider.getEndpoints().getBase()).build();
+                response = client.post().uri(provider.getEndpoints().getSendUri())
+                        .header("Authorization",
+                                "Basic " + Base64Utils.encodeToString(
+                                        (provider.getBasicAuthentication().getUserId()
+                                                + ":" + provider.getBasicAuthentication()
+                                                .getPassword()).getBytes(UTF_8)))
 
-                        .contentType(MediaType.MULTIPART_FORM_DATA)
-                        .syncBody(formMap)
-                        .retrieve().bodyToMono(MailGunResponse.class).map(mailgunResponse -> {
+                        .contentType(MediaType.MULTIPART_FORM_DATA).syncBody(formMap).retrieve()
+                        .bodyToMono(MailGunResponse.class).map(mailgunResponse -> {
                             log.debug("mailgunResponse {}", mailgunResponse);
-                            NotificationStatusResponse notificationStatusResponse = new NotificationStatusResponse();
+                            NotificationStatusResponse notificationStatusResponse =
+                                    new NotificationStatusResponse();
                             notificationStatusResponse.setStatus(200);
                             notificationStatusResponse.setTimestamp(LocalDateTime.now());
-                            notificationStatusResponse.setProviderResponseId(mailgunResponse.getId());
-                            notificationStatusResponse.setProviderResponseMessage(mailgunResponse.getMessage());
+                            notificationStatusResponse
+                                    .setProviderResponseId(mailgunResponse.getId());
+                            notificationStatusResponse
+                                    .setProviderResponseMessage(mailgunResponse.getMessage());
                             return notificationStatusResponse;
-                        }).doOnSuccess((message -> log.debug("sent email via MailGun successfully"))).doOnError((error -> {
+                        })
+                        .doOnSuccess((message -> log.debug("sent email via MailGun successfully")))
+                        .doOnError((error -> {
                             log.error("email via MailGun failed ", error);
                         }));
             } catch (WebClientException webClientException) {
                 log.error("webClientException");
-                throw new NotificationSendFailedException("webClientException received", webClientException);
+                throw new NotificationSendFailedException("webClientException received",
+                        webClientException);
             }
         } else {
             log.warn("Wrong providerid {} configured for {} ", providerId, DummyMailer.class);
@@ -89,7 +111,8 @@ public class MailGun implements EmailNotifier<Email> {
         return response;
     }
 
-    private MultiValueMap<String, Object> getStringObjectMultiValueMap(Email email, Provider provider) {
+    private MultiValueMap<String, Object> getStringObjectMultiValueMap(Email email,
+            Provider provider) {
         MultiValueMap<String, Object> formMap = new LinkedMultiValueMap<>();
         formMap.add("from", provider.getFrom());
         if (email.getCc() != null) {
@@ -100,11 +123,10 @@ public class MailGun implements EmailNotifier<Email> {
         }
 
         formMap.add("subject", email.getSubject());
-        String tos = (String) email.getTo().stream()
-                .collect(Collectors.joining(","));
+        String tos = (String) email.getTo().stream().collect(Collectors.joining(","));
         formMap.add("to", tos);
         formMap.add("html", email.getBodyTobeSent());
-        //formMap.add("attachment", email.getA());
+        // formMap.add("attachment", email.getA());
         return formMap;
     }
 
@@ -121,6 +143,7 @@ public class MailGun implements EmailNotifier<Email> {
     @JsonIgnoreProperties(ignoreUnknown = true)
     @Data
     public static class MailGunResponse {
+
         private boolean status;
         private String id;
         private String message;

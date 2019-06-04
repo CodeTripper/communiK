@@ -1,36 +1,52 @@
+/*
+ * Copyright 2019 CodeTripper
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
 package in.codetripper.communik.sms;
 
 import in.codetripper.communik.notification.NotificationStatusResponse;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
-
-import javax.validation.Valid;
 
 @RestController
 @Slf4j
 @RequiredArgsConstructor
 public class SmsController {
-    private final SmsService smsService;
 
-    @PostMapping("/sms")
-    public Mono<NotificationStatusResponse> sms(@Valid @RequestBody SmsDto smsDto) {
-        log.debug("Inside SMSController");
-        return smsService.sendSms(smsDto);
-    }
+  private final SmsService smsService;
 
-    @PostMapping("/otp")
-    public Mono<NotificationStatusResponse> otp(@Valid @RequestBody SmsDto smsDto) {
-        // TODO json
-        log.debug("Inside otp SMSController");
-        return smsService.sendSms(smsDto);
-    }
+  @PostMapping("/sms")
+  public Mono<NotificationStatusResponse> sms(@Valid @RequestBody SmsDto smsDto) {
+    log.debug("Inside SMSController");
+    return smsService.sendSms(smsDto);
+  }
 
-    @GetMapping("/sms/{id}")
-    public String getSmsStatus(@PathVariable String id) {
-        NotificationStatusResponse notificationResponse = smsService.getSmsStatus(id);
-        return "SUCCESS";
-    }
+  @PostMapping("/otp")
+  public Mono<NotificationStatusResponse> otp(@Valid @RequestBody SmsDto smsDto) {
+    // TODO json
+    log.debug("Inside otp SMSController");
+    return smsService.sendSms(smsDto);
+  }
+
+  @GetMapping("/sms/{id}")
+  public String getSmsStatus(@PathVariable String id) {
+    NotificationStatusResponse notificationResponse = smsService.getSmsStatus(id);
+    return "SUCCESS";
+  }
 }
-
