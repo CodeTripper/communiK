@@ -1,8 +1,12 @@
-package in.codetripper.communik.provider;
+package in.codetripper.communik.provider.adapter;
 
+import in.codetripper.communik.provider.Provider;
+import in.codetripper.communik.provider.ProviderMapper;
+import in.codetripper.communik.provider.ProviderPersistence;
 import in.codetripper.communik.repository.mongo.ProviderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -10,7 +14,8 @@ import reactor.core.publisher.Mono;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class ProviderPersistenceAdapter implements ProviderPersistence {
+@ConditionalOnProperty(value = "notification.provider.location", havingValue = "mongo", matchIfMissing = true)
+public class ProviderMongoPersistenceAdapter implements ProviderPersistence {
     private final ProviderRepository mongoNotifierRepository;
     private final ProviderMapper notifierMapper;
 

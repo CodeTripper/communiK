@@ -19,10 +19,10 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class MongoConfig extends AbstractReactiveMongoConfiguration {
     private final MongoTraceListener mongoTracer;
-    @Value("${mongodb.dbname}")
+    @Value("${mongodb.dbname:communik}")
     private String dbName;
 
-    @Value("${mongodb.uri}")
+    @Value("${mongodb.uri:mongodb://localhost:27017}")
     private String uri;
     @Autowired
     MongoClient mongoClient;

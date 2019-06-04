@@ -1,0 +1,26 @@
+{
+  "id": 11001,
+  "name": "MailGun",
+  "comment": "Used for transaction mails",
+  "email": [
+    "help@mailgun.com"
+  ],
+  "contact": [
+    "2342664564",
+    "123213213"
+  ],
+  "type": "EMAIL",
+  "timeOutInMs": 3000,
+  "active": true,
+  "primary": false,
+  "endpoints": {
+    "base": "https://api.mailgun.net/v3/sandboxbb8993410ffc433dbb95623d35af5581.mailgun.org/",
+    "sendUri": "messages"
+  },
+  "from": "Mailgun Sandbox <postmaster@sandboxbb8993410ffc433dbb95623d35af5581.mailgun.org>",
+  "authType": "basic",
+  "basicAuthentication": {
+    "userId": "api",
+    "password": "393dbd22ffe92af5a50cb6f1396a82e9-39bc661a-3bb021ec"
+  }
+}

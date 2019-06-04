@@ -1,0 +1,27 @@
+{
+  "id": 11404,
+  "name": "DummyMailer",
+  "comment": "Used for testing mails",
+  "email": [
+    "help@sendgrid.com"
+  ],
+  "contact": [
+    "2342664564",
+    "123213213"
+  ],
+  "type": "EMAIL",
+  "timeOutInMs": 3000,
+  "active": true,
+  "primary": false,
+  "from": "hkdoley@gmail.com",
+  "endpoints": {
+    "base": "http://localhost:9999/",
+    "sendUri": "/email/sendgrid",
+    "statusUri": "/sms/gupchup/status"
+  },
+  "authType": "basic",
+  "basicAuthentication": {
+    "userId": "test",
+    "password": "test"
+  }
+}

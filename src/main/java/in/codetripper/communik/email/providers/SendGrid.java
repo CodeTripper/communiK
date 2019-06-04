@@ -96,7 +96,12 @@ public class SendGrid implements EmailNotifier<Email> {
 
     @Override
     public boolean isDefault() {
-        return providerService.getProvider(providerId).isPrimary();
+        Provider provider = providerService.getProvider(providerId);
+        if (provider != null) {
+            return providerService.getProvider(providerId).isPrimary();
+        } else {
+            return false;
+        }
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
 import javax.annotation.PostConstruct;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,7 +21,11 @@ public class ProviderService {
     private void init() {
         providerMap = new HashMap<>();
         log.info("ProviderService initialization logic ...");
-        getAllProviders().filter(Provider::isActive).doOnNext(item -> providerMap.put(item.getId(), item)).doOnError(error -> log.error("Error while initializing providers {0}", error)).subscribe();
+        try {
+            getAllProviders().filter(Provider::isActive).doOnNext(item -> providerMap.put(item.getId(), item)).doOnError(error -> log.error("Error while initializing providers {0}", error)).subscribe();
+        } catch (IOException e) {
+            log.error("Unable to initialize providers map", e);
+        }
     }
 
     public Provider getProvider(String id) {
@@ -28,7 +33,7 @@ public class ProviderService {
         return providerMap.get(id);
     }
 
-    public Flux<Provider> getAllProviders() {
+    public Flux<Provider> getAllProviders() throws IOException {
         log.info("Getting all providers...");
         return providerPersistence.getAll();
     }
