@@ -1,6 +1,6 @@
 package in.codetripper.communik.messagegenerator;
 
-public class MessageGenerationException extends Exception {
+public class MessageGenerationException extends RuntimeException {
     public MessageGenerationException(String s) {
         // Call constructor of parent Exception
         super(s);

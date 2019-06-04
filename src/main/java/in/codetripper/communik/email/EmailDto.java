@@ -6,21 +6,20 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import static in.codetripper.communik.exceptions.ExceptionConstants.VALIDATION_EMAIL_EMPTY_EMAIL;
-import static in.codetripper.communik.exceptions.ExceptionConstants.VALIDATION_EMAIL_INVALID_EMAIL;
 
 @Data
 @ToString
 public class EmailDto implements Serializable {
-    @NotBlank(message = VALIDATION_EMAIL_EMPTY_EMAIL)
-    @Email(message = VALIDATION_EMAIL_INVALID_EMAIL)
-    private String to;
+    @NotEmpty(message = VALIDATION_EMAIL_EMPTY_EMAIL)
+    //  @Email(message = VALIDATION_EMAIL_INVALID_EMAIL)
+    private List<String> to;
     private String subject;
     private Type type = Type.EMAIL;
     private Container body;

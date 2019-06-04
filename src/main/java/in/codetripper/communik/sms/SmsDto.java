@@ -9,13 +9,14 @@ import lombok.ToString;
 import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 @Data
 @ToString
 public class SmsDto implements Serializable {
     @NotBlank(message = "To field cannot be empty")
-    private String to;
+    private List<String> to;
     private Type type = Type.SMS;
     private Container body;
     private String templateId;

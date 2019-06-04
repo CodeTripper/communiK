@@ -41,8 +41,10 @@ public class SendGrid implements EmailNotifier<Email> {
     protected String providerId = "11002";
     private boolean logRequestResponse = false;
     private final Tracer tracer;
+
     @Override
     public Mono<NotificationStatusResponse> send(Email email) throws NotificationSendFailedException {
+
         Mono<NotificationStatusResponse> response = null;
         Provider provider = providerService.getProvider(providerId);
         if (provider.getType().equalsIgnoreCase("EMAIL")) {
@@ -60,16 +62,22 @@ public class SendGrid implements EmailNotifier<Email> {
                         .uri(provider.getEndpoints().getSendUri())
                         .header("Authorization", "Bearer " + provider.getBearerAuthentication().getApiKey())
                         .contentType(MediaType.APPLICATION_JSON)
-                        // FIXME empty return?
-                        .body(BodyInserters.fromObject(sendGridRequest)).retrieve().bodyToMono(SendGridResponse.class).map(sendGridResponse -> {
-                            log.debug("getting response from SendGrid {}", sendGridResponse);
+                        .body(BodyInserters.fromObject(sendGridRequest)).exchange().map(sgresponse -> {
+                            log.debug("sgresponse: {}", sgresponse.statusCode().toString());
                             NotificationStatusResponse notificationStatusResponse = new NotificationStatusResponse();
-                            notificationStatusResponse.setStatus(200);
                             notificationStatusResponse.setTimestamp(LocalDateTime.now());
+                            if (sgresponse.statusCode().is2xxSuccessful()) {
+                                notificationStatusResponse.setStatus(200);
+                            } else {
+                                throw new NotificationSendFailedException("Sending mail via sendgrid failed. Reason:" + sgresponse.statusCode().toString());
+                            }
+
                             return notificationStatusResponse;
-                        }).doOnSuccess((message -> log.debug("sent email via SendGrid successfully {}", message))).doOnError((error -> {
+                        })
+                        .doOnSuccess((message -> log.debug("sent email via SendGrid successfully {}", message))).doOnError((error -> {
                             log.error("email via SendGrid failed ", error);
                         }));
+
             } catch (WebClientException webClientException) {
                 log.error("webClientException");
                 throw new NotificationSendFailedException("webClientException received", webClientException);
@@ -85,8 +93,11 @@ public class SendGrid implements EmailNotifier<Email> {
         SendGridRequest sendGridRequest = new SendGridRequest();
         Personalization personalization = new Personalization();
         Personalization.EmailEntity from = new Personalization.EmailEntity(provider.getFrom());
-        Personalization.EmailEntity to = new Personalization.EmailEntity(email.getTo());
-        personalization.addTo(to);
+        email.getTo().stream().forEach(t -> {
+            Personalization.EmailEntity to = new Personalization.EmailEntity((String) t);
+            personalization.addTo(to);
+        });
+
         sendGridRequest.setFrom(from);
         sendGridRequest.setSubject(email.getSubject());
         sendGridRequest.setContent(Arrays.asList(Map.of("type", "text/html", "value", email.getBodyTobeSent())));
@@ -107,9 +118,7 @@ public class SendGrid implements EmailNotifier<Email> {
     @JsonIgnoreProperties(ignoreUnknown = true)
     @Data
     public static class SendGridResponse {
-        private boolean status;
-        private String id;
-        private String message;
+
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

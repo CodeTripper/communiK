@@ -35,7 +35,8 @@ public class GupchupSmsNotifier implements SmsNotifier<Sms> {
         Provider provider = providerService.getProvider(providerId);
         GupchupRequest gupchupRequest = new GupchupRequest();
         gupchupRequest.setBody(sms.getBodyTobeSent());
-        gupchupRequest.setTo(sms.getTo());
+        String to = (String) sms.getTo().get(0);
+        gupchupRequest.setTo(to);
         // gupchupRequest.setResponseId(sms.get); from where?
         if (provider.getType().equalsIgnoreCase(Type.SMS.toString())) {
             log.debug("Sending sms via provider: {} with data {}", provider, sms);

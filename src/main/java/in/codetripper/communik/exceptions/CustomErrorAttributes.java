@@ -26,9 +26,8 @@ class CustomErrorAttributes extends DefaultErrorAttributes {
     @Override
     public Map<String, Object> getErrorAttributes(ServerRequest request, boolean includeStackTrace) {
         final var error = getError(request);
-
         final var errorAttributes = super.getErrorAttributes(request, false);
-        errorAttributes.put(ErrorAttribute.TRACE_ID.value, "");
+        errorAttributes.put(ErrorAttribute.TRACE_ID.value, tracer.scopeManager().activeSpan().context().toTraceId());
         if (error instanceof NotificationSendFailedException || error instanceof NotificationPersistenceException) {
             log.debug("Caught an instance of: {}, err: {}", NotificationSendFailedException.class, error);
             errorAttributes.replace(ErrorAttribute.STATUS.value, 500);

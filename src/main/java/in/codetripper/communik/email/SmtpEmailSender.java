@@ -12,6 +12,7 @@ import reactor.core.publisher.Mono;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.File;
+import java.util.List;
 import java.util.Properties;
 
 @Slf4j
@@ -49,7 +50,8 @@ public abstract class SmtpEmailSender implements EmailNotifier<Email> {
         sender.setJavaMailProperties(getMailProperties());
         MimeMessage message = sender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
-        helper.setTo(email.getTo());
+        List<String> list = email.getTo();
+        helper.setTo(list.toArray(new String[0]));
         helper.setSubject(email.getSubject());
         helper.setText(email.getBodyTobeSent());
 

@@ -16,7 +16,7 @@ public class NotificationMessageRepoDto<T> {
 
     private @Id
     String id;
-    private @NotNull String to;
+    private @NotNull List<String> to;
     private @NotNull NotificationMessage.Container body;
     private NotificationMessage.Container attachment;
     private NotificationMessage.Meta meta;

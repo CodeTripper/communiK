@@ -22,7 +22,7 @@ import java.util.Map;
 
 public class NotificationMessage<T> {
     private String id; // from DB
-    private @NotNull String to;
+    private @NotNull List<String> to;
     private String bodyTobeSent;
     private @NotNull Container body;
     private Container attachment;

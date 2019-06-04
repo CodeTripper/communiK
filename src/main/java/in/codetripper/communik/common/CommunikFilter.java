@@ -27,11 +27,6 @@ public class CommunikFilter implements WebFilter {
     }
 
     private Publisher<Void> filter(ServerWebExchange exchange, Mono<Void> call) {
-//        Extract the existing span context from the inter-process transport (HTTP, etc)
-//          Start new trace without any references if no span is present
-//         else  Start the span with ChildOf spanContext
-//        Store the current trace state
-        //exchange.getRequest().getPath()
         long start = System.nanoTime();
         return call.doOnSuccess(done -> onSuccess(exchange, start))
                 .doOnError(cause -> onError(exchange, start, cause));
@@ -54,7 +49,6 @@ public class CommunikFilter implements WebFilter {
     }
 
     private void record(ServerWebExchange exchange, long start, Throwable cause) {
-        // TODO Finish the span
         log.debug("Time Taken to process in nanos{}", System.nanoTime() - start);
     }
 }

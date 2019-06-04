@@ -27,6 +27,7 @@ import reactor.netty.http.client.HttpClient;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.stream.Collectors;
 
 import static in.codetripper.communik.email.Constants.MAILGUN;
 import static io.netty.util.CharsetUtil.UTF_8;
@@ -99,7 +100,9 @@ public class MailGun implements EmailNotifier<Email> {
         }
 
         formMap.add("subject", email.getSubject());
-        formMap.add("to", email.getTo());
+        String tos = (String) email.getTo().stream()
+                .collect(Collectors.joining(","));
+        formMap.add("to", tos);
         formMap.add("html", email.getBodyTobeSent());
         //formMap.add("attachment", email.getA());
         return formMap;

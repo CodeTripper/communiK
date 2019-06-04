@@ -52,6 +52,7 @@ class EmailServiceImpl implements EmailService {
                     }
                 }).
                 map(t -> generateMessage(t, emailDto)).
+                onErrorMap(original -> new NotificationSendFailedException(original.getMessage())).
                 map(message -> getEmail(emailDto, message)).
                 flatMap(notificationHandler::sendNotification).
                 doOnError(err -> log.error("Error while sending Email", err)).
