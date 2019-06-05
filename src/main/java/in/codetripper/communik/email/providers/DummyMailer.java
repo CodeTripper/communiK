@@ -13,7 +13,7 @@
  */
 package in.codetripper.communik.email.providers;
 
-import static in.codetripper.communik.email.Constants.MAILGUN;
+import static in.codetripper.communik.email.Constants.DUMMYMAILER;
 import static io.netty.util.CharsetUtil.UTF_8;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -21,7 +21,6 @@ import in.codetripper.communik.email.Email;
 import in.codetripper.communik.email.EmailNotifier;
 import in.codetripper.communik.exceptions.NotificationSendFailedException;
 import in.codetripper.communik.notification.NotificationStatusResponse;
-import in.codetripper.communik.notification.Type;
 import in.codetripper.communik.provider.Provider;
 import in.codetripper.communik.provider.ProviderService;
 import in.codetripper.communik.trace.WebClientDecorator;
@@ -29,70 +28,64 @@ import io.opentracing.Tracer;
 import io.opentracing.contrib.spring.web.client.TracingExchangeFilterFunction;
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.stream.Collectors;
+import java.util.List;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Base64Utils;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientException;
 import reactor.core.publisher.Mono;
-import reactor.netty.http.client.HttpClient;
 
 
 @Service
 @Slf4j
-@Qualifier(MAILGUN)
+@Qualifier(DUMMYMAILER)
 @RequiredArgsConstructor
-public class MailGun implements EmailNotifier<Email> {
+public class DummyMailer implements EmailNotifier<Email> {
 
   private String className = DummyMailer.class.getSimpleName();
   private final ProviderService providerService;
-  private String providerId = "11001";
+  private String providerId = "11404";
   private final Tracer tracer;
-  private String TRACE_OPERATION_NAME = "email.send";
 
   @Override
   public Mono<NotificationStatusResponse> send(Email email) throws NotificationSendFailedException {
+    DummyMailerRequest dummyMailerRequest = new DummyMailerRequest();
+    dummyMailerRequest.setTo(email.getTo());
+    dummyMailerRequest.setSubject(email.getSubject());
+    dummyMailerRequest.setMessage(email.getBodyTobeSent());
+    dummyMailerRequest.setCc(email.getCc());
+    dummyMailerRequest.setBcc(email.getBcc());
+    dummyMailerRequest.setReplyTo(email.getReplyTo());
     Mono<NotificationStatusResponse> response = null;
-
     Provider provider = providerService.getProvider(providerId);
-    if (provider.getType().equalsIgnoreCase(Type.EMAIL.toString())) {
+    if (provider != null && provider.getType().equalsIgnoreCase("EMAIL")) {
       log.debug("Sending email via provider: {}", provider);
-      MultiValueMap<String, Object> formMap = getStringObjectMultiValueMap(email, provider);
-      log.debug("Sending email with data : {}", formMap);
       try {
-        boolean logRequestResponse = false;
-        WebClient client = WebClient.builder()
+        WebClient webClient = WebClient.builder()
             .filter(new TracingExchangeFilterFunction(tracer,
-                Collections.singletonList(new WebClientDecorator(TRACE_OPERATION_NAME, className))))
-            .clientConnector(
-                new ReactorClientHttpConnector(HttpClient.create().wiretap(logRequestResponse)))
+                Collections.singletonList(new WebClientDecorator("email.send", className))))
             .baseUrl(provider.getEndpoints().getBase()).build();
-        response = client.post().uri(provider.getEndpoints().getSendUri())
+        response = webClient.post().uri(provider.getEndpoints().getSendUri())
             .header("Authorization",
                 "Basic " + Base64Utils.encodeToString((provider.getBasicAuthentication().getUserId()
                     + ":" + provider.getBasicAuthentication().getPassword()).getBytes(UTF_8)))
-
-            .contentType(MediaType.MULTIPART_FORM_DATA).syncBody(formMap).retrieve()
-            .bodyToMono(MailGunResponse.class).map(mailgunResponse -> {
-              log.debug("mailgunResponse {}", mailgunResponse);
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(BodyInserters.fromObject(dummyMailerRequest)).retrieve()
+            .bodyToMono(DummyMailerResponse.class).map(sendGridResponse -> {
               NotificationStatusResponse notificationStatusResponse =
                   new NotificationStatusResponse();
               notificationStatusResponse.setStatus(200);
               notificationStatusResponse.setTimestamp(LocalDateTime.now());
-              notificationStatusResponse.setProviderResponseId(mailgunResponse.getId());
-              notificationStatusResponse.setProviderResponseMessage(mailgunResponse.getMessage());
               return notificationStatusResponse;
-            }).doOnSuccess((message -> log.debug("sent email via MailGun successfully")))
-            .doOnError((error -> {
-              log.error("email via MailGun failed ", error);
+            }).doOnSuccess((message -> log.debug("sent email via DummyMailer successfully")))
+            .doOnError((message -> {
+              log.error("email via DummyMailer failed {0}", message);
             }));
       } catch (WebClientException webClientException) {
         log.error("webClientException");
@@ -103,25 +96,6 @@ public class MailGun implements EmailNotifier<Email> {
       log.warn("Wrong providerid {} configured for {} ", providerId, DummyMailer.class);
     }
     return response;
-  }
-
-  private MultiValueMap<String, Object> getStringObjectMultiValueMap(Email email,
-      Provider provider) {
-    MultiValueMap<String, Object> formMap = new LinkedMultiValueMap<>();
-    formMap.add("from", provider.getFrom());
-    if (email.getCc() != null) {
-      formMap.add("cc", email.getCc());
-    }
-    if (email.getBcc() != null) {
-      formMap.add("bcc", email.getBcc());
-    }
-
-    formMap.add("subject", email.getSubject());
-    String tos = (String) email.getTo().stream().collect(Collectors.joining(","));
-    formMap.add("to", tos);
-    formMap.add("html", email.getBodyTobeSent());
-    // formMap.add("attachment", email.getA());
-    return formMap;
   }
 
   @Override
@@ -136,12 +110,25 @@ public class MailGun implements EmailNotifier<Email> {
 
   @JsonIgnoreProperties(ignoreUnknown = true)
   @Data
-  public static class MailGunResponse {
+  public static class DummyMailerResponse {
 
     private boolean status;
     private String id;
     private String message;
   }
 
+  @JsonIgnoreProperties(ignoreUnknown = true)
+  @Data
+  public static class DummyMailerRequest {
+
+    private List<String> to;
+    private String message;
+    private String attachment;
+    private String subject;
+    private String from;
+    private String replyTo;
+    private String cc;
+    private String bcc;
+  }
 
 }

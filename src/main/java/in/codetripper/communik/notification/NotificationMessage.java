@@ -26,6 +26,11 @@ import lombok.extern.slf4j.Slf4j;
 // TODO change the below hack to Superbuilder when milestone 25 is released Idea plugin
 // https://github.com/mplushnikov/lombok-intellij-plugin/milestone/31
 
+/**
+ * Base class to be used to send messages to the notifier providers
+ *
+ * @author CodeTripper
+ */
 
 @Data
 @ToString

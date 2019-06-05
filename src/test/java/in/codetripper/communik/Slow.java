@@ -13,13 +13,6 @@
  */
 package in.codetripper.communik;
 
-
-// @RunWith(SpringRunner.class)
-// @SpringBootTest
-public class ApplicationTest {
-
-  // @Test
-  public void contextLoads() {
-  }
+public interface Slow {
 
 }

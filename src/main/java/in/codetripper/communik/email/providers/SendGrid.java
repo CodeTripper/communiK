@@ -21,6 +21,7 @@ import in.codetripper.communik.email.Email;
 import in.codetripper.communik.email.EmailNotifier;
 import in.codetripper.communik.exceptions.NotificationSendFailedException;
 import in.codetripper.communik.notification.NotificationStatusResponse;
+import in.codetripper.communik.notification.Type;
 import in.codetripper.communik.provider.Provider;
 import in.codetripper.communik.provider.ProviderService;
 import in.codetripper.communik.trace.WebClientDecorator;
@@ -64,7 +65,7 @@ public class SendGrid implements EmailNotifier<Email> {
 
     Mono<NotificationStatusResponse> response = null;
     Provider provider = providerService.getProvider(providerId);
-    if (provider.getType().equalsIgnoreCase("EMAIL")) {
+    if (provider.getType().equalsIgnoreCase(Type.EMAIL.toString())) {
       log.debug("Sending email via provider: {}", provider);
       SendGridRequest sendGridRequest = createSendGridRequest(provider, email);
       try {

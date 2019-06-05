@@ -15,7 +15,6 @@ package in.codetripper.communik.notification;
 
 import static in.codetripper.communik.Constants.DB_WRITE_TIMEOUT;
 import static in.codetripper.communik.Constants.PROVIDER_TIMEOUT;
-import static in.codetripper.communik.exceptions.ExceptionConstants.NOTIFICATION_SEND_FAILURE;
 
 import in.codetripper.communik.exceptions.NotificationPersistenceException;
 import in.codetripper.communik.exceptions.NotificationSendFailedException;
@@ -29,6 +28,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+/**
+ * The core domain class. Contains all the business logic to store, forward and retry notifications
+ *
+ * @author CodeTripper
+ */
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -36,48 +40,37 @@ public class Notification<T extends NotificationMessage> {
 
   private final NotificationPersistence<T> notificationPersistence;
 
-  // Update DB or Error Or Failure on a separate Threadpool // TODO
-  // Call Fallback Notifier // TODO
-  // Update DB or Error Or Failure on a separate Threadpool
-  /*
-   * public Notification(NotificationPersistence<T> notificationPersistence){
-   * this.notificationPersistence=notificationPersistence; }
-   */
-  public Mono<NotificationStatusResponse> sendNotification(@NonNull T notificationMessage) {
-    log.info("About to persist notification for {}", notificationMessage.getTo());
-    log.debug("About to persist notification for {}", notificationMessage);
+  public Mono<NotificationStatusResponse> sendNotification(@NonNull T message) {
+    log.info("About to persist notification for {}", message.getTo());
+    log.debug("About to persist notification for {}", message);
     // TODO how not to save reruns? Use existing id to bypass
     // Schedulers.parallel()
-    notificationMessage.setStatus(Status.NOTIFICATION_NEW);
-    return notificationPersistence.store(notificationMessage)
-        .timeout(Duration.ofMillis(DB_WRITE_TIMEOUT)).map(status -> {
-          notificationMessage.setStatus(Status.NOTIFICATION_STORED);
-          notificationMessage.setId(status.getId());
-          return notificationMessage;
-        }).flatMap(message -> {
-          NotificationMessage.Notifiers<T> noti = notificationMessage.getNotifiers();
-          return noti.getPrimary().send(notificationMessage)
-              .timeout(Duration.ofMillis(PROVIDER_TIMEOUT));
+    message.setStatus(Status.NOTIFICATION_NEW);
+    return notificationPersistence.store(message).timeout(Duration.ofMillis(DB_WRITE_TIMEOUT))
+        .map(status -> {
+          message.setStatus(Status.NOTIFICATION_STORED);
+          message.setId(status.getId());
+          return message;
+        }).flatMap(m -> {
+          NotificationMessage.Notifiers<T> noti = message.getNotifiers();
+          return noti.getPrimary().send(message).timeout(Duration.ofMillis(PROVIDER_TIMEOUT));
         }).onErrorResume(error -> {
           log.info("primary provider failed to send notification ", error);
           if (error instanceof NotificationPersistenceException) {
             return Mono.error(error);
           } else {
             log.warn("retrying again as primary provider failed to send notification");
-            NotificationMessage.Notifiers<T> noti = notificationMessage.getNotifiers();
+            NotificationMessage.Notifiers<T> noti = message.getNotifiers();
             Optional<? extends Notifier<T>> backup = noti.getBackup().stream().findFirst();
             if (backup.isPresent()) {
-              return backup.get().send(notificationMessage)
-                  .timeout(Duration.ofMillis(PROVIDER_TIMEOUT));
+              return backup.get().send(message).timeout(Duration.ofMillis(PROVIDER_TIMEOUT));
             } else {
               return Mono.error(new NotificationSendFailedException(error.getMessage()));
             }
           }
 
-        }).flatMap(status -> update(notificationMessage))
-        .timeout(Duration.ofMillis(DB_WRITE_TIMEOUT)).flatMap(this::createResponse)
-        // .flatMap(status -> update(notificationMessage))
-        .onErrorResume(
+        }).flatMap(status -> update(message)).timeout(Duration.ofMillis(DB_WRITE_TIMEOUT))
+        .flatMap(this::createResponse).onErrorResume(
             error -> Mono.error(new NotificationSendFailedException(error.getMessage())));
 
   }
@@ -102,18 +95,6 @@ public class Notification<T extends NotificationMessage> {
     action.setNotifier(test.getClass().getName());
     notificationMessage.setActions(List.of(action));
     return notificationPersistence.update(notificationMessage);
-  }
-
-  private Mono<Object> getFailure() {
-    /*
-     * NotificationStatusResponse notificationStatusResponse = new NotificationStatusResponse(); //
-     * notificationStatusResponse.setResponseId(notificationMessage.getId()); // FIXME
-     * notificationStatusResponse.setStatus(false);
-     * notificationStatusResponse.setTimestamp(LocalDateTime.now()); return
-     * notificationStatusResponse;
-     */
-    // notificationStatusResponse.setResponseId(status.getId());
-    return Mono.error(new NotificationSendFailedException(NOTIFICATION_SEND_FAILURE));
   }
 
 }

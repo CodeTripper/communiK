@@ -19,7 +19,7 @@ import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -28,7 +28,7 @@ import lombok.ToString;
 @ToString
 public class SmsDto implements Serializable {
 
-  @NotBlank(message = "To field cannot be empty")
+  @NotEmpty(message = "To field cannot be empty")
   private List<String> to;
   private Type type = Type.SMS;
   private Container body;

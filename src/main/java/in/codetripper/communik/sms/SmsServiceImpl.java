@@ -82,6 +82,7 @@ class SmsServiceImpl implements SmsService {
     sms.setBodyTobeSent(body);
     NotificationMessage.Notifiers<Sms> notifiers = new NotificationMessage.Notifiers<>();
     notifiers.setPrimary(notifier);
+    // FIXME add providerName
     // notifiers.setBackup();
     sms.setNotifiers(notifiers);
     NotificationMessage.Meta meta = new NotificationMessage.Meta();

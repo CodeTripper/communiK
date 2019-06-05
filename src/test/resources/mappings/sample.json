@@ -1,0 +1,50 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "method": "POST",
+        "url": "/api/webhook"
+      },
+      "response": {
+        "status": 200
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "/sms/gupchup"
+      },
+      "response": {
+        "status": 200,
+        "fixedDelayMilliseconds": 500,
+        "bodyFileName": "gupchup.json",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "/email/sendgrid"
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "sendgrid.json",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "/sms/twofactor"
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "twofactor.json"
+      }
+    }
+  ]
+}

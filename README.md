@@ -1,9 +1,9 @@
 # CommuniK - reactive api for sending emails/SMS/chat notifications
 
-It's a Store And Forward API built with Springboot/Reactor and MongoDb to send out notifications.
+It's a Store And Forward API built with Springboot/Webflux and MongoDb to send out notifications.
 
 ## Features: 
-    
+    * Fully reactive
     * Centralizes your notification requirements
     * Send emails/sms/chats by calling a rest endpoint
     * Add your own Email/SMS providers by implementing the Notifier Interface
