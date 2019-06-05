@@ -13,8 +13,8 @@
  */
 package in.codetripper.communik.exceptions;
 
-import static in.codetripper.communik.Constants.ERROR_BAD_REQUEST;
-import static in.codetripper.communik.Constants.ERROR_UNABLE_TO_PROCESS;
+import static in.codetripper.communik.exceptions.ExceptionConstants.ERROR_BAD_REQUEST;
+import static in.codetripper.communik.exceptions.ExceptionConstants.ERROR_UNABLE_TO_PROCESS;
 
 import io.opentracing.Tracer;
 import java.util.Map;

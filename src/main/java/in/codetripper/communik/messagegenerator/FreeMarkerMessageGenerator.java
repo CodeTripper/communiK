@@ -28,7 +28,7 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class FreeMarkerMessageGenerator<T> implements MessageGenerator<T>, HtmlGenerator {
+public class FreeMarkerMessageGenerator<T> implements MessageGenerator<T> {
 
   private final Configuration configuration;
 
@@ -56,10 +56,4 @@ public class FreeMarkerMessageGenerator<T> implements MessageGenerator<T>, HtmlG
   }
 
 
-  @Override
-  public String generateHtml(String templateId, Object notificationMessage)
-      throws MessageGenerationException {
-    // TODO
-    return null;
-  }
 }

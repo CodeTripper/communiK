@@ -13,7 +13,9 @@
  */
 package in.codetripper.communik.messagegenerator;
 
+import java.util.Locale;
+
 public interface HtmlGenerator<T> {
 
-  String generateHtml(String templateId, T notificationMessage) throws MessageGenerationException;
+  String generateHtml(String template, T notificationMessage, Locale locale);
 }

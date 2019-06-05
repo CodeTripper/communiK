@@ -22,7 +22,7 @@ public class Sms extends NotificationMessage {
   private long mobileNo;
   private long countryCode;
 
-  // TODO change the below hack to Superbuilder when milestone 25 is released Idea plugin
+  // change the below hack to Superbuilder when milestone 25 is released Idea plugin
   // https://github.com/mplushnikov/lombok-intellij-plugin/milestone/31
   /*
    * @Builder public Sms(Type type, String message, String to, String senderIp, Status status, long

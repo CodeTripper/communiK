@@ -54,6 +54,7 @@ public class NotificationMessage<T> {
   private int deadLine;
   private String templateId;
   private String locale;
+  private String from;
 
   @Data
   @NoArgsConstructor

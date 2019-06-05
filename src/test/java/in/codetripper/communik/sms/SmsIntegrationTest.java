@@ -44,7 +44,6 @@ import org.springframework.web.reactive.function.BodyInserters;
 public class SmsIntegrationTest {
 
   // TODO add in memory mongo
-  // TODO add wiremock
   private SmsSampleRequest smsSampleRequest;
   @Autowired
   private WebTestClient webClient;

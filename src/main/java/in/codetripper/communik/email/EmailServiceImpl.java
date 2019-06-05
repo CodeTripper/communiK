@@ -65,9 +65,9 @@ class EmailServiceImpl implements EmailService {
           } else {
             return new InvalidRequestException(INVALID_REQUEST_TEMPLATE_NOT_FOUND);
           }
-        }).map(t -> generateMessage(t, emailDto))
+        })
         .onErrorMap(original -> new NotificationSendFailedException(original.getMessage()))
-        .map(message -> getEmail(emailDto, message)).flatMap(notificationHandler::sendNotification)
+        .map(t -> prepareEmail(t, emailDto)).flatMap(notificationHandler::sendNotification)
         .doOnError(err -> log.error("Error while sending Email", err))
         .onErrorMap(original -> new NotificationSendFailedException(original.getMessage()));
   }
@@ -77,12 +77,18 @@ class EmailServiceImpl implements EmailService {
     return notificationPersistence.getAll();
   }
 
-  private Email getEmail(EmailDto emailDto, String body) {
+  private Email prepareEmail(NotificationTemplate template, EmailDto emailDto) {
     log.debug("email called with provider {} for providers {}", emailDto.getProviderName(),
         providers);
+    String message = generateMessage(template, emailDto);
     Email email = emailMapper.emailDtoToEmail(emailDto);
-    // email.setSubject(emailDto.getSubject());
-    email.setBodyTobeSent(body);
+    if (email.getReplyTo().isEmpty()) {
+      email.setReplyTo(template.getReplyTo());
+    }
+    if (email.getFrom().isEmpty()) {
+      email.setFrom(template.getFrom());
+    }
+    email.setBodyTobeSent(message);
     NotificationMessage.Notifiers<Email> notifiers = new NotificationMessage.Notifiers<>();
     // TODO do not need to call all for default
     var defaultProvider = providers.entrySet().stream()
@@ -141,7 +147,6 @@ class EmailServiceImpl implements EmailService {
     } else {
       message = messageGenerator.generateMessage(template.getBody(), emailDto, userLocale);
     }
-
     log.debug("generated message {}", message);
     return message;
 

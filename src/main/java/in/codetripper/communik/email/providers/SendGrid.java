@@ -113,7 +113,11 @@ public class SendGrid implements EmailNotifier<Email> {
 
     SendGridRequest sendGridRequest = new SendGridRequest();
     Personalization personalization = new Personalization();
-    Personalization.EmailEntity from = new Personalization.EmailEntity(provider.getFrom());
+    String fromStr = email.getFrom();
+    if (fromStr.isEmpty()) {
+      fromStr = provider.getFrom();
+    }
+    Personalization.EmailEntity from = new Personalization.EmailEntity(fromStr);
     email.getTo().stream().forEach(t -> {
       Personalization.EmailEntity to = new Personalization.EmailEntity((String) t);
       personalization.addTo(to);
@@ -135,12 +139,6 @@ public class SendGrid implements EmailNotifier<Email> {
     } else {
       return false;
     }
-  }
-
-  @JsonIgnoreProperties(ignoreUnknown = true)
-  @Data
-  public static class SendGridResponse {
-
   }
 
   @JsonIgnoreProperties(ignoreUnknown = true)

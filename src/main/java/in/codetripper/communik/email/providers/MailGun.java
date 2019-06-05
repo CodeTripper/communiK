@@ -108,7 +108,11 @@ public class MailGun implements EmailNotifier<Email> {
   private MultiValueMap<String, Object> getStringObjectMultiValueMap(Email email,
       Provider provider) {
     MultiValueMap<String, Object> formMap = new LinkedMultiValueMap<>();
-    formMap.add("from", provider.getFrom());
+    String from = email.getFrom();
+    if (from.isEmpty()) {
+      from = provider.getFrom();
+    }
+    formMap.add("from", from);
     if (email.getCc() != null) {
       formMap.add("cc", email.getCc());
     }

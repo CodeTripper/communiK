@@ -40,6 +40,7 @@ public class EmailDto implements Serializable {
   private String templateId;
   private String providerName;
   private String locale;
+  private String replyTo;
 
   @Data
   @NoArgsConstructor

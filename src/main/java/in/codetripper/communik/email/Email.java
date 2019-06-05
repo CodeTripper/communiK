@@ -29,7 +29,7 @@ public class Email extends NotificationMessage {
   private String subject;
   private String cc;
   private String bcc;
-  private String replyTo; // TODO
+  private String replyTo;
 
   /*
    * @Builder public Email(Type type, String message, String to, String senderIp, Status status,

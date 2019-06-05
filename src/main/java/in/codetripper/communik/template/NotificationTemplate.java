@@ -40,6 +40,7 @@ public class NotificationTemplate implements Serializable {
   private List<String> bcc;
   private List<String> cc;
   private String replyTo;
+  private String from;
 
 
 }
