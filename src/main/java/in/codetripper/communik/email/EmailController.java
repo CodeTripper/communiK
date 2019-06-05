@@ -15,6 +15,7 @@ package in.codetripper.communik.email;
 
 
 import in.codetripper.communik.notification.NotificationStatusResponse;
+import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -37,6 +39,13 @@ public class EmailController {
   public final Mono<NotificationStatusResponse> email(@Valid @RequestBody EmailDto emailDto) {
     log.debug("Received email request with data {}", emailDto);
     return emailService.sendEmail(emailDto);
+  }
+
+  @RequestMapping(value = "/emails", method = RequestMethod.POST)
+  public final Flux<NotificationStatusResponse> emails(
+      @Valid @RequestBody List<EmailDto> emailDtos) {
+    log.debug("Received multi email request with data {}", emailDtos);
+    return Flux.fromIterable(emailDtos).flatMap(emailDto -> emailService.sendEmail(emailDto));
   }
 
 

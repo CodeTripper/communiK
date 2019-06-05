@@ -14,6 +14,7 @@
 package in.codetripper.communik.sms;
 
 import in.codetripper.communik.notification.NotificationStatusResponse;
+import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +22,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -48,5 +52,11 @@ public class SmsController {
   public String getSmsStatus(@PathVariable String id) {
     NotificationStatusResponse notificationResponse = smsService.getSmsStatus(id);
     return "SUCCESS";
+  }
+
+  @RequestMapping(value = "/smses", method = RequestMethod.POST)
+  public final Flux<NotificationStatusResponse> smses(@Valid @RequestBody List<SmsDto> smsDtos) {
+    log.debug("Received multi sms request with data {}", smsDtos);
+    return Flux.fromIterable(smsDtos).flatMap(smsDto -> smsService.sendSms(smsDto));
   }
 }

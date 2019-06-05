@@ -82,10 +82,10 @@ class EmailServiceImpl implements EmailService {
         providers);
     String message = generateMessage(template, emailDto);
     Email email = emailMapper.emailDtoToEmail(emailDto);
-    if (email.getReplyTo().isEmpty()) {
+    if (Strings.isNullOrEmpty(email.getReplyTo())) {
       email.setReplyTo(template.getReplyTo());
     }
-    if (email.getFrom().isEmpty()) {
+    if (Strings.isNullOrEmpty(email.getFrom())) {
       email.setFrom(template.getFrom());
     }
     email.setBodyTobeSent(message);
