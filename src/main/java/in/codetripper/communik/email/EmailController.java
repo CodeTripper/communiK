@@ -30,6 +30,7 @@ import reactor.core.publisher.Mono;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
+
 public class EmailController {
 
   CacheControl ccNoStore = CacheControl.noStore();
@@ -44,7 +45,7 @@ public class EmailController {
   @RequestMapping(value = "/emails", method = RequestMethod.POST)
   public final Flux<NotificationStatusResponse> emails(
       @Valid @RequestBody List<EmailDto> emailDtos) {
-    log.debug("Received multi email request with data {}", emailDtos);
+    log.debug("Received bulk email request with data {}", emailDtos);
     return Flux.fromIterable(emailDtos).flatMap(emailDto -> emailService.sendEmail(emailDto));
   }
 
