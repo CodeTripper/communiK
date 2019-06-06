@@ -22,8 +22,6 @@ interface SmsService extends NotificationService {
 
   Mono<NotificationStatusResponse> sendSms(SmsDto smsDTO);
 
-  Mono<NotificationStatusResponse> sendOtp(SmsDto smsDTO);
-
   NotificationStatusResponse getSmsStatus(String id);
 
   default Type getType() {

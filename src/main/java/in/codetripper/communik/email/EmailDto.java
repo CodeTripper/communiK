@@ -16,6 +16,7 @@ package in.codetripper.communik.email;
 import static in.codetripper.communik.exceptions.ExceptionConstants.VALIDATION_EMAIL_EMPTY_EMAIL;
 
 import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import in.codetripper.communik.notification.Type;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
@@ -41,6 +42,8 @@ public class EmailDto implements Serializable {
   private String providerName;
   private String locale;
   private String replyTo;
+  @JsonIgnore
+  private String ipAddress;
 
   @Data
   @NoArgsConstructor

@@ -17,6 +17,7 @@ import static in.codetripper.communik.Constants.DB_READ_TIMEOUT;
 import static in.codetripper.communik.exceptions.ExceptionConstants.INVALID_REQUEST_TEMPLATE_MISMATCH;
 import static in.codetripper.communik.exceptions.ExceptionConstants.INVALID_REQUEST_TEMPLATE_NOT_FOUND;
 import static in.codetripper.communik.exceptions.ExceptionConstants.NOTIFICATION_PERSISTENCE_DB_TIMED_OUT;
+import static in.codetripper.communik.exceptions.ExceptionConstants.NO_DEFAULT_PROVIDER;
 
 import com.google.common.base.Strings;
 import in.codetripper.communik.exceptions.InvalidRequestException;
@@ -31,7 +32,10 @@ import in.codetripper.communik.template.NotificationTemplateService;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -45,24 +49,11 @@ class SmsServiceImpl implements SmsService {
   private final NotificationTemplateService templateService;
   private final Notification<Sms> notificationHandler;
   private final MessageGenerator<SmsDto> messageGenerator;
-  private final SmsNotifier<Sms> smsNotifier;
+  private final Map<String, SmsNotifier<Sms>> providers;
   private final SmsMapper smsMapper;
 
-  // add validation here
-  public Mono<NotificationStatusResponse> sendSms(SmsDto smsDto) {
-    log.debug("About to sendEmail Sms");
-    return send(smsDto, smsNotifier);
-
-  }
-
   @Override
-  public Mono<NotificationStatusResponse> sendOtp(SmsDto smsDto) {
-    log.debug("About to sendEmail Otp");
-    return send(smsDto, smsNotifier);
-
-  }
-
-  private Mono<NotificationStatusResponse> send(SmsDto smsDto, SmsNotifier<Sms> notifier) {
+  public Mono<NotificationStatusResponse> sendSms(SmsDto smsDto) {
     // validate all data present in SMS dto?
     return templateService.get(smsDto.getTemplateId()).timeout(Duration.ofMillis(DB_READ_TIMEOUT))
         .single().map(this::validateTemplate).onErrorMap(original -> {
@@ -71,26 +62,51 @@ class SmsServiceImpl implements SmsService {
           } else {
             return new InvalidRequestException(INVALID_REQUEST_TEMPLATE_NOT_FOUND);
           }
-        }).map(t -> generateMessage(t, smsDto)).map(message -> getSms(smsDto, notifier, message))
-        .flatMap(notificationHandler::sendNotification)
-        .onErrorMap(error -> new NotificationSendFailedException(error.getMessage()));
+        })
+        .onErrorMap(original -> new NotificationSendFailedException(original.getMessage()))
+        .map(t -> prepareSms(t, smsDto)).flatMap(notificationHandler::sendNotification)
+        .doOnError(err -> log.error("Error while sending Sms", err))
+        .onErrorMap(original -> new NotificationSendFailedException(original.getMessage()));
     // doOnError(err -> log.error("Error while sending SMS",err));
   }
 
-  private Sms getSms(SmsDto smsDto, SmsNotifier<Sms> notifier, String body) {
+  private Sms prepareSms(NotificationTemplate template, SmsDto smsDto) {
+    log.debug("sms called with provider {} for providers {}", smsDto.getProviderName(),
+        providers);
+    String message = generateMessage(template, smsDto);
     Sms sms = smsMapper.smsDtoToSms(smsDto);
-    sms.setBodyTobeSent(body);
+
+    if (Strings.isNullOrEmpty(sms.getFrom())) {
+      sms.setFrom(template.getFrom());
+    }
+    sms.setBodyTobeSent(message);
     NotificationMessage.Notifiers<Sms> notifiers = new NotificationMessage.Notifiers<>();
-    notifiers.setPrimary(notifier);
-    // FIXME add providerName
-    // notifiers.setBackup();
+    // TODO do not need to call all for default
+    var defaultProvider = providers.entrySet().stream()
+        .filter(provider -> provider.getValue().isDefault()).findFirst();
+
+    var requestedProvider = providers.get(smsDto.getProviderName());
+    if (requestedProvider == null) {
+      if (defaultProvider.isPresent()) {
+        requestedProvider = defaultProvider.get().getValue();
+      } else {
+        throw new RuntimeException(NO_DEFAULT_PROVIDER);
+      }
+    }
+    var backups = providers.entrySet().stream()
+        .filter(provider -> defaultProvider
+            .map(notifierEntry -> provider.getKey().equalsIgnoreCase(notifierEntry.getKey()))
+            .orElse(true))
+        .map(Entry::getValue).collect(Collectors.toList());
+
+    notifiers.setPrimary(requestedProvider);
+    notifiers.setBackup(backups);
     sms.setNotifiers(notifiers);
     NotificationMessage.Meta meta = new NotificationMessage.Meta();
-    // get IP
-    meta.setSenderIp(null);
+    meta.setSenderIp(smsDto.getIpAddress());
     meta.setType(getType());
-    // meta.setCategory(template.getCategory());
-    // meta.setLob(template.getLob());
+    meta.setCategory(template.getCategory());
+    meta.setLob(template.getLob());
     meta.setCreated(LocalDateTime.now());
     sms.setMeta(meta);
     return sms;

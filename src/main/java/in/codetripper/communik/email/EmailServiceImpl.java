@@ -112,11 +112,10 @@ class EmailServiceImpl implements EmailService {
     notifiers.setBackup(backups);
     email.setNotifiers(notifiers);
     NotificationMessage.Meta meta = new NotificationMessage.Meta();
-    // get IP
-    meta.setSenderIp(null);
+    meta.setSenderIp(emailDto.getIpAddress());
     meta.setType(getType());
-    // meta.setCategory(template.getCategory());
-    // meta.setLob(template.getLob());
+    meta.setCategory(template.getCategory());
+    meta.setLob(template.getLob());
     meta.setCreated(LocalDateTime.now());
     email.setMeta(meta);
     return email;

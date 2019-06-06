@@ -56,6 +56,7 @@ public class NotificationMessage<T> {
   private String locale;
   private String from;
 
+
   @Data
   @NoArgsConstructor
   public static class Container {

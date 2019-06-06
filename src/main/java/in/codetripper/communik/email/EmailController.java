@@ -20,6 +20,7 @@ import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.CacheControl;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -37,8 +38,11 @@ public class EmailController {
   private final EmailService emailService;
 
   @RequestMapping(value = "/email", method = RequestMethod.POST)
-  public final Mono<NotificationStatusResponse> email(@Valid @RequestBody EmailDto emailDto) {
-    log.debug("Received email request with data {}", emailDto);
+  public final Mono<NotificationStatusResponse> email(@Valid @RequestBody EmailDto emailDto,
+      ServerHttpRequest serverHttpRequest) {
+    String ipAddress = serverHttpRequest.getRemoteAddress().getAddress().getHostAddress();
+    emailDto.setIpAddress(ipAddress);
+    log.debug("Received email request from  {}  with data {}", ipAddress, emailDto);
     return emailService.sendEmail(emailDto);
   }
 

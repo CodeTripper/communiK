@@ -18,6 +18,7 @@ import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,15 +37,10 @@ public class SmsController {
   private final SmsService smsService;
 
   @PostMapping("/sms")
-  public Mono<NotificationStatusResponse> sms(@Valid @RequestBody SmsDto smsDto) {
+  public Mono<NotificationStatusResponse> sms(@Valid @RequestBody SmsDto smsDto,
+      ServerHttpRequest serverHttpRequest) {
     log.debug("Inside SMSController");
-    return smsService.sendSms(smsDto);
-  }
-
-  @PostMapping("/otp")
-  public Mono<NotificationStatusResponse> otp(@Valid @RequestBody SmsDto smsDto) {
-    // TODO json
-    log.debug("Inside otp SMSController");
+    smsDto.setIpAddress(serverHttpRequest.getRemoteAddress().getAddress().getHostAddress());
     return smsService.sendSms(smsDto);
   }
 

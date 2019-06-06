@@ -14,6 +14,7 @@
 package in.codetripper.communik.sms;
 
 import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import in.codetripper.communik.notification.Type;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
@@ -35,6 +36,8 @@ public class SmsDto implements Serializable {
   private String templateId;
   private String providerName;
   private String locale;
+  @JsonIgnore
+  private String ipAddress;
 
   @Data
   @NoArgsConstructor

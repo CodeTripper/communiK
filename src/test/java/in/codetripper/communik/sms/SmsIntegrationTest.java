@@ -43,7 +43,6 @@ import org.springframework.web.reactive.function.BodyInserters;
 @Category(Integration.class)
 public class SmsIntegrationTest {
 
-  // TODO add in memory mongo
   private SmsSampleRequest smsSampleRequest;
   @Autowired
   private WebTestClient webClient;
