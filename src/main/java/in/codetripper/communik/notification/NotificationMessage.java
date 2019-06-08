@@ -13,6 +13,7 @@
  */
 package in.codetripper.communik.notification;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.LinkedHashMap;
@@ -37,10 +38,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @NoArgsConstructor
 
-public class NotificationMessage<T> {
+public class NotificationMessage<T> implements Serializable {
 
   private String id; // from DB
-  private @NotNull List<String> to;
+  private List<String> to;
   private String bodyTobeSent;
   private @NotNull Container body;
   private Container attachment;

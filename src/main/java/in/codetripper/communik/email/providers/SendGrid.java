@@ -13,6 +13,7 @@
  */
 package in.codetripper.communik.email.providers;
 
+import static in.codetripper.communik.Constants.TRACE_EMAIL_OPERATION_NAME;
 import static in.codetripper.communik.email.Constants.SENDGRID;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -36,7 +37,6 @@ import java.util.List;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
@@ -52,30 +52,35 @@ import reactor.netty.http.client.HttpClient;
 @Service
 @Slf4j
 @Qualifier(SENDGRID)
-@RequiredArgsConstructor
 public class SendGrid implements EmailNotifier<Email> {
 
-  private String className = DummyMailer.class.getSimpleName();
   private final ProviderService providerService;
-  protected String providerId = "11002";
-  private boolean logRequestResponse = false;
+  private String providerId = "11002";
   private final Tracer tracer;
+  private Provider provider;
+  private WebClient client;
 
+  public SendGrid(ProviderService providerService, Tracer tracer) {
+    this.providerService = providerService;
+    this.tracer = tracer;
+    provider = providerService.getProvider(providerId);
+    String className = DummyMailer.class.getSimpleName();
+    client = WebClient.builder()
+        .filter(new TracingExchangeFilterFunction(this.tracer,
+            Collections
+                .singletonList(new WebClientDecorator(TRACE_EMAIL_OPERATION_NAME, className))))
+        .clientConnector(
+            new ReactorClientHttpConnector(HttpClient.create().wiretap(false)))
+        .baseUrl(provider.getEndpoints().getBase()).build();
+  }
   @Override
   public Mono<NotificationStatusResponse> send(Email email) throws NotificationSendFailedException {
 
     Mono<NotificationStatusResponse> response = null;
-    Provider provider = providerService.getProvider(providerId);
     if (provider.getType().equalsIgnoreCase(Type.EMAIL.toString())) {
       log.debug("Sending email via provider: {}", provider);
       SendGridRequest sendGridRequest = createSendGridRequest(provider, email);
       try {
-        WebClient client = WebClient.builder()
-            .clientConnector(
-                new ReactorClientHttpConnector(HttpClient.create().wiretap(logRequestResponse)))
-            .filter(new TracingExchangeFilterFunction(tracer,
-                Collections.singletonList(new WebClientDecorator("email.send", className))))
-            .baseUrl(provider.getEndpoints().getBase()).build();
         response = client.post().uri(provider.getEndpoints().getSendUri())
             .header("Authorization", "Bearer " + provider.getBearerAuthentication().getApiKey())
             .contentType(MediaType.APPLICATION_JSON).body(BodyInserters.fromObject(sendGridRequest))

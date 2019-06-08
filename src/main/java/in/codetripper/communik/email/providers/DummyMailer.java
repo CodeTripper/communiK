@@ -13,6 +13,7 @@
  */
 package in.codetripper.communik.email.providers;
 
+import static in.codetripper.communik.Constants.TRACE_EMAIL_OPERATION_NAME;
 import static in.codetripper.communik.email.Constants.DUMMYMAILER;
 import static io.netty.util.CharsetUtil.UTF_8;
 
@@ -31,28 +32,41 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Base64Utils;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientException;
 import reactor.core.publisher.Mono;
+import reactor.netty.http.client.HttpClient;
 
 
 @Service
 @Slf4j
 @Qualifier(DUMMYMAILER)
-@RequiredArgsConstructor
 public class DummyMailer implements EmailNotifier<Email> {
 
-  private String className = DummyMailer.class.getSimpleName();
-  private final ProviderService providerService;
   private String providerId = "11404";
   private final Tracer tracer;
+  private Provider provider;
+  private WebClient webClient;
+
+  public DummyMailer(ProviderService providerService, Tracer tracer) {
+    this.tracer = tracer;
+    provider = providerService.getProvider(providerId);
+    String className = DummyMailer.class.getSimpleName();
+    webClient = WebClient.builder()
+        .filter(new TracingExchangeFilterFunction(this.tracer,
+            Collections
+                .singletonList(new WebClientDecorator(TRACE_EMAIL_OPERATION_NAME, className))))
+        .clientConnector(
+            new ReactorClientHttpConnector(HttpClient.create().wiretap(false)))
+        .baseUrl(provider.getEndpoints().getBase()).build();
+  }
 
   @Override
   public Mono<NotificationStatusResponse> send(Email email) throws NotificationSendFailedException {
@@ -65,14 +79,10 @@ public class DummyMailer implements EmailNotifier<Email> {
     dummyMailerRequest.setBcc(email.getBcc());
     dummyMailerRequest.setReplyTo(email.getReplyTo());
     Mono<NotificationStatusResponse> response = null;
-    Provider provider = providerService.getProvider(providerId);
     if (provider != null && provider.getType().equalsIgnoreCase(Type.EMAIL.toString())) {
       log.debug("Sending email via provider: {}", provider);
       try {
-        WebClient webClient = WebClient.builder()
-            .filter(new TracingExchangeFilterFunction(tracer,
-                Collections.singletonList(new WebClientDecorator("email.send", className))))
-            .baseUrl(provider.getEndpoints().getBase()).build();
+
         response = webClient.post().uri(provider.getEndpoints().getSendUri())
             .header("Authorization",
                 "Basic " + Base64Utils.encodeToString((provider.getBasicAuthentication().getUserId()
@@ -102,12 +112,7 @@ public class DummyMailer implements EmailNotifier<Email> {
 
   @Override
   public boolean isPrimary() {
-    Provider provider = providerService.getProvider(providerId);
-    if (provider != null) {
-      return providerService.getProvider(providerId).isPrimary();
-    } else {
-      return false;
-    }
+    return provider != null && provider.isPrimary();
   }
 
   @JsonIgnoreProperties(ignoreUnknown = true)

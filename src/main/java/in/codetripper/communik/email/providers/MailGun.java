@@ -13,6 +13,7 @@
  */
 package in.codetripper.communik.email.providers;
 
+import static in.codetripper.communik.Constants.TRACE_EMAIL_OPERATION_NAME;
 import static in.codetripper.communik.email.Constants.MAILGUN;
 import static io.netty.util.CharsetUtil.UTF_8;
 
@@ -32,7 +33,6 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.stream.Collectors;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
@@ -50,33 +50,37 @@ import reactor.netty.http.client.HttpClient;
 @Service
 @Slf4j
 @Qualifier(MAILGUN)
-@RequiredArgsConstructor
 public class MailGun implements EmailNotifier<Email> {
 
-  private String className = DummyMailer.class.getSimpleName();
   private final ProviderService providerService;
   private String providerId = "11001";
   private final Tracer tracer;
-  private String TRACE_OPERATION_NAME = "email.send";
+  private Provider provider;
+  private WebClient client;
+
+  public MailGun(ProviderService providerService, Tracer tracer) {
+    this.providerService = providerService;
+    this.tracer = tracer;
+    provider = providerService.getProvider(providerId);
+    String className = DummyMailer.class.getSimpleName();
+    client = WebClient.builder()
+        .filter(new TracingExchangeFilterFunction(this.tracer,
+            Collections
+                .singletonList(new WebClientDecorator(TRACE_EMAIL_OPERATION_NAME, className))))
+        .clientConnector(
+            new ReactorClientHttpConnector(HttpClient.create().wiretap(false)))
+        .baseUrl(provider.getEndpoints().getBase()).build();
+  }
 
   @Override
   public Mono<NotificationStatusResponse> send(Email email) throws NotificationSendFailedException {
     Mono<NotificationStatusResponse> response = null;
 
-    Provider provider = providerService.getProvider(providerId);
     if (provider.getType().equalsIgnoreCase(Type.EMAIL.toString())) {
       log.debug("Sending email via provider: {}", provider);
       MultiValueMap<String, Object> formMap = getStringObjectMultiValueMap(email, provider);
       log.debug("Sending email with data : {}", formMap);
       try {
-        boolean logRequestResponse = false;
-        // TODO move client to init
-        WebClient client = WebClient.builder()
-            .filter(new TracingExchangeFilterFunction(tracer,
-                Collections.singletonList(new WebClientDecorator(TRACE_OPERATION_NAME, className))))
-            .clientConnector(
-                new ReactorClientHttpConnector(HttpClient.create().wiretap(logRequestResponse)))
-            .baseUrl(provider.getEndpoints().getBase()).build();
         response = client.post().uri(provider.getEndpoints().getSendUri())
             .header("Authorization",
                 "Basic " + Base64Utils.encodeToString((provider.getBasicAuthentication().getUserId()
@@ -85,9 +89,7 @@ public class MailGun implements EmailNotifier<Email> {
             .contentType(MediaType.MULTIPART_FORM_DATA).syncBody(formMap).retrieve()
             .bodyToMono(MailGunResponse.class).map(this::getNotificationStatusResponse)
             .doOnSuccess(message -> log.debug("sent email via MailGun successfully"))
-            .doOnError((error -> {
-              log.error("email via MailGun failed ", error);
-            }));
+            .doOnError((error -> log.error("email via MailGun failed ", error)));
       } catch (WebClientException webClientException) {
         log.error("webClientException");
         throw new NotificationSendFailedException("webClientException received",
@@ -136,12 +138,7 @@ public class MailGun implements EmailNotifier<Email> {
 
   @Override
   public boolean isPrimary() {
-    Provider provider = providerService.getProvider(providerId);
-    if (provider != null) {
-      return providerService.getProvider(providerId).isPrimary();
-    } else {
-      return false;
-    }
+    return provider != null && provider.isPrimary();
   }
 
   @JsonIgnoreProperties(ignoreUnknown = true)

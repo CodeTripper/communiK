@@ -21,7 +21,6 @@ import in.codetripper.communik.exceptions.NotificationSendFailedException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -74,13 +73,11 @@ public class Notification<T extends NotificationMessage> {
       return Mono.error(error);
     } else {
       log.warn("retrying again as primary provider failed to send notification");
-      NotificationMessage.Notifiers<T> noti = message.getNotifiers();
-      Optional<? extends Notifier<T>> backup = noti.getBackup().stream().findFirst();
-      if (backup.isPresent()) {
-        return backup.get().send(message).timeout(Duration.ofMillis(PROVIDER_TIMEOUT));
-      } else {
-        return Mono.error(new NotificationSendFailedException(error.getMessage()));
-      }
+      NotificationMessage.Notifiers<T> notifiers = message.getNotifiers();
+      return notifiers.getBackup().stream().findFirst()
+          .map(backupNotifier -> backupNotifier.send(message)
+              .timeout(Duration.ofMillis(PROVIDER_TIMEOUT)))
+          .orElseGet(() -> Mono.error(new NotificationSendFailedException(error.getMessage())));
     }
   }
   private Mono<NotificationStatusResponse> createResponse(NotificationStorageResponse status) {

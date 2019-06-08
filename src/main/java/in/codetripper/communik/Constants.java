@@ -20,4 +20,5 @@ public interface Constants {
   int PROVIDER_TIMEOUT = 4000;
   String CACHE_DEFAULT = "DEFAULT";
   String CACHE_TEMPLATE = "TEMPLATE";
+  String TRACE_EMAIL_OPERATION_NAME = "email.send";
 }
