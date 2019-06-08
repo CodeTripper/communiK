@@ -56,6 +56,7 @@ public class DummyMailer implements EmailNotifier<Email> {
 
   @Override
   public Mono<NotificationStatusResponse> send(Email email) throws NotificationSendFailedException {
+    log.debug("tracer {} ", tracer.scopeManager().activeSpan().context().toTraceId());
     DummyMailerRequest dummyMailerRequest = new DummyMailerRequest();
     dummyMailerRequest.setTo(email.getTo());
     dummyMailerRequest.setSubject(email.getSubject());
@@ -85,8 +86,8 @@ public class DummyMailer implements EmailNotifier<Email> {
               notificationStatusResponse.setTimestamp(LocalDateTime.now());
               return notificationStatusResponse;
             }).doOnSuccess((message -> log.debug("sent email via DummyMailer successfully")))
-            .doOnError((message -> {
-              log.error("email via DummyMailer failed {0}", message);
+            .doOnError((error -> {
+              log.error("email via DummyMailer failed ", error);
             }));
       } catch (WebClientException webClientException) {
         log.error("webClientException");
@@ -100,7 +101,7 @@ public class DummyMailer implements EmailNotifier<Email> {
   }
 
   @Override
-  public boolean isDefault() {
+  public boolean isPrimary() {
     Provider provider = providerService.getProvider(providerId);
     if (provider != null) {
       return providerService.getProvider(providerId).isPrimary();

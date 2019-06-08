@@ -40,7 +40,10 @@ public class EmailController {
   @RequestMapping(value = "/email", method = RequestMethod.POST)
   public final Mono<NotificationStatusResponse> email(@Valid @RequestBody EmailDto emailDto,
       ServerHttpRequest serverHttpRequest) {
-    String ipAddress = serverHttpRequest.getRemoteAddress().getAddress().getHostAddress();
+    String ipAddress = "";
+    if (serverHttpRequest.getRemoteAddress() != null) {
+      ipAddress = serverHttpRequest.getRemoteAddress().getAddress().getHostAddress();
+    }
     emailDto.setIpAddress(ipAddress);
     log.debug("Received email request from  {}  with data {}", ipAddress, emailDto);
     return emailService.sendEmail(emailDto);
@@ -50,7 +53,7 @@ public class EmailController {
   public final Flux<NotificationStatusResponse> emails(
       @Valid @RequestBody List<EmailDto> emailDtos) {
     log.debug("Received bulk email request with data {}", emailDtos);
-    return Flux.fromIterable(emailDtos).flatMap(emailDto -> emailService.sendEmail(emailDto));
+    return Flux.fromIterable(emailDtos).flatMap(emailService::sendEmail);
   }
 
 

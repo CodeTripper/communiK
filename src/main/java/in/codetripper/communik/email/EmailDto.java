@@ -13,8 +13,6 @@
  */
 package in.codetripper.communik.email;
 
-import static in.codetripper.communik.exceptions.ExceptionConstants.VALIDATION_EMAIL_EMPTY_EMAIL;
-
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import in.codetripper.communik.notification.Type;
@@ -22,7 +20,9 @@ import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -31,16 +31,23 @@ import lombok.ToString;
 @ToString
 public class EmailDto implements Serializable {
 
-  @NotEmpty(message = VALIDATION_EMAIL_EMPTY_EMAIL)
-  // @Email(message = VALIDATION_EMAIL_INVALID_EMAIL)
+  @EmailList
   private List<String> to;
+  @NotBlank(message = "Subject must be between {min} and {max} characters long")
+  @Size(min = 1, max = 100)
   private String subject;
+  @JsonIgnore
   private Type type = Type.EMAIL;
   private Container body;
   private Container attachment;
+  @Size(min = 1, max = 100, message = "The templateId must be between {min} and {max} characters long")
   private String templateId;
+  @Size(min = 1, max = 100, message = "The providerName must be between {min} and {max} characters long")
   private String providerName;
+  @Size(min = 1, max = 100, message = "The locale' must be between {min} and {max} characters long")
   private String locale;
+  @Email
+  @Size(min = 1, max = 100, message = "The replyTo email id  must be between {min} and {max} characters long")
   private String replyTo;
   @JsonIgnore
   private String ipAddress;

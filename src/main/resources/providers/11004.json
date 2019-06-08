@@ -12,7 +12,7 @@
   "type": "EMAIL",
   "timeOutInMs": 3000,
   "active": true,
-  "primary": false,
+  "primary": true,
   "from": "hkdoley@gmail.com",
   "endpoints": {
     "base": "http://localhost:9999/",

@@ -19,7 +19,6 @@ import static in.codetripper.communik.exceptions.ExceptionConstants.ERROR_UNABLE
 import io.opentracing.Tracer;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.reactive.error.DefaultErrorAttributes;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -27,8 +26,6 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 @Slf4j
 @Component
 class CustomErrorAttributes extends DefaultErrorAttributes {
-
-  @Autowired
   private final Tracer tracer;
 
   private CustomErrorAttributes(Tracer tracer) {
@@ -40,6 +37,7 @@ class CustomErrorAttributes extends DefaultErrorAttributes {
   public Map<String, Object> getErrorAttributes(ServerRequest request, boolean includeStackTrace) {
     final var error = getError(request);
     final var errorAttributes = super.getErrorAttributes(request, false);
+    log.debug("tracer {}", tracer.scopeManager().activeSpan());
     errorAttributes.put(ErrorAttribute.TRACE_ID.value,
         tracer.scopeManager().activeSpan().context().toTraceId());
     if (error instanceof NotificationSendFailedException

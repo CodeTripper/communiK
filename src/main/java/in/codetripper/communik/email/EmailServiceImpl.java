@@ -17,7 +17,7 @@ import static in.codetripper.communik.Constants.DB_READ_TIMEOUT;
 import static in.codetripper.communik.exceptions.ExceptionConstants.INVALID_REQUEST_TEMPLATE_MISMATCH;
 import static in.codetripper.communik.exceptions.ExceptionConstants.INVALID_REQUEST_TEMPLATE_NOT_FOUND;
 import static in.codetripper.communik.exceptions.ExceptionConstants.NOTIFICATION_PERSISTENCE_DB_TIMED_OUT;
-import static in.codetripper.communik.exceptions.ExceptionConstants.NO_DEFAULT_PROVIDER;
+import static in.codetripper.communik.exceptions.ExceptionConstants.NO_PRIMARY_PROVIDER;
 
 import com.google.common.base.Strings;
 import in.codetripper.communik.exceptions.InvalidRequestException;
@@ -58,18 +58,19 @@ class EmailServiceImpl implements EmailService {
 
   public Mono<NotificationStatusResponse> sendEmail(EmailDto emailDto) {
     return templateService.get(emailDto.getTemplateId()).timeout(Duration.ofMillis(DB_READ_TIMEOUT))
-        .single().map(this::validateTemplate).onErrorMap(error -> {
-          log.error("error while processing template", error);
-          if (error instanceof TimeoutException) {
-            return new NotificationPersistenceException(NOTIFICATION_PERSISTENCE_DB_TIMED_OUT);
-          } else {
-            return new InvalidRequestException(INVALID_REQUEST_TEMPLATE_NOT_FOUND);
-          }
-        })
-        .onErrorMap(original -> new NotificationSendFailedException(original.getMessage()))
+        .single().map(this::validateTemplate).onErrorMap(this::getThrowable)
         .map(t -> prepareEmail(t, emailDto)).flatMap(notificationHandler::sendNotification)
         .doOnError(err -> log.error("Error while sending Email", err))
         .onErrorMap(original -> new NotificationSendFailedException(original.getMessage()));
+  }
+
+  private Throwable getThrowable(Throwable error) {
+    log.error("error while processing template", error);
+    if (error instanceof TimeoutException) {
+      return new NotificationPersistenceException(NOTIFICATION_PERSISTENCE_DB_TIMED_OUT);
+    } else {
+      return new InvalidRequestException(INVALID_REQUEST_TEMPLATE_NOT_FOUND);
+    }
   }
 
   @Override
@@ -91,19 +92,19 @@ class EmailServiceImpl implements EmailService {
     email.setBodyTobeSent(message);
     NotificationMessage.Notifiers<Email> notifiers = new NotificationMessage.Notifiers<>();
     // TODO do not need to call all for default
-    var defaultProvider = providers.entrySet().stream()
-        .filter(provider -> provider.getValue().isDefault()).findFirst();
-
+    var primaryProvider = providers.entrySet().stream()
+        .filter(provider -> provider.getValue().isPrimary()).findFirst();
     var requestedProvider = providers.get(emailDto.getProviderName());
     if (requestedProvider == null) {
-      if (defaultProvider.isPresent()) {
-        requestedProvider = defaultProvider.get().getValue();
+
+      if (primaryProvider.isPresent()) {
+        requestedProvider = primaryProvider.get().getValue();
       } else {
-        throw new RuntimeException(NO_DEFAULT_PROVIDER);
+        throw new RuntimeException(NO_PRIMARY_PROVIDER);
       }
     }
     var backups = providers.entrySet().stream()
-        .filter(provider -> defaultProvider
+        .filter(provider -> primaryProvider
             .map(notifierEntry -> provider.getKey().equalsIgnoreCase(notifierEntry.getKey()))
             .orElse(true))
         .map(Entry::getValue).collect(Collectors.toList());
@@ -134,18 +135,11 @@ class EmailServiceImpl implements EmailService {
 
 
   private String generateMessage(NotificationTemplate template, EmailDto emailDto) {
-    String message;
-    Locale userLocale;
-    if (Strings.isNullOrEmpty(emailDto.getLocale())) {
-      userLocale = Locale.getDefault();
-    } else {
-      userLocale = Locale.forLanguageTag(emailDto.getLocale());
-    }
-    if (emailDto.getTemplateId().isEmpty()) {
-      message = emailDto.getBody().getMessage();
-    } else {
-      message = messageGenerator.generateMessage(template.getBody(), emailDto, userLocale);
-    }
+    Locale userLocale = Strings.isNullOrEmpty(emailDto.getLocale()) ? Locale.getDefault()
+        : Locale.forLanguageTag(emailDto.getLocale());
+    String message =
+        Strings.isNullOrEmpty(emailDto.getTemplateId()) ? emailDto.getBody().getMessage()
+            : messageGenerator.generateMessage(template.getBody(), emailDto, userLocale);
     log.debug("generated message {}", message);
     return message;
 

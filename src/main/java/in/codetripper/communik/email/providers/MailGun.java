@@ -17,6 +17,7 @@ import static in.codetripper.communik.email.Constants.MAILGUN;
 import static io.netty.util.CharsetUtil.UTF_8;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.google.common.base.Strings;
 import in.codetripper.communik.email.Email;
 import in.codetripper.communik.email.EmailNotifier;
 import in.codetripper.communik.exceptions.NotificationSendFailedException;
@@ -69,6 +70,7 @@ public class MailGun implements EmailNotifier<Email> {
       log.debug("Sending email with data : {}", formMap);
       try {
         boolean logRequestResponse = false;
+        // TODO move client to init
         WebClient client = WebClient.builder()
             .filter(new TracingExchangeFilterFunction(tracer,
                 Collections.singletonList(new WebClientDecorator(TRACE_OPERATION_NAME, className))))
@@ -81,16 +83,8 @@ public class MailGun implements EmailNotifier<Email> {
                     + ":" + provider.getBasicAuthentication().getPassword()).getBytes(UTF_8)))
 
             .contentType(MediaType.MULTIPART_FORM_DATA).syncBody(formMap).retrieve()
-            .bodyToMono(MailGunResponse.class).map(mailgunResponse -> {
-              log.debug("mailgunResponse {}", mailgunResponse);
-              NotificationStatusResponse notificationStatusResponse =
-                  new NotificationStatusResponse();
-              notificationStatusResponse.setStatus(200);
-              notificationStatusResponse.setTimestamp(LocalDateTime.now());
-              notificationStatusResponse.setProviderResponseId(mailgunResponse.getId());
-              notificationStatusResponse.setProviderResponseMessage(mailgunResponse.getMessage());
-              return notificationStatusResponse;
-            }).doOnSuccess((message -> log.debug("sent email via MailGun successfully")))
+            .bodyToMono(MailGunResponse.class).map(this::getNotificationStatusResponse)
+            .doOnSuccess(message -> log.debug("sent email via MailGun successfully"))
             .doOnError((error -> {
               log.error("email via MailGun failed ", error);
             }));
@@ -105,11 +99,23 @@ public class MailGun implements EmailNotifier<Email> {
     return response;
   }
 
+  private NotificationStatusResponse getNotificationStatusResponse(
+      MailGunResponse mailgunResponse) {
+    log.debug("mailgunResponse {}", mailgunResponse);
+    NotificationStatusResponse notificationStatusResponse =
+        new NotificationStatusResponse();
+    notificationStatusResponse.setStatus(200);
+    notificationStatusResponse.setTimestamp(LocalDateTime.now());
+    notificationStatusResponse.setProviderResponseId(mailgunResponse.getId());
+    notificationStatusResponse.setProviderResponseMessage(mailgunResponse.getMessage());
+    return notificationStatusResponse;
+  }
+
   private MultiValueMap<String, Object> getStringObjectMultiValueMap(Email email,
       Provider provider) {
     MultiValueMap<String, Object> formMap = new LinkedMultiValueMap<>();
     String from = email.getFrom();
-    if (from.isEmpty()) {
+    if (Strings.isNullOrEmpty(from)) {
       from = provider.getFrom();
     }
     formMap.add("from", from);
@@ -129,7 +135,7 @@ public class MailGun implements EmailNotifier<Email> {
   }
 
   @Override
-  public boolean isDefault() {
+  public boolean isPrimary() {
     Provider provider = providerService.getProvider(providerId);
     if (provider != null) {
       return providerService.getProvider(providerId).isPrimary();

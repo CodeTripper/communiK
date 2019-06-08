@@ -17,6 +17,7 @@ import static in.codetripper.communik.email.Constants.SENDGRID;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Strings;
 import in.codetripper.communik.email.Email;
 import in.codetripper.communik.email.EmailNotifier;
 import in.codetripper.communik.exceptions.NotificationSendFailedException;
@@ -114,10 +115,10 @@ public class SendGrid implements EmailNotifier<Email> {
     SendGridRequest sendGridRequest = new SendGridRequest();
     Personalization personalization = new Personalization();
     String fromStr = email.getFrom();
-    if (fromStr.isEmpty()) {
+    if (Strings.isNullOrEmpty(fromStr)) {
       fromStr = provider.getFrom();
     }
-    Personalization.EmailEntity from = new Personalization.EmailEntity(fromStr);
+    var from = new Personalization.EmailEntity(fromStr);
     email.getTo().stream().forEach(t -> {
       Personalization.EmailEntity to = new Personalization.EmailEntity((String) t);
       personalization.addTo(to);
@@ -132,7 +133,7 @@ public class SendGrid implements EmailNotifier<Email> {
   }
 
   @Override
-  public boolean isDefault() {
+  public boolean isPrimary() {
     Provider provider = providerService.getProvider(providerId);
     if (provider != null) {
       return providerService.getProvider(providerId).isPrimary();

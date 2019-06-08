@@ -27,4 +27,6 @@ public interface NotificationTemplatePersistence {
   Mono<NotificationTemplate> get(String id);
 
   Mono<Void> delete(String id);
+
+  String getDefaultTemplate();
 }

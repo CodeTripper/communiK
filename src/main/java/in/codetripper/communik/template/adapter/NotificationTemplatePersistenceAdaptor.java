@@ -13,6 +13,7 @@
  */
 package in.codetripper.communik.template.adapter;
 
+import com.google.common.base.Strings;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import in.codetripper.communik.repository.mongo.NotificationTemplateRepoDto;
 import in.codetripper.communik.repository.mongo.NotificationTemplateRepository;
@@ -21,6 +22,7 @@ import in.codetripper.communik.template.NotificationTemplateMapper;
 import in.codetripper.communik.template.NotificationTemplatePersistence;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -36,6 +38,12 @@ public class NotificationTemplatePersistenceAdaptor implements NotificationTempl
   private final NotificationTemplateRepository templateRepository;
   private final NotificationTemplateMapper templateMapper;
 
+  @Value("${notification.template.default.enabled:false}")
+  private Boolean isDefaultTemplateEnabled;
+
+  @Value("${notification.template.default.name}")
+  private String defaultTemplateName;
+
   @Override
   @HystrixCommand()
   public Mono<NotificationTemplate> create(NotificationTemplate notificationTemplate) {
@@ -43,8 +51,7 @@ public class NotificationTemplatePersistenceAdaptor implements NotificationTempl
     NotificationTemplateRepoDto templateRepoDto =
         templateMapper.templateToTemplateRepoDto(notificationTemplate);
     return this.templateRepository.insert(templateRepoDto)
-        .map(templateMapper::templateRepoDtotoTemplate).doOnSuccess(templateDto -> {
-        });
+        .map(templateMapper::templateRepoDtotoTemplate);
   }
 
   @Override
@@ -54,8 +61,7 @@ public class NotificationTemplatePersistenceAdaptor implements NotificationTempl
     NotificationTemplateRepoDto templateRepoDto =
         templateMapper.templateToTemplateRepoDto(notificationTemplate);
     return this.templateRepository.save(templateRepoDto)
-        .map(templateMapper::templateRepoDtotoTemplate).doOnSuccess(templateDto -> {
-        });
+        .map(templateMapper::templateRepoDtotoTemplate);
   }
 
   @Override
@@ -67,6 +73,9 @@ public class NotificationTemplatePersistenceAdaptor implements NotificationTempl
   @Override
   @HystrixCommand()
   public Mono<NotificationTemplate> get(String id) {
+    if (Strings.isNullOrEmpty(id) && isDefaultTemplateEnabled) {
+      id = getDefaultTemplate();
+    }
     return this.templateRepository.findById(id).map(templateMapper::templateRepoDtotoTemplate);
   }
 
@@ -74,6 +83,11 @@ public class NotificationTemplatePersistenceAdaptor implements NotificationTempl
   @HystrixCommand()
   public Mono<Void> delete(String id) {
     return this.templateRepository.deleteById(id);
+  }
+
+  @Override
+  public String getDefaultTemplate() {
+    return defaultTemplateName;
   }
 
 }

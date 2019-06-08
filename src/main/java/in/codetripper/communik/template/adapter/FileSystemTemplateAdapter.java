@@ -14,6 +14,7 @@
 package in.codetripper.communik.template.adapter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Strings;
 import in.codetripper.communik.template.NotificationTemplate;
 import in.codetripper.communik.template.NotificationTemplatePersistence;
 import java.io.IOException;
@@ -33,8 +34,13 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class FileSystemTemplateAdapter implements NotificationTemplatePersistence {
 
-  // private final FileResource resource;
   private final ResourceLoader resourceLoader;
+
+  @Value("${notification.template.default.enabled:false}")
+  private Boolean isDefaultTemplateEnabled;
+
+  @Value("${notification.template.default.name}")
+  private String defaultTemplateName;
 
   @Value("${notification.template.location.filesystem:classpath:templates}")
   private String templatePath;
@@ -58,6 +64,9 @@ public class FileSystemTemplateAdapter implements NotificationTemplatePersistenc
 
   @Override
   public Mono<NotificationTemplate> get(String id) {
+    if (Strings.isNullOrEmpty(id) && isDefaultTemplateEnabled) {
+      id = getDefaultTemplate();
+    }
     Resource resource = resourceLoader.getResource(templatePath + "/" + id + ".json");
     log.debug("template resource {}", id);
     NotificationTemplate notificationTemplate = null;
@@ -74,5 +83,10 @@ public class FileSystemTemplateAdapter implements NotificationTemplatePersistenc
   @Override
   public Mono<Void> delete(String id) {
     return null;
+  }
+
+  @Override
+  public String getDefaultTemplate() {
+    return defaultTemplateName;
   }
 }

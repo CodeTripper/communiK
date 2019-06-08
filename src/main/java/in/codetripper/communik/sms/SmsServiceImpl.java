@@ -17,7 +17,7 @@ import static in.codetripper.communik.Constants.DB_READ_TIMEOUT;
 import static in.codetripper.communik.exceptions.ExceptionConstants.INVALID_REQUEST_TEMPLATE_MISMATCH;
 import static in.codetripper.communik.exceptions.ExceptionConstants.INVALID_REQUEST_TEMPLATE_NOT_FOUND;
 import static in.codetripper.communik.exceptions.ExceptionConstants.NOTIFICATION_PERSISTENCE_DB_TIMED_OUT;
-import static in.codetripper.communik.exceptions.ExceptionConstants.NO_DEFAULT_PROVIDER;
+import static in.codetripper.communik.exceptions.ExceptionConstants.NO_PRIMARY_PROVIDER;
 
 import com.google.common.base.Strings;
 import in.codetripper.communik.exceptions.InvalidRequestException;
@@ -67,7 +67,6 @@ class SmsServiceImpl implements SmsService {
         .map(t -> prepareSms(t, smsDto)).flatMap(notificationHandler::sendNotification)
         .doOnError(err -> log.error("Error while sending Sms", err))
         .onErrorMap(original -> new NotificationSendFailedException(original.getMessage()));
-    // doOnError(err -> log.error("Error while sending SMS",err));
   }
 
   private Sms prepareSms(NotificationTemplate template, SmsDto smsDto) {
@@ -79,18 +78,19 @@ class SmsServiceImpl implements SmsService {
     if (Strings.isNullOrEmpty(sms.getFrom())) {
       sms.setFrom(template.getFrom());
     }
+
     sms.setBodyTobeSent(message);
     NotificationMessage.Notifiers<Sms> notifiers = new NotificationMessage.Notifiers<>();
     // TODO do not need to call all for default
     var defaultProvider = providers.entrySet().stream()
-        .filter(provider -> provider.getValue().isDefault()).findFirst();
+        .filter(provider -> provider.getValue().isPrimary()).findFirst();
 
     var requestedProvider = providers.get(smsDto.getProviderName());
     if (requestedProvider == null) {
       if (defaultProvider.isPresent()) {
         requestedProvider = defaultProvider.get().getValue();
       } else {
-        throw new RuntimeException(NO_DEFAULT_PROVIDER);
+        throw new RuntimeException(NO_PRIMARY_PROVIDER);
       }
     }
     var backups = providers.entrySet().stream()
@@ -116,8 +116,7 @@ class SmsServiceImpl implements SmsService {
     log.debug("validating template {}", template);
     if (template == null) {
       throw new InvalidRequestException(INVALID_REQUEST_TEMPLATE_NOT_FOUND);
-    }
-    if (!template.getType().equals(getType())) {
+    } else if (!template.getType().equals(getType())) {
       throw new InvalidRequestException(INVALID_REQUEST_TEMPLATE_MISMATCH);
     }
     return template;
@@ -130,19 +129,11 @@ class SmsServiceImpl implements SmsService {
   }
 
   private String generateMessage(NotificationTemplate template, SmsDto smsDto) {
-    String message;
-    Locale userLocale;
-    if (Strings.isNullOrEmpty(smsDto.getLocale())) {
-      userLocale = Locale.getDefault();
-    } else {
-      userLocale = Locale.forLanguageTag(smsDto.getLocale());
-    }
-    if (smsDto.getTemplateId().isEmpty()) {
-      message = smsDto.getBody().getMessage();
-    } else {
-      message = messageGenerator.generateMessage(template.getBody(), smsDto, userLocale);
-    }
 
+    Locale userLocale = Strings.isNullOrEmpty(smsDto.getLocale()) ? Locale.getDefault()
+        : Locale.forLanguageTag(smsDto.getLocale());
+    String message = Strings.isNullOrEmpty(smsDto.getTemplateId()) ? smsDto.getBody().getMessage()
+        : messageGenerator.generateMessage(template.getBody(), smsDto, userLocale);
     log.debug("generated message {}", message);
     return message;
 

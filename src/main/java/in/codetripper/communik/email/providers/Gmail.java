@@ -70,7 +70,7 @@ public class Gmail extends SmtpEmailSender {
 
 
   @Override
-  public boolean isDefault() {
+  public boolean isPrimary() {
     return false;
   }
 }

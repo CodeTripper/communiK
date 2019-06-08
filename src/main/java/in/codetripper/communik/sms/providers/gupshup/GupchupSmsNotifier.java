@@ -86,7 +86,7 @@ public class GupchupSmsNotifier implements SmsNotifier<Sms> {
   }
 
   @Override
-  public boolean isDefault() {
+  public boolean isPrimary() {
     return providerService.getProvider(providerId).isPrimary();
   }
 

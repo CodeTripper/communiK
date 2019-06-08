@@ -41,40 +41,48 @@ public class Notification<T extends NotificationMessage> {
   private final NotificationPersistence<T> notificationPersistence;
 
   public Mono<NotificationStatusResponse> sendNotification(@NonNull T message) {
-    log.info("About to persist notification for {}", message.getTo());
     log.debug("About to persist notification for {}", message);
-    // TODO how not to save reruns? Use existing id to bypass
-    // Schedulers.parallel()
     message.setStatus(Status.NOTIFICATION_NEW);
-    return notificationPersistence.store(message).timeout(Duration.ofMillis(DB_WRITE_TIMEOUT))
-        .map(status -> {
-          message.setStatus(Status.NOTIFICATION_STORED);
-          message.setId(status.getId());
-          return message;
-        }).flatMap(m -> {
-          NotificationMessage.Notifiers<T> noti = message.getNotifiers();
-          return noti.getPrimary().send(message).timeout(Duration.ofMillis(PROVIDER_TIMEOUT));
-        }).onErrorResume(error -> {
-          log.info("primary provider failed to send notification ", error);
-          if (error instanceof NotificationPersistenceException) {
-            return Mono.error(error);
-          } else {
-            log.warn("retrying again as primary provider failed to send notification");
-            NotificationMessage.Notifiers<T> noti = message.getNotifiers();
-            Optional<? extends Notifier<T>> backup = noti.getBackup().stream().findFirst();
-            if (backup.isPresent()) {
-              return backup.get().send(message).timeout(Duration.ofMillis(PROVIDER_TIMEOUT));
-            } else {
-              return Mono.error(new NotificationSendFailedException(error.getMessage()));
-            }
-          }
-
-        }).flatMap(status -> update(message)).timeout(Duration.ofMillis(DB_WRITE_TIMEOUT))
-        .flatMap(this::createResponse).onErrorResume(
+    return notificationPersistence.store(message)
+        .timeout(Duration.ofMillis(DB_WRITE_TIMEOUT))
+        .map(status -> updateMessage(message, status))
+        .flatMap(this::notify)
+        .onErrorResume(error -> retry(error, message))
+        .flatMap(status -> updateToRepository(message))
+        .timeout(Duration.ofMillis(DB_WRITE_TIMEOUT))
+        .flatMap(this::createResponse)
+        .onErrorResume(
             error -> Mono.error(new NotificationSendFailedException(error.getMessage())));
 
   }
 
+  private Mono<NotificationStatusResponse> notify(@NonNull T message) {
+    NotificationMessage.Notifiers<T> notifiers = message.getNotifiers();
+    return notifiers.getPrimary().send(message).timeout(Duration.ofMillis(PROVIDER_TIMEOUT));
+  }
+
+  @NonNull
+  private T updateMessage(@NonNull T message, NotificationStorageResponse status) {
+    message.setStatus(Status.NOTIFICATION_STORED);
+    message.setId(status.getId());
+    return message;
+  }
+
+  private Mono<NotificationStatusResponse> retry(Throwable error, T message) {
+    log.info("primary provider failed to send notification ", error);
+    if (error instanceof NotificationPersistenceException) {
+      return Mono.error(error);
+    } else {
+      log.warn("retrying again as primary provider failed to send notification");
+      NotificationMessage.Notifiers<T> noti = message.getNotifiers();
+      Optional<? extends Notifier<T>> backup = noti.getBackup().stream().findFirst();
+      if (backup.isPresent()) {
+        return backup.get().send(message).timeout(Duration.ofMillis(PROVIDER_TIMEOUT));
+      } else {
+        return Mono.error(new NotificationSendFailedException(error.getMessage()));
+      }
+    }
+  }
   private Mono<NotificationStatusResponse> createResponse(NotificationStorageResponse status) {
     NotificationStatusResponse notificationStatusResponse = new NotificationStatusResponse();
     notificationStatusResponse.setResponseId(status.getId());
@@ -84,7 +92,7 @@ public class Notification<T extends NotificationMessage> {
     return Mono.just(notificationStatusResponse);
   }
 
-  private Mono<NotificationStorageResponse> update(@NonNull T notificationMessage) {
+  private Mono<NotificationStorageResponse> updateToRepository(@NonNull T notificationMessage) {
     notificationMessage.setStatus(Status.NOTIFICATION_SUCCESS);
     notificationMessage.setAttempts(1);
     NotificationMessage.Action<T> action = new NotificationMessage.Action<>();

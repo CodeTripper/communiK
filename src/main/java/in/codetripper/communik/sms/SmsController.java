@@ -53,6 +53,6 @@ public class SmsController {
   @RequestMapping(value = "/smses", method = RequestMethod.POST)
   public final Flux<NotificationStatusResponse> smses(@Valid @RequestBody List<SmsDto> smsDtos) {
     log.debug("Received bulk sms request with data {}", smsDtos);
-    return Flux.fromIterable(smsDtos).flatMap(smsDto -> smsService.sendSms(smsDto));
+    return Flux.fromIterable(smsDtos).flatMap(smsService::sendSms);
   }
 }

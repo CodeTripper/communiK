@@ -17,6 +17,7 @@ import io.opentracing.Tracer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -37,6 +38,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class CommunikFilter implements WebFilter {
 
+  @Autowired
   private final Tracer tracer;
 
 

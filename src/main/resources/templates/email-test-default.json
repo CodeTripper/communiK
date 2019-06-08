@@ -1,0 +1,11 @@
+{
+  "id": 102,
+  "name": "defaultTemplate",
+  "category": "Transactional",
+  "lob": "all",
+  "type": "EMAIL",
+  "active": true,
+  "owner": "HK",
+  "replyTo": "noreply@example.com",
+  "from": "noreply@example.com"
+}

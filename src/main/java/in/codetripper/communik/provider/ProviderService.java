@@ -33,11 +33,11 @@ public class ProviderService {
   @PostConstruct
   private void init() {
     providerMap = new HashMap<>();
-    log.info("ProviderService initialization logic ...");
+    log.info("ProviderService initialization providerMap on startup...");
     try {
       getAllProviders().filter(Provider::isActive)
           .doOnNext(item -> providerMap.put(item.getId(), item))
-          .doOnError(error -> log.error("Error while initializing providers {0}", error))
+          .doOnError(error -> log.error("Error while initializing providers", error))
           .subscribe();
     } catch (IOException e) {
       log.error("Unable to initialize providers map", e);

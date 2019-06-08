@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import in.codetripper.communik.Integration;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.Data;
@@ -57,6 +58,16 @@ public class EmailIntegrationTest {
     // HTTPS
     wireMockServer.start();
 
+
+  }
+
+  @After
+  public void clean() {
+    wireMockServer.stop();
+  }
+
+  @Test
+  public void testEmail() throws Exception {
     emailSampleRequest = new EmailSampleRequest();
     emailSampleRequest.setTo(Arrays.asList("hkdoley@gmail.com"));
     emailSampleRequest.setLocale("en_IN");
@@ -72,18 +83,39 @@ public class EmailIntegrationTest {
     dynamicData.put("mykey1", 125000);
     body.put("mapTest", dynamicData);
     emailSampleRequest.setBody(body);
-  }
+    webClient.post().uri("/email").contentType(MediaType.APPLICATION_JSON)
+        .body(BodyInserters.fromObject(emailSampleRequest)).exchange().expectStatus().isOk()
+        .expectBody(EmailSampleResponse.class).returnResult();
 
-  @After
-  public void clean() {
-    wireMockServer.stop();
   }
 
   @Test
-  public void testEmail() throws Exception {
+  public void testEmailWithoutTemplateId() throws Exception {
 
-    // BDDMockito.given(this.emailService.sendEmail()).willReturn()
+    emailSampleRequest = new EmailSampleRequest();
+    emailSampleRequest.setTo(Collections.singletonList("hkdoley@gmail.com"));
+    emailSampleRequest.setLocale("en_IN");
+    emailSampleRequest.setSubject("test subject");
+    emailSampleRequest.setProviderName("dummyMailer");
+    Map<String, Object> body = new HashMap<>();
+    body.put("message", "This is my test email");
+    emailSampleRequest.setBody(body);
+    webClient.post().uri("/email").contentType(MediaType.APPLICATION_JSON)
+        .body(BodyInserters.fromObject(emailSampleRequest)).exchange().expectStatus().isOk()
+        .expectBody(EmailSampleResponse.class).returnResult();
 
+  }
+
+  @Test
+  public void testEmailWithoutProviderName() throws Exception {
+
+    emailSampleRequest = new EmailSampleRequest();
+    emailSampleRequest.setTo(Collections.singletonList("hkdoley@gmail.com"));
+    emailSampleRequest.setLocale("en_IN");
+    emailSampleRequest.setSubject("test subject");
+    Map<String, Object> body = new HashMap<>();
+    body.put("message", "This is my test email");
+    emailSampleRequest.setBody(body);
     webClient.post().uri("/email").contentType(MediaType.APPLICATION_JSON)
         .body(BodyInserters.fromObject(emailSampleRequest)).exchange().expectStatus().isOk()
         .expectBody(EmailSampleResponse.class).returnResult();

@@ -21,6 +21,6 @@ public interface Notifier<T extends NotificationMessage> {
   Mono<NotificationStatusResponse> send(T notificationMessage)
       throws NotificationSendFailedException;
 
-  boolean isDefault();
+  boolean isPrimary();
 
 }

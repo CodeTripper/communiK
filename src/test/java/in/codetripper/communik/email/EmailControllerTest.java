@@ -15,6 +15,7 @@ package in.codetripper.communik.email;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -25,6 +26,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import lombok.Data;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -52,7 +54,13 @@ public class EmailControllerTest {
 
   @Before
   public void setup() throws Exception {
-    String TO = "hkdoley@gmail.com";
+
+  }
+
+
+  @Test
+  public void testEmail() throws Exception {
+    String TO = "test@example.com";
     String LOCALE = "en_IN";
     String TEMPLATE = "email-test-template";
     String PROVIDER = "dummyMailer";
@@ -82,13 +90,6 @@ public class EmailControllerTest {
     notificationStatusResponse.setMessage("SUCCESS");
     notificationStatusResponse.setResponseId(UUID.randomUUID().toString());
     given(emailService.sendEmail(emailDto)).willReturn(Mono.just(notificationStatusResponse));
-    // given(emailService.sendEmail(any(EmailDto.class))).willReturn(Mono.just(notificationStatusResponse));
-  }
-
-
-  @Test
-  public void testEmail() throws Exception {
-
     EmailSampleResponse response =
         webClient.post().uri("/email").contentType(MediaType.APPLICATION_JSON)
             .body(BodyInserters.fromObject(emailSampleRequest)).exchange().expectStatus().isOk()
@@ -98,9 +99,67 @@ public class EmailControllerTest {
     assertTrue(!response.getResponseId().isEmpty());
   }
 
+  @Test
+  public void testEmptySubject() {
+    emailSampleRequest = new EmailSampleRequest();
+    emailSampleRequest.setTo(Arrays.asList("test@example.com"));
+    emailSampleRequest.setLocale("en_IN");
+    emailSampleRequest.setTemplateId("template");
+    emailSampleRequest.setProviderName("provider");
+    NotificationStatusResponse notificationStatusResponse = new NotificationStatusResponse();
+    notificationStatusResponse.setStatus(200);
+    notificationStatusResponse.setMessage("SUCCESS");
+    notificationStatusResponse.setResponseId(UUID.randomUUID().toString());
+    given(emailService.sendEmail(any(EmailDto.class)))
+        .willReturn(Mono.just(notificationStatusResponse));
+    webClient.post().uri("/email").contentType(MediaType.APPLICATION_JSON)
+        .body(BodyInserters.fromObject(emailSampleRequest)).exchange().expectStatus()
+        .isBadRequest();
+
+  }
+
+  @Test
+  public void testEmptyTo() {
+    emailSampleRequest = new EmailSampleRequest();
+    emailSampleRequest.setLocale("en_IN");
+    emailSampleRequest.setTemplateId("template");
+    emailSampleRequest.setProviderName("provider");
+    emailSampleRequest.setSubject("Test Subject");
+    NotificationStatusResponse notificationStatusResponse = new NotificationStatusResponse();
+    notificationStatusResponse.setStatus(200);
+    notificationStatusResponse.setMessage("SUCCESS");
+    notificationStatusResponse.setResponseId(UUID.randomUUID().toString());
+    given(emailService.sendEmail(any(EmailDto.class)))
+        .willReturn(Mono.just(notificationStatusResponse));
+    webClient.post().uri("/email").contentType(MediaType.APPLICATION_JSON)
+        .body(BodyInserters.fromObject(emailSampleRequest)).exchange().expectStatus()
+        .isBadRequest();
+
+  }
+
+  @Test
+  public void testInvalidTo() {
+    emailSampleRequest = new EmailSampleRequest();
+    emailSampleRequest.setTo(Arrays.asList("test"));
+    emailSampleRequest.setLocale("en_IN");
+    emailSampleRequest.setTemplateId("template");
+    emailSampleRequest.setProviderName("provider");
+    emailSampleRequest.setSubject("Test Subject");
+    NotificationStatusResponse notificationStatusResponse = new NotificationStatusResponse();
+    notificationStatusResponse.setStatus(200);
+    notificationStatusResponse.setMessage("SUCCESS");
+    notificationStatusResponse.setResponseId(UUID.randomUUID().toString());
+    given(emailService.sendEmail(any(EmailDto.class)))
+        .willReturn(Mono.just(notificationStatusResponse));
+    webClient.post().uri("/email").contentType(MediaType.APPLICATION_JSON)
+        .body(BodyInserters.fromObject(emailSampleRequest)).exchange().expectStatus()
+        .isBadRequest();
+
+  }
+
 
   @JsonIgnoreProperties(ignoreUnknown = true)
-
+  @Data
   public static class EmailSampleResponse {
 
     private String timestamp;
@@ -111,60 +170,5 @@ public class EmailControllerTest {
     private String providerResponseId;
     private String providerResponseMessage;
 
-    public String getTimestamp() {
-      return timestamp;
-    }
-
-    public void setTimestamp(String timestamp) {
-      this.timestamp = timestamp;
-    }
-
-    public int getStatus() {
-      return status;
-    }
-
-    public void setStatus(int status) {
-      this.status = status;
-    }
-
-    public String getMessage() {
-      return message;
-    }
-
-    public void setMessage(String message) {
-      this.message = message;
-    }
-
-    public String getResponseId() {
-      return responseId;
-    }
-
-    public void setResponseId(String responseId) {
-      this.responseId = responseId;
-    }
-
-    public String getTraceId() {
-      return traceId;
-    }
-
-    public void setTraceId(String traceId) {
-      this.traceId = traceId;
-    }
-
-    public String getProviderResponseId() {
-      return providerResponseId;
-    }
-
-    public void setProviderResponseId(String providerResponseId) {
-      this.providerResponseId = providerResponseId;
-    }
-
-    public String getProviderResponseMessage() {
-      return providerResponseMessage;
-    }
-
-    public void setProviderResponseMessage(String providerResponseMessage) {
-      this.providerResponseMessage = providerResponseMessage;
-    }
   }
 }

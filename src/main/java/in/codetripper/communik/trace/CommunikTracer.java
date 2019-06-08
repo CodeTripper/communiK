@@ -50,8 +50,7 @@ public class CommunikTracer {
 
 
   @Bean
-  @ConditionalOnProperty(value = "opentracing.jaeger.enabled", havingValue = "false",
-      matchIfMissing = false)
+  @ConditionalOnProperty(value = "opentracing.jaeger.enabled", havingValue = "false")
   public io.opentracing.Tracer jaegerTracer() {
     log.warn("Building a dummy jaegar tracer as tracing.jaeger.enabled is false");
     final Reporter reporter = new InMemoryReporter();
