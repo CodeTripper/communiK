@@ -34,7 +34,6 @@ public class FreeMarkerMessageGenerator<T> implements MessageGenerator<T> {
 
   @Override
   public String generateMessage(String template, T notificationMessage, Locale locale) {
-    log.debug("Generating {} locale message from template", locale.toString());
     String message;
     try {
       StringWriter result = new StringWriter();
@@ -44,7 +43,8 @@ public class FreeMarkerMessageGenerator<T> implements MessageGenerator<T> {
       env.setNumberFormat(",##0.00");
       env.process();
       message = result.toString();
-      log.debug("Generated message {} from template with {}", message, notificationMessage);
+      log.debug("Generated {} message {} from template with {}", locale.toString(), message,
+          notificationMessage);
 
     } catch (IOException | TemplateException e) {
       log.error("Unable to generate message", e);

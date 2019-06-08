@@ -1,0 +1,28 @@
+{
+  "id": 101,
+  "name": "templateTest",
+  "category": "Transactional",
+  "lob": "bank",
+  "type": "EMAIL",
+  "active": true,
+  "owner": "HK",
+  "replyTo": "test@example.com",
+  "from": "test@example.com",
+  "body": "<#assign currentDateTime = .now>\n <html>Hi Mr ${body.data.to}  <br/>Your salary ${body.data.salary?string.currency} and ${body.data.timestamp}has been <#list body.data.mapTest as key, value>   ${key} = ${value} </#list> credited on ${currentDateTime}\n <br/>Team</html>",
+  "attachments": [
+    {
+      "type": "image",
+      "method": "download",
+      "placement": "attachment",
+      "name": "logo",
+      "source": "https://www.wikipedia.org/portal/wikipedia.org/assets/img/Wikipedia-logo-v2.png"
+    },
+    {
+      "type": "pdf",
+      "method": "generate",
+      "placement": "inline",
+      "name": "statement",
+      "source": "<html>Hi Mr ${body.data.to}  <br/>Your salary ${body.data.salary?string.currency} and ${body.data.timestamp}has been <#list body.data.mapTest as key, value>   ${key} = ${value} </#list> credited \n <br/>Team</html>"
+    }
+  ]
+}

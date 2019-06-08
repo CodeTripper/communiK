@@ -15,13 +15,11 @@ package in.codetripper.communik.email;
 
 import in.codetripper.communik.exceptions.NotificationSendFailedException;
 import in.codetripper.communik.notification.NotificationStatusResponse;
-import java.io.File;
 import java.util.List;
 import java.util.Properties;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -70,9 +68,9 @@ public abstract class SmtpEmailSender implements EmailNotifier<Email> {
     helper.setText(email.getBodyTobeSent());
 
     if (email.getAttachment() != null) {
-      FileSystemResource file =
-          new FileSystemResource(new File(email.getAttachment().getMessage()));
-      helper.addAttachment("CoolImage.jpg", file);
+    /*  FileSystemResource file =
+          new FileSystemResource(new File(email.getAttachment().getMessage()));*/
+      //helper.addAttachment("CoolImage.jpg", null);
     }
     sender.send(message);
     return true;

@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
@@ -65,7 +66,7 @@ public class SendGrid implements EmailNotifier<Email> {
             Collections
                 .singletonList(new WebClientDecorator(TRACE_EMAIL_OPERATION_NAME, className))))
         .clientConnector(
-            new ReactorClientHttpConnector(HttpClient.create().wiretap(false)))
+            new ReactorClientHttpConnector(HttpClient.create().wiretap(true)))
         .baseUrl(provider.getEndpoints().getBase()).build();
   }
   @Override
@@ -129,6 +130,15 @@ public class SendGrid implements EmailNotifier<Email> {
     sendGridRequest
         .setContent(Arrays.asList(Map.of("type", "text/html", "value", email.getBodyTobeSent())));
     sendGridRequest.setPersonalizations(Arrays.asList(personalization));
+    List<Attachment> attachments = new ArrayList<>();
+    // TODO
+    Attachment sendgridAttachment = new Attachment();
+    sendgridAttachment.setDisposition("attachment");
+    sendgridAttachment.setType("image/jpeg");
+    sendgridAttachment.setFileName(email.getAttachment().getName());
+    sendgridAttachment.setContent(email.getAttachment().getContent());
+    attachments.add(sendgridAttachment);
+    sendGridRequest.setAttachments(attachments);
     return sendGridRequest;
   }
 
@@ -145,8 +155,18 @@ public class SendGrid implements EmailNotifier<Email> {
     private Personalization.EmailEntity from;
     private String subject;
     private List<Map<String, String>> content;
+    private List<Attachment> attachments;
   }
 
+  @Data
+  @NoArgsConstructor
+  public static class Attachment {
+
+    private String type;
+    private String content;
+    private String fileName;
+    private String disposition;
+  }
   @JsonIgnoreProperties(ignoreUnknown = true)
   @Data
   public static class Personalization {
@@ -186,6 +206,7 @@ public class SendGrid implements EmailNotifier<Email> {
         tos.add(newEmail);
       }
     }
+
   }
 
 }

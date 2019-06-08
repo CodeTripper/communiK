@@ -18,6 +18,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 
@@ -36,11 +37,21 @@ public class NotificationTemplate implements Serializable {
   private LocalDateTime updated;
   private String owner;
   private String body;
-  private String attachment;
+  private List<Container> attachments;
   private List<String> bcc;
   private List<String> cc;
   private String replyTo;
   private String from;
 
+  @Data
+  @NoArgsConstructor
+  public static class Container {
+
+    private String type;
+    private String method;
+    private String source;
+    private String name;
+    private String placement;
+  }
 
 }

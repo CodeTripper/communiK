@@ -43,8 +43,10 @@ public class NotificationMessage<T> implements Serializable {
   private String id; // from DB
   private List<String> to;
   private String bodyTobeSent;
+
   private @NotNull Container body;
-  private Container attachment;
+  // TODO should be a list of attachment
+  private Attachment attachment;
   private Meta meta;
   private Status status;
   private Notifiers<? extends NotificationMessage> notifiers;
@@ -56,6 +58,7 @@ public class NotificationMessage<T> implements Serializable {
   private String templateId;
   private String locale;
   private String from;
+  private String format;
 
 
   @Data
@@ -66,6 +69,15 @@ public class NotificationMessage<T> implements Serializable {
     Map<String, Object> data = new LinkedHashMap<>();
   }
 
+  @Data
+  @NoArgsConstructor
+  public static class Attachment {
+
+    private String type;
+    private String content;
+    private String name;
+    private String placement;
+  }
   /*
    * All meta data of the message to ne here. Immutable
    */

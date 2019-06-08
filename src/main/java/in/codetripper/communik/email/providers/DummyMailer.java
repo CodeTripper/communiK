@@ -96,7 +96,6 @@ public class DummyMailer implements EmailNotifier<Email> {
               log.error("email via DummyMailer failed ", error);
             }));
       } catch (WebClientException webClientException) {
-        log.error("webClientException");
         throw new NotificationSendFailedException("webClientException received",
             webClientException);
       }
