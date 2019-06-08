@@ -48,7 +48,7 @@ public class CommunikFilter implements WebFilter {
   }
 
   private Publisher<Void> filter(ServerWebExchange exchange, Mono<Void> call) {
-    long start = System.nanoTime();
+    long start = System.currentTimeMillis();
     return call.doOnSuccess(done -> onSuccess(exchange, start))
         .doOnError(cause -> onError(exchange, start, cause));
   }
@@ -70,6 +70,7 @@ public class CommunikFilter implements WebFilter {
   }
 
   private void record(ServerWebExchange exchange, long start, Throwable cause) {
-    //log.debug("Time Taken to process in nanos{}", System.nanoTime() - start);
+    log.info("processed {} in {} ms", exchange.getRequest().getPath(),
+        System.currentTimeMillis() - start);
   }
 }

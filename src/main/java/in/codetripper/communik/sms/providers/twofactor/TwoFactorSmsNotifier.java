@@ -40,7 +40,7 @@ public class TwoFactorSmsNotifier implements SmsNotifier<Sms> {
 
   @Override
   public boolean isPrimary() {
-    return providerService.getProvider(providerId).isPrimary();
+    return false;
   }
 
 }

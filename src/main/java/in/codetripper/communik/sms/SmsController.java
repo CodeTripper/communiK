@@ -40,7 +40,11 @@ public class SmsController {
   public Mono<NotificationStatusResponse> sms(@Valid @RequestBody SmsDto smsDto,
       ServerHttpRequest serverHttpRequest) {
     log.debug("Inside SMSController");
-    smsDto.setIpAddress(serverHttpRequest.getRemoteAddress().getAddress().getHostAddress());
+    String ipAddress = "";
+    if (serverHttpRequest.getRemoteAddress() != null) {
+      ipAddress = serverHttpRequest.getRemoteAddress().getAddress().getHostAddress();
+    }
+    smsDto.setIpAddress(ipAddress);
     return smsService.sendSms(smsDto);
   }
 

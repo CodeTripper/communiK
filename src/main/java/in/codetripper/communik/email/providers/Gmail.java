@@ -13,8 +13,6 @@
  */
 package in.codetripper.communik.email.providers;
 
-import static in.codetripper.communik.email.Constants.GMAIL;
-
 import in.codetripper.communik.email.Email;
 import in.codetripper.communik.email.EmailConfiguration;
 import in.codetripper.communik.email.SmtpEmailSender;
@@ -23,12 +21,10 @@ import in.codetripper.communik.provider.ProviderService;
 import java.util.Properties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-@Qualifier(GMAIL)
 @RequiredArgsConstructor()
 public class Gmail extends SmtpEmailSender {
 

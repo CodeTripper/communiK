@@ -51,15 +51,13 @@ public class SmsIntegrationTest {
   @Before
   public void setup() throws Exception {
     wireMockServer = new WireMockServer(wireMockConfig().port(9999)); // No-args constructor will
-    // start on port 8080, no
-    // HTTPS
     wireMockServer.start();
 
     smsSampleRequest = new SmsSampleRequest();
     smsSampleRequest.setTo(Arrays.asList("9999999999"));
     smsSampleRequest.setLocale("en_IN");
     smsSampleRequest.setTemplateId("sms-test-template");
-    smsSampleRequest.setProviderName("dummyMailer");
+    smsSampleRequest.setProviderName("gupchup");
     Map<String, Object> body = new HashMap<>();
     body.put("to", "Mr HK");
     body.put("message", 125000);

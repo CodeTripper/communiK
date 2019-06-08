@@ -14,19 +14,24 @@
 package in.codetripper.communik.email;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import in.codetripper.communik.notification.Type;
 import java.util.List;
 import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-
 public class EmailSampleRequest {
 
   private List<String> to;
-  private String locale;
   private String subject;
+  private Type type;
+  private Map<String, Object> body;
+  private Map<String, Object> attachment;
   private String templateId;
   private String providerName;
-  private Map<String, Object> body;
+  private String locale;
+  private String replyTo;
+  private String ipAddress;
+
 
   public List<String> getTo() {
     return to;
@@ -34,14 +39,6 @@ public class EmailSampleRequest {
 
   public void setTo(List<String> to) {
     this.to = to;
-  }
-
-  public String getLocale() {
-    return locale;
-  }
-
-  public void setLocale(String locale) {
-    this.locale = locale;
   }
 
   public String getSubject() {
@@ -52,12 +49,28 @@ public class EmailSampleRequest {
     this.subject = subject;
   }
 
-  public String getTemplateId() {
-    return templateId;
+  public Type getType() {
+    return type;
   }
 
-  public void setTemplateId(String templateId) {
-    this.templateId = templateId;
+  public void setType(Type type) {
+    this.type = type;
+  }
+
+  public Map<String, Object> getBody() {
+    return body;
+  }
+
+  public void setBody(Map<String, Object> body) {
+    this.body = body;
+  }
+
+  public Map<String, Object> getAttachment() {
+    return attachment;
+  }
+
+  public void setAttachment(Map<String, Object> attachment) {
+    this.attachment = attachment;
   }
 
   public String getProviderName() {
@@ -68,11 +81,35 @@ public class EmailSampleRequest {
     this.providerName = providerName;
   }
 
-  public Map<String, Object> getBody() {
-    return body;
+  public String getLocale() {
+    return locale;
   }
 
-  public void setBody(Map<String, Object> body) {
-    this.body = body;
+  public void setLocale(String locale) {
+    this.locale = locale;
+  }
+
+  public String getReplyTo() {
+    return replyTo;
+  }
+
+  public void setReplyTo(String replyTo) {
+    this.replyTo = replyTo;
+  }
+
+  public String getIpAddress() {
+    return ipAddress;
+  }
+
+  public void setIpAddress(String ipAddress) {
+    this.ipAddress = ipAddress;
+  }
+
+  public String getTemplateId() {
+    return templateId;
+  }
+
+  public void setTemplateId(String templateId) {
+    this.templateId = templateId;
   }
 }

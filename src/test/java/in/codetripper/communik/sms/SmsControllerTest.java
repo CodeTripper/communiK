@@ -15,6 +15,7 @@ package in.codetripper.communik.sms;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -77,7 +78,7 @@ public class SmsControllerTest {
     notificationStatusResponse.setStatus(200);
     notificationStatusResponse.setMessage("SUCCESS");
     notificationStatusResponse.setResponseId(UUID.randomUUID().toString());
-    given(smsService.sendSms(smsDto)).willReturn(Mono.just(notificationStatusResponse));
+    given(smsService.sendSms(any(SmsDto.class))).willReturn(Mono.just(notificationStatusResponse));
     // given(smsService.sendEmail(any(EmailDto.class))).willReturn(Mono.just(notificationStatusResponse));
   }
 

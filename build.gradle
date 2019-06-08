@@ -61,6 +61,7 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.cloud:spring-cloud-starter-contract-stub-runner'
 	testImplementation 'io.projectreactor:reactor-test:3.2.9.RELEASE'
+	testCompile 'org.projectlombok:lombok:1.18.8'
   testCompile "com.github.tomakehurst:wiremock-jre8:2.23.2"
 
 }

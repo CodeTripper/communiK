@@ -13,7 +13,6 @@
  */
 package in.codetripper.communik.email.providers;
 
-import static in.codetripper.communik.email.Constants.DUMMYMAILER;
 import static org.junit.Assert.assertEquals;
 
 import in.codetripper.communik.email.Email;
@@ -34,7 +33,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class DummyMailerTest {
 
   @Autowired
-  @Qualifier(DUMMYMAILER)
+  @Qualifier("dummyMailer")
   private EmailNotifier service;
 
   @Test

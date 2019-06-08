@@ -14,7 +14,6 @@
 package in.codetripper.communik.email.providers;
 
 import static in.codetripper.communik.Constants.TRACE_EMAIL_OPERATION_NAME;
-import static in.codetripper.communik.email.Constants.MAILGUN;
 import static io.netty.util.CharsetUtil.UTF_8;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -34,7 +33,6 @@ import java.util.Collections;
 import java.util.stream.Collectors;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
@@ -49,7 +47,6 @@ import reactor.netty.http.client.HttpClient;
 
 @Service
 @Slf4j
-@Qualifier(MAILGUN)
 public class MailGun implements EmailNotifier<Email> {
 
   private final ProviderService providerService;

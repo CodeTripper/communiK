@@ -1,0 +1,26 @@
+{
+  "id": 12001,
+  "name": "Gupchup",
+  "comment": "Used for transaction mails",
+  "email": [
+    "help@gupchul.com"
+  ],
+  "contact": [
+    "2342664564",
+    "123213213"
+  ],
+  "type": "SMS",
+  "timeOutInMs": 3000,
+  "active": true,
+  "endpoints": {
+    "base": "http://localhost:9999/",
+    "sendUri": "/sms/gupchup",
+    "statusUri": "/sms/gupchup/status"
+  },
+  "authType": "basic",
+  "basicAuthentication": {
+    "userId": "Gupchup",
+    "password": "http://localhost:9999/sms/Gupchup"
+  },
+  "primary": false
+}

@@ -25,7 +25,6 @@ import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -36,9 +35,8 @@ import reactor.core.publisher.Mono;
 
 @Service
 @Slf4j
-@Primary
 @RequiredArgsConstructor
-public class GupchupSmsNotifier implements SmsNotifier<Sms> {
+public class Gupchup implements SmsNotifier<Sms> {
 
   private final ProviderService providerService;
   String providerId = "12001";
@@ -80,7 +78,7 @@ public class GupchupSmsNotifier implements SmsNotifier<Sms> {
         throw new NotificationSendFailedException("webClientException received", ex);
       }
     } else {
-      log.warn("Wrong providerid {} configured for {} ", providerId, GupchupSmsNotifier.class);
+      log.warn("Wrong providerid {} configured for {} ", providerId, Gupchup.class);
     }
     return response;
   }

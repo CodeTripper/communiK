@@ -14,7 +14,6 @@
 package in.codetripper.communik.email.providers;
 
 import static in.codetripper.communik.Constants.TRACE_EMAIL_OPERATION_NAME;
-import static in.codetripper.communik.email.Constants.SENDGRID;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -38,7 +37,6 @@ import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
@@ -51,7 +49,6 @@ import reactor.netty.http.client.HttpClient;
 
 @Service
 @Slf4j
-@Qualifier(SENDGRID)
 public class SendGrid implements EmailNotifier<Email> {
 
   private String providerId = "11002";
