@@ -54,14 +54,12 @@ import reactor.netty.http.client.HttpClient;
 @Qualifier(SENDGRID)
 public class SendGrid implements EmailNotifier<Email> {
 
-  private final ProviderService providerService;
   private String providerId = "11002";
   private final Tracer tracer;
   private Provider provider;
   private WebClient client;
 
   public SendGrid(ProviderService providerService, Tracer tracer) {
-    this.providerService = providerService;
     this.tracer = tracer;
     provider = providerService.getProvider(providerId);
     String className = DummyMailer.class.getSimpleName();
@@ -139,12 +137,7 @@ public class SendGrid implements EmailNotifier<Email> {
 
   @Override
   public boolean isPrimary() {
-    Provider provider = providerService.getProvider(providerId);
-    if (provider != null) {
-      return providerService.getProvider(providerId).isPrimary();
-    } else {
-      return false;
-    }
+    return provider != null && provider.isPrimary();
   }
 
   @JsonIgnoreProperties(ignoreUnknown = true)
