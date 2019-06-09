@@ -51,6 +51,8 @@ public class EmailDto implements Serializable {
   private String replyTo;
   @JsonIgnore
   private String ipAddress;
+  @Size(min = 1, max = 100, message = "The mediaType must be between {min} and {max} characters long")
+  private String mediaType;
 
   @Data
   @NoArgsConstructor

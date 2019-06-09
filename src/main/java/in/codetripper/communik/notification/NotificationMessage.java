@@ -58,7 +58,7 @@ public class NotificationMessage<T> implements Serializable {
   private String templateId;
   private String locale;
   private String from;
-  private String format;
+  private String mediaType;
 
 
   @Data
@@ -73,8 +73,8 @@ public class NotificationMessage<T> implements Serializable {
   @NoArgsConstructor
   public static class Attachment {
 
-    private String type;
-    private String content;
+    private String mediaType;
+    private byte[] content;
     private String name;
     private String placement;
   }

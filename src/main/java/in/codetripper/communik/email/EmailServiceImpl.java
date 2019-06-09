@@ -38,7 +38,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Base64;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -174,14 +173,20 @@ class EmailServiceImpl implements EmailService {
     NotificationTemplate notificationTemplate = emailRequest.getNotificationTemplate();
     Locale userLocale = Strings.isNullOrEmpty(emailDto.getLocale()) ? Locale.getDefault()
         : Locale.forLanguageTag(emailDto.getLocale());
+
+    // notificationTemplate.getAttachments().stream().map()
+
+
+
+
     //notificationTemplate.getAttachments().stream().forEach(attachement->{
     Container attachmentMetaData = notificationTemplate.getAttachments().get(0); // TODO hard coded
     return attachmentDownloader.download(attachmentMetaData.getSource()).map(path -> {
       try {
         Attachment attachment = new Attachment();
         attachment.setName(attachmentMetaData.getName());
-        attachment.setType(attachmentMetaData.getType());
-        attachment.setContent(Base64.getEncoder().encodeToString(Files.readAllBytes(path)));
+        attachment.setMediaType(attachmentMetaData.getMediaType());
+        attachment.setContent(Files.readAllBytes(path));
         email.setAttachment(attachment);
         System.out.println("attachment = " + attachment);
         emailRequest.setEmail(email);
@@ -190,7 +195,6 @@ class EmailServiceImpl implements EmailService {
         return emailRequest;
       }
     })
-        .doOnSuccess(me -> System.out.println("#############################" + me))
         .doOnError(error -> log.error("Error while downloading attachments", error));
   }
 

@@ -8,17 +8,18 @@
   "owner": "HK",
   "replyTo": "test@example.com",
   "from": "test@example.com",
+  "mediaType": "text/html",
   "body": "<#assign currentDateTime = .now>\n <html>Hi Mr ${body.data.to}  <br/>Your salary ${body.data.salary?string.currency} and ${body.data.timestamp}has been <#list body.data.mapTest as key, value>   ${key} = ${value} </#list> credited on ${currentDateTime}\n <br/>Team</html>",
   "attachments": [
     {
-      "type": "image",
+      "mediaType": "image/png",
       "method": "download",
       "placement": "attachment",
-      "name": "logo",
+      "name": "logo.png",
       "source": "https://www.wikipedia.org/portal/wikipedia.org/assets/img/Wikipedia-logo-v2.png"
     },
     {
-      "type": "pdf",
+      "mediaType": "application/pdf",
       "method": "generate",
       "placement": "inline",
       "name": "statement",

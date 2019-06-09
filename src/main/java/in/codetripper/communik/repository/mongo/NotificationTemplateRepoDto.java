@@ -38,12 +38,13 @@ public class NotificationTemplateRepoDto {
   private List<String> bcc;
   private List<String> cc;
   private String replyTo;
+  private String mediaType;
 
   @Data
   @NoArgsConstructor
   public static class Container {
 
-    private String type;
+    private String mediaType;
     private String method;
     private String source;
     private String name;

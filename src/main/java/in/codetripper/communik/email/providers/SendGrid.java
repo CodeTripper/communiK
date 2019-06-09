@@ -31,6 +31,7 @@ import io.opentracing.contrib.spring.web.client.TracingExchangeFilterFunction;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -69,6 +70,7 @@ public class SendGrid implements EmailNotifier<Email> {
             new ReactorClientHttpConnector(HttpClient.create().wiretap(true)))
         .baseUrl(provider.getEndpoints().getBase()).build();
   }
+
   @Override
   public Mono<NotificationStatusResponse> send(Email email) throws NotificationSendFailedException {
 
@@ -136,7 +138,7 @@ public class SendGrid implements EmailNotifier<Email> {
     sendgridAttachment.setDisposition("attachment");
     sendgridAttachment.setType("image/jpeg");
     sendgridAttachment.setFileName(email.getAttachment().getName());
-    sendgridAttachment.setContent(email.getAttachment().getContent());
+    sendgridAttachment.setContent(encodeAttachment(email.getAttachment().getContent()));
     attachments.add(sendgridAttachment);
     sendGridRequest.setAttachments(attachments);
     return sendGridRequest;
@@ -145,6 +147,10 @@ public class SendGrid implements EmailNotifier<Email> {
   @Override
   public boolean isPrimary() {
     return provider != null && provider.isPrimary();
+  }
+
+  private String encodeAttachment(byte[] attachment) {
+    return Base64.getEncoder().encodeToString(attachment);
   }
 
   @JsonIgnoreProperties(ignoreUnknown = true)
@@ -167,6 +173,7 @@ public class SendGrid implements EmailNotifier<Email> {
     private String fileName;
     private String disposition;
   }
+
   @JsonIgnoreProperties(ignoreUnknown = true)
   @Data
   public static class Personalization {

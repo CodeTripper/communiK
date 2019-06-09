@@ -37,6 +37,7 @@ public class NotificationMessageRepoDto<T> {
   private int attempts;
   private String subject;
   private String templateId;
+  private String mediaType;
   private List<NotificationMessage.BlackOut> blackouts;
   private List<NotificationMessage.Action<? extends NotificationMessage>> actions;
 
