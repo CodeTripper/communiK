@@ -52,7 +52,7 @@ public class SmsControllerTest {
 
   @Before
   public void setup() throws Exception {
-    String TO = "hkdoley@gmail.com";
+    String TO = "+919999999999";
     String LOCALE = "en_IN";
     String TEMPLATE = "sms-test-template";
     String PROVIDER = "dummyMailer";

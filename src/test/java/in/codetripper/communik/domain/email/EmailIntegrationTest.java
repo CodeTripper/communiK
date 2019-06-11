@@ -69,7 +69,7 @@ public class EmailIntegrationTest {
   @Test
   public void testEmail() throws Exception {
     emailSampleRequest = new EmailSampleRequest();
-    emailSampleRequest.setTo(Arrays.asList("hkdoley@gmail.com"));
+    emailSampleRequest.setTo(Arrays.asList("test@example.com"));
     emailSampleRequest.setLocale("en_IN");
     emailSampleRequest.setTemplateId("email-test-template");
     emailSampleRequest.setProviderName("dummyMailer");
@@ -93,7 +93,7 @@ public class EmailIntegrationTest {
   public void testEmailWithoutTemplateId() throws Exception {
 
     emailSampleRequest = new EmailSampleRequest();
-    emailSampleRequest.setTo(Collections.singletonList("hkdoley@gmail.com"));
+    emailSampleRequest.setTo(Collections.singletonList("test@example.com"));
     emailSampleRequest.setLocale("en_IN");
     emailSampleRequest.setSubject("test subject");
     emailSampleRequest.setProviderName("dummyMailer");
@@ -110,7 +110,7 @@ public class EmailIntegrationTest {
   public void testEmailWithoutProviderName() throws Exception {
 
     emailSampleRequest = new EmailSampleRequest();
-    emailSampleRequest.setTo(Collections.singletonList("hkdoley@gmail.com"));
+    emailSampleRequest.setTo(Collections.singletonList("test@example.com"));
     emailSampleRequest.setLocale("en_IN");
     emailSampleRequest.setSubject("test subject");
     Map<String, Object> body = new HashMap<>();

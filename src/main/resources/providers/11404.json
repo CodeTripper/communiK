@@ -13,7 +13,7 @@
   "timeOutInMs": 3000,
   "active": true,
   "primary": true,
-  "from": "hkdoley@gmail.com",
+  "from": "test@example.com",
   "endpoints": {
     "base": "http://localhost:9999/",
     "sendUri": "/email/sendgrid",

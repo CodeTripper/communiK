@@ -3,7 +3,7 @@
     "type": "SMS",
     "category": "transactional",
     "lob": "bank",
-    "to": "+919916989922",
+    "to": "+919999999999",
     "message": "Your salary of Rs 11000 has been credited"
   },
   {
@@ -24,7 +24,7 @@
     "type": "EMAIL",
     "category": "transactional",
     "lob": "bank",
-    "to": "hkdoley@gmai.com",
+    "to": "test@example.com",
     "subject": "Your salary is here",
     "body": {
       "template": "sdfjq2378dsk8",

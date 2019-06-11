@@ -8,5 +8,5 @@
   "owner": "HK",
   "replyTo": "test@example.com",
   "from": "test@example.com",
-  "body": "<#assign currentDateTime = .now>\n <html>Hi Mr ${data.to}  <br/>Your salary ${data.salary?string.currency} and ${data.timestamp}has been <#list data.mapTest as key, value>   ${key} = ${value} </#list> credited on ${currentDateTime}\n <br/>Go Niyo Team</html>"
+  "body": "<#assign currentDateTime = .now>\n <html>Hi Mr ${data.to}  <br/>Your salary ${data.salary?string.currency} and ${data.timestamp}has been <#list data.mapTest as key, value>   ${key} = ${value} </#list> credited on ${currentDateTime}\n <br/>Team</html>"
 }
