@@ -31,7 +31,7 @@ Run the springboot application Communik
 If you want to store the messages, a mongoDb cluster or cassandra is required
 
 ```
-Give examples
+
 ```
 
 ### Running
@@ -62,14 +62,18 @@ TODO docker
 
 ## Built With
 
-* [Springboot](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Gradle](https://maven.apache.org/) - Dependency Management
+* [Springboot](https://github.com/spring-projects/spring-boot) - The reactive framework used
+* [Gradle](https://github.com/gradle/gradle) - Dependency Management
 * [MongoDb](https://rometools.github.io/rome/) - To store the notifications
-* [MapStruct](https://rometools.github.io/rome/) - To map the POJOs
+* [MapStruct](https://github.com/mapstruct/mapstruct) - To map the POJOs
+* [Springfox](https://github.com/springfox/springfox/) - To documentation
 * [FlyingSaucer](https://rometools.github.io/rome/) - To generate pdf attachments
-* [Lombok](https://rometools.github.io/rome/) -
-* [Freemarker](https://rometools.github.io/rome/) -
-* [Seige](https://rometools.github.io/rome/) - To run benchmark
+* [Lombok](https://github.com/rzwitserloot/lombok) - To do some magic!
+* [Freemarker](https://github.com/apache/freemarker) - Template Engine
+* [OpenTracing](https://github.com/opentracing) - Distributed Tracing Specs
+* [Jaegar](https://github.com/jaegertracing/jaeger) - Distributed Tracing Impl
+* [Seige](https://github.com/JoeDog/siege) - To run benchmark
+* [Wiremock](https://github.com/tomakehurst/wiremock) - To run mock servers
 * [www.ascii-art-generator.org](https://www.ascii-art-generator.org/) - To create the banner
 
 
