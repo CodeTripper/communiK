@@ -46,7 +46,7 @@ public class WebhookController {
   private static final String BASE_PATH = "webhook";
 
   @PostMapping(value = BASE_PATH, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-  Publisher<ResponseEntity<NotificationTemplate>> create(
+  public Publisher<ResponseEntity<NotificationTemplate>> create(
       @RequestBody NotificationTemplateDto templateDto) {
     log.debug("template controler:{}", templateDto);
     NotificationTemplate template = templateMapper.templateDtoToTemplate(templateDto);
@@ -55,17 +55,17 @@ public class WebhookController {
   }
 
   @GetMapping(value = BASE_PATH + "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-  Mono<NotificationTemplate> getTemplate(@NotBlank @PathVariable String id) {
+  public Mono<NotificationTemplate> getTemplate(@NotBlank @PathVariable String id) {
     return templateService.get(id);
   }
 
   @GetMapping(value = BASE_PATH + "s", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-  Flux<NotificationTemplate> getTemplates() {
+  public Flux<NotificationTemplate> getTemplates() {
     return templateService.getAll();
   }
 
   @PutMapping(value = BASE_PATH + "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-  Mono<NotificationTemplate> updateTemplate(@NotBlank @PathVariable String id,
+  public Mono<NotificationTemplate> updateTemplate(@NotBlank @PathVariable String id,
       @RequestBody NotificationTemplateDto templateDto) {
     templateDto.setId(id);
     NotificationTemplate notificationTemplate = templateMapper.templateDtoToTemplate(templateDto);
@@ -74,12 +74,12 @@ public class WebhookController {
   }
 
   @DeleteMapping(value = BASE_PATH + "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-  Mono<Void> deleteTemplate(@NotBlank @PathVariable String id) {
+  public Mono<Void> deleteTemplate(@NotBlank @PathVariable String id) {
     return templateService.delete(id);
   }
 
   @PostMapping(value = BASE_PATH + "/ping", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-  Publisher<ResponseEntity<NotificationTemplate>> ping(
+  public Publisher<ResponseEntity<NotificationTemplate>> ping(
       @RequestBody NotificationTemplateDto templateDto) {
     log.debug("notification controler:{}", templateDto);
     NotificationTemplate notificationTemplate = templateMapper.templateDtoToTemplate(templateDto);
