@@ -22,6 +22,15 @@ It's a Store And Forward API built with Springboot/Webflux and MongoDb to send o
     * OpenTracing (Jaegar) integrated
     * Prometheus metrics
 
+## Why Communik?
+
+I can easily send all my notifications via Sendgrid/Mailgun, why do I need Communik?
+Well some reasons:
+
+    * Take control of your templates. For example, if I need to move to sendgrid from mailgun, I don't need to transfer the templates
+    * If I need to retry with a different provider, I dont need to worry about replicating the templates
+    * One API for all your notification needs across your systems. 
+
 ## Getting Started
 
 Run the springboot application Communik
@@ -62,10 +71,11 @@ TODO docker
 
 ## Built With
 
-* [Springboot](https://github.com/spring-projects/spring-boot) - The reactive framework used
+* [Springboot](https://github.com/spring-projects/spring-boot) - The microservices framework 
+* [Reactor](https://github.com/reactor/reactor) - The reactive framework used
 * [Gradle](https://github.com/gradle/gradle) - Dependency Management
 * [MongoDb](https://rometools.github.io/rome/) - To store the notifications
-* [MapStruct](https://github.com/mapstruct/mapstruct) - To map the POJOs
+* [Mapstruct](https://github.com/mapstruct/mapstruct) - To map the POJOs
 * [Springfox](https://github.com/springfox/springfox/) - To documentation
 * [FlyingSaucer](https://rometools.github.io/rome/) - To generate pdf attachments
 * [Lombok](https://github.com/rzwitserloot/lombok) - To do some magic!
@@ -106,8 +116,8 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 ## Benchmarking
 
 Application Config
-1. gupchup running in 500ms delay
-2. Log in info mode
+1. dummyEmailer running in 200ms delay
+2. Log in INFO mode
 3. Heap size -xmx2G -xms2G
 
 Running
@@ -117,6 +127,7 @@ Running
 
 
 Results:
+
     1. Transactions - 200
     2. Elapsed Time - 17.2 secs
     3. (Avg) Response Time - 1.63 secs  (Lower the better)
