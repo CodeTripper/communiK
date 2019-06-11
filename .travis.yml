@@ -4,7 +4,14 @@ sudo: false
 dist: trusty
 
 os:
-- linux
+  - linux
 
 jdk:
-- openjdk12
+  - openjdk12
+
+addons:
+  sonarcloud:
+    organization: "codetripper-github"
+
+script:
+  - sonar-scanner
