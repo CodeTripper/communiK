@@ -25,8 +25,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "Providers")
 public class ProviderRepoDto<K> {
 
-  private @Id
-  String id;
+  private @Id String id;
   private String name;
   private String comment;
   private List<String> email;

@@ -19,7 +19,6 @@ package in.codetripper.communik;
 public class ApplicationTest {
 
   // @Test
-  public void contextLoads() {
-  }
+  public void contextLoads() {}
 
 }

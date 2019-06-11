@@ -26,8 +26,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "Notifications")
 public class NotificationMessageRepoDto<T> {
 
-  private @Id
-  String id;
+  private @Id String id;
   private @NotNull List<T> to;
   private @NotNull NotificationMessage.Container body;
   private List<T> cc;
