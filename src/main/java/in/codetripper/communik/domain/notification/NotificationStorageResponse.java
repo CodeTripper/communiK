@@ -13,10 +13,11 @@
  */
 package in.codetripper.communik.domain.notification;
 
+import java.io.Serializable;
 import lombok.Data;
 
 @Data
-public class NotificationStorageResponse {
+public class NotificationStorageResponse implements Serializable {
 
   private boolean status;
   private String id;

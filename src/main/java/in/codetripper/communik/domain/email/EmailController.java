@@ -17,10 +17,10 @@ package in.codetripper.communik.domain.email;
 import java.util.List;
 import javax.validation.Valid;
 import org.springframework.http.CacheControl;
+import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import in.codetripper.communik.domain.notification.NotificationStatusResponse;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +37,7 @@ public class EmailController {
   CacheControl ccNoStore = CacheControl.noStore();
   private final EmailService emailService;
 
-  @RequestMapping(value = "/email", method = RequestMethod.POST)
+  @PostMapping(path = "/email", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
   public final Mono<NotificationStatusResponse> email(@Valid @RequestBody EmailDto emailDto,
       ServerHttpRequest serverHttpRequest) {
     String ipAddress = "";
@@ -49,7 +49,7 @@ public class EmailController {
     return emailService.sendEmail(emailDto);
   }
 
-  @RequestMapping(value = "/emails", method = RequestMethod.POST)
+  @PostMapping(path = "/emails", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
   public final Flux<NotificationStatusResponse> emails(
       @Valid @RequestBody List<EmailDto> emailDtos) {
     log.debug("Received bulk email request with data {}", emailDtos);

@@ -15,6 +15,7 @@ package in.codetripper.communik.domain.email.providers;
 
 import static in.codetripper.communik.Constants.TRACE_EMAIL_OPERATION_NAME;
 import static io.netty.util.CharsetUtil.UTF_8;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Collections;
@@ -146,7 +147,7 @@ public class DummyMailer implements EmailNotifier<EmailId> {
 
   @JsonIgnoreProperties(ignoreUnknown = true)
   @Data
-  public static class DummyMailerRequest<T> {
+  public static class DummyMailerRequest<T> implements Serializable {
 
     private List<T> to;
     private String message;
@@ -161,7 +162,7 @@ public class DummyMailer implements EmailNotifier<EmailId> {
 
   @Data
   @NoArgsConstructor
-  private static class Attachment {
+  private static class Attachment implements Serializable {
 
     private String type;
     private String content;

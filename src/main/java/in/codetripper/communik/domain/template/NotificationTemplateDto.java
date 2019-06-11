@@ -45,7 +45,7 @@ public class NotificationTemplateDto<T> implements Serializable {
 
   @Data
   @NoArgsConstructor
-  public static class Container {
+  public static class Container implements Serializable {
 
     private String mediaType;
     private String method;

@@ -30,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 public class Gmail extends SmtpEmailSender {
 
   private final ProviderService providerService;
-  String providerId = "11003";
+  private String providerId = "11003";
 
   @Override
   protected EmailConfiguration getMailConfiguration() {

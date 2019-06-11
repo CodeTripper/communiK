@@ -15,6 +15,7 @@ package in.codetripper.communik.domain.email.providers;
 
 import static in.codetripper.communik.Constants.TRACE_EMAIL_OPERATION_NAME;
 import static io.netty.util.CharsetUtil.UTF_8;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import org.springframework.http.MediaType;
@@ -48,14 +49,12 @@ import reactor.netty.http.client.HttpClient;
 @Slf4j
 public class MailGun implements EmailNotifier<EmailId> {
 
-  private final ProviderService providerService;
   private String providerId = "11001";
   private final Tracer tracer;
   private Provider provider;
   private WebClient client;
 
   public MailGun(ProviderService providerService, Tracer tracer) {
-    this.providerService = providerService;
     this.tracer = tracer;
     provider = providerService.getProvider(providerId);
     String className = DummyMailer.class.getSimpleName();
@@ -139,7 +138,7 @@ public class MailGun implements EmailNotifier<EmailId> {
 
   @JsonIgnoreProperties(ignoreUnknown = true)
   @Data
-  public static class MailGunResponse {
+  public static class MailGunResponse implements Serializable {
 
     private boolean status;
     private String id;

@@ -13,6 +13,7 @@
  */
 package in.codetripper.communik.repository.mongo;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.annotation.Id;
@@ -23,7 +24,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Document(collection = "Providers")
-public class ProviderRepoDto<K> {
+public class ProviderRepoDto<K> implements Serializable {
 
   private @Id String id;
   private String name;
@@ -44,7 +45,7 @@ public class ProviderRepoDto<K> {
 
   @Data
   @NoArgsConstructor
-  public static class BearerAuthentication {
+  public static class BearerAuthentication implements Serializable {
 
     private String apiKey;
     private String authUrl;
@@ -52,7 +53,7 @@ public class ProviderRepoDto<K> {
 
   @Data
   @NoArgsConstructor
-  public static class BasicAuthentication {
+  public static class BasicAuthentication implements Serializable {
 
     private String userId;
     private String password;
@@ -60,7 +61,7 @@ public class ProviderRepoDto<K> {
 
   @Data
   @NoArgsConstructor
-  public static class Endpoints {
+  public static class Endpoints implements Serializable {
 
     private String base;
     private String sendUri;

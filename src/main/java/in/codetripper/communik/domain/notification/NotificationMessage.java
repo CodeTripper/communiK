@@ -65,7 +65,7 @@ public class NotificationMessage<T> implements Serializable {
 
   @Data
   @NoArgsConstructor
-  public static class Container {
+  public static class Container implements Serializable {
 
     private String message;
     Map<String, Object> data = new LinkedHashMap<>();
@@ -73,7 +73,7 @@ public class NotificationMessage<T> implements Serializable {
 
   @Data
   @NoArgsConstructor
-  public static class Attachment {
+  public static class Attachment implements Serializable {
 
     private String mediaType;
     private byte[] content;
@@ -84,7 +84,7 @@ public class NotificationMessage<T> implements Serializable {
    * All meta data of the message to ne here. Immutable
    */
   @Data
-  public static class Meta {
+  public static class Meta implements Serializable {
 
     private Type type;
     private String senderIp;
@@ -97,14 +97,14 @@ public class NotificationMessage<T> implements Serializable {
   }
 
   @Data
-  public static class Notifiers<K> {
+  public static class Notifiers<K> implements Serializable {
 
     private Notifier<K> primary;
     private List<? extends Notifier<K>> backup;
   }
 
   @Data
-  public static class Action<T> {
+  public static class Action<T> implements Serializable {
 
     private String notifier;
     private String requestId;
@@ -119,7 +119,7 @@ public class NotificationMessage<T> implements Serializable {
    * Should be populated from category, but should be overridable
    */
   @Data
-  public static class BlackOut {
+  public static class BlackOut implements Serializable {
 
     // by category
     private Type type;

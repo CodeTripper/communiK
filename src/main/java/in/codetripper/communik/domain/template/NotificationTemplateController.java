@@ -41,8 +41,8 @@ public class NotificationTemplateController {
   private final NotificationTemplateMapper templateMapper;
   private static final String BASE_PATH = "template";
 
-  @PostMapping(value = BASE_PATH, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-  Publisher<ResponseEntity<NotificationTemplate>> create(
+  @PostMapping(path = BASE_PATH, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  public Publisher<ResponseEntity<NotificationTemplate>> create(
       @RequestBody NotificationTemplateDto templateDto) {
     log.debug("notificationTemplate controler:{}", templateDto);
     NotificationTemplate notificationTemplate = templateMapper.templateDtoToTemplate(templateDto);
@@ -50,23 +50,23 @@ public class NotificationTemplateController {
         .map(p -> ResponseEntity.created(URI.create(BASE_PATH + "/" + p.getId())).build());
   }
 
-  @GetMapping(value = BASE_PATH + "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-  Mono<NotificationTemplate> getTemplate(@NotBlank @PathVariable String id) {
+  @GetMapping(path = BASE_PATH + "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  public Mono<NotificationTemplate> getTemplate(@NotBlank @PathVariable String id) {
     return templateService.get(id);
   }
 
-  @GetMapping(value = BASE_PATH + "s", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-  Flux<NotificationTemplate> getTemplates() {
+  @GetMapping(path = BASE_PATH + "s", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  public Flux<NotificationTemplate> getTemplates() {
     return templateService.getAll();
   }
 
-  @GetMapping(value = BASE_PATH + "/test", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-  Flux<String> getTest() {
+  @GetMapping(path = BASE_PATH + "/test", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  public Flux<String> getTest() {
     return Flux.fromIterable(Arrays.asList("foo", "bar"));
   }
 
-  @PutMapping(value = BASE_PATH + "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-  Mono<NotificationTemplate> updateTemplate(@NotBlank @PathVariable String id,
+  @PutMapping(path = BASE_PATH + "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  public Mono<NotificationTemplate> updateTemplate(@NotBlank @PathVariable String id,
       @RequestBody NotificationTemplateDto templateDto) {
     templateDto.setId(id);
     NotificationTemplate notificationTemplate = templateMapper.templateDtoToTemplate(templateDto);
@@ -74,8 +74,8 @@ public class NotificationTemplateController {
 
   }
 
-  @DeleteMapping(value = BASE_PATH + "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-  Mono<Void> deleteTemplate(@NotBlank @PathVariable String id) {
+  @DeleteMapping(path = BASE_PATH + "/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  public Mono<Void> deleteTemplate(@NotBlank @PathVariable String id) {
     return templateService.delete(id);
   }
 }

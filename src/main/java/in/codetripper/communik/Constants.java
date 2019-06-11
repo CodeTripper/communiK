@@ -13,13 +13,13 @@
  */
 package in.codetripper.communik;
 
-public interface Constants {
+public final class Constants {
 
-  int DB_READ_TIMEOUT = 5000; // TODO move to config
-  int DB_WRITE_TIMEOUT = 3000;
-  int PROVIDER_TIMEOUT = 4000;
-  String CACHE_DEFAULT = "DEFAULT";
-  String CACHE_TEMPLATE = "TEMPLATE";
-  String TRACE_EMAIL_OPERATION_NAME = "email.send";
-  String APPLICATION_BASE_PACKAGE = "in.codetripper.communik";
+  public static final int DB_READ_TIMEOUT = 5000; // TODO move to config
+  public static final int DB_WRITE_TIMEOUT = 3000;
+  public static final int PROVIDER_TIMEOUT = 4000;
+  public static final String CACHE_DEFAULT = "DEFAULT";
+  public static final String CACHE_TEMPLATE = "TEMPLATE";
+  public static final String TRACE_EMAIL_OPERATION_NAME = "email.send";
+  public static final String APPLICATION_BASE_PACKAGE = "in.codetripper.communik";
 }

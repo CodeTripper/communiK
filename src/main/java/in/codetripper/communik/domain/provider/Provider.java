@@ -13,6 +13,7 @@
  */
 package in.codetripper.communik.domain.provider;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Data;
@@ -21,7 +22,7 @@ import lombok.ToString;
 
 @Data
 @ToString
-public class Provider<T> {
+public class Provider<T> implements Serializable {
 
   private String id;
   private String name;
@@ -42,7 +43,7 @@ public class Provider<T> {
 
   @Data
   @NoArgsConstructor
-  public static class BearerAuthentication {
+  public static class BearerAuthentication implements Serializable {
 
     private String apiKey;
     private String authUrl;
@@ -50,7 +51,7 @@ public class Provider<T> {
 
   @Data
   @NoArgsConstructor
-  public static class BasicAuthentication {
+  public static class BasicAuthentication implements Serializable {
 
     private String userId;
     private String password;
@@ -58,7 +59,7 @@ public class Provider<T> {
 
   @Data
   @NoArgsConstructor
-  public static class Endpoints {
+  public static class Endpoints implements Serializable {
 
     private String base;
     private String sendUri;
@@ -67,7 +68,7 @@ public class Provider<T> {
 
   @Data
   @NoArgsConstructor
-  public static class Server {
+  public static class Server implements Serializable {
 
     private String host;
     private int port;

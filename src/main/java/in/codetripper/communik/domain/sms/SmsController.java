@@ -15,13 +15,12 @@ package in.codetripper.communik.domain.sms;
 
 import java.util.List;
 import javax.validation.Valid;
+import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import in.codetripper.communik.domain.notification.NotificationStatusResponse;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +35,7 @@ public class SmsController {
 
   private final SmsService smsService;
 
-  @PostMapping("/sms")
+  @PostMapping(path = "/sms", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
   public Mono<NotificationStatusResponse> sms(@Valid @RequestBody SmsDto smsDto,
       ServerHttpRequest serverHttpRequest) {
     log.debug("Inside SMSController");
@@ -48,13 +47,13 @@ public class SmsController {
     return smsService.sendSms(smsDto);
   }
 
-  @GetMapping("/sms/{id}")
+  @GetMapping(path = "/sms/{id}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
   public String getSmsStatus(@PathVariable String id) {
     NotificationStatusResponse notificationResponse = smsService.getSmsStatus(id);
     return "SUCCESS";
   }
 
-  @RequestMapping(value = "/smses", method = RequestMethod.POST)
+  @PostMapping(path = "/smses", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
   public final Flux<NotificationStatusResponse> smses(@Valid @RequestBody List<SmsDto> smsDtos) {
     log.debug("Received bulk sms request with data {}", smsDtos);
     return Flux.fromIterable(smsDtos).flatMap(smsService::sendSms);

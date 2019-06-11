@@ -14,6 +14,7 @@
 package in.codetripper.communik.domain.email.providers;
 
 import static in.codetripper.communik.Constants.TRACE_EMAIL_OPERATION_NAME;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -163,7 +164,7 @@ public class SendGrid implements EmailNotifier<EmailId> {
 
   @JsonIgnoreProperties(ignoreUnknown = true)
   @Data
-  public static class SendGridRequest {
+  public static class SendGridRequest implements Serializable {
 
     private List<Personalization> personalizations;
     private Personalization.EmailEntity from;
@@ -174,7 +175,7 @@ public class SendGrid implements EmailNotifier<EmailId> {
 
   @Data
   @NoArgsConstructor
-  private static class Attachment {
+  private static class Attachment implements Serializable {
 
     private String type;
     private String content;
@@ -185,14 +186,14 @@ public class SendGrid implements EmailNotifier<EmailId> {
 
   @JsonIgnoreProperties(ignoreUnknown = true)
   @Data
-  public static class Personalization {
+  public static class Personalization implements Serializable {
 
     @JsonProperty("to")
     private List<EmailEntity> tos;
 
     @Data
     @AllArgsConstructor
-    public static class EmailEntity {
+    public static class EmailEntity implements Serializable {
 
       private String email;
       private String name;
@@ -200,7 +201,7 @@ public class SendGrid implements EmailNotifier<EmailId> {
 
     @Data
     @AllArgsConstructor
-    public static class ToHolder {
+    public static class ToHolder implements Serializable {
 
       private List<EmailEntity> to;
       // private String email;

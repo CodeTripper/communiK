@@ -62,7 +62,7 @@ public class EmailDto implements Serializable {
 
   @Data
   @NoArgsConstructor
-  public static class Container {
+  public static class Container implements Serializable {
 
     private String message;
     Map<String, Object> data = new LinkedHashMap<>();

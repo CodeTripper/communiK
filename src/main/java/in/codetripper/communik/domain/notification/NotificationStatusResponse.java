@@ -13,11 +13,12 @@
  */
 package in.codetripper.communik.domain.notification;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import lombok.Data;
 
 @Data
-public class NotificationStatusResponse {
+public class NotificationStatusResponse implements Serializable {
 
   private LocalDateTime timestamp;
   private int status;

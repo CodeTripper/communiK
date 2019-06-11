@@ -13,6 +13,7 @@
  */
 package in.codetripper.communik.repository.mongo;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 import javax.validation.constraints.NotNull;
@@ -24,7 +25,7 @@ import lombok.Data;
 
 @Data
 @Document(collection = "Notifications")
-public class NotificationMessageRepoDto<T> {
+public class NotificationMessageRepoDto<T> implements Serializable {
 
   private @Id String id;
   private @NotNull List<T> to;

@@ -13,6 +13,7 @@
  */
 package in.codetripper.communik.repository.mongo;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -22,7 +23,7 @@ import lombok.NoArgsConstructor;
 
 @Document(collection = "NotificationTemplate")
 @Data
-public class NotificationTemplateRepoDto<T> {
+public class NotificationTemplateRepoDto<T> implements Serializable {
 
   private String id;
   private String name;
@@ -42,7 +43,7 @@ public class NotificationTemplateRepoDto<T> {
 
   @Data
   @NoArgsConstructor
-  public static class Container {
+  public static class Container implements Serializable {
 
     private String mediaType;
     private String method;

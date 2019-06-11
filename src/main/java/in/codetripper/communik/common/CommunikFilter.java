@@ -44,7 +44,7 @@ public class CommunikFilter implements WebFilter {
 
   @Override
   public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-    return chain.filter(exchange).compose((call) -> filter(exchange, call));
+    return chain.filter(exchange).compose(call -> filter(exchange, call));
   }
 
   private Publisher<Void> filter(ServerWebExchange exchange, Mono<Void> call) {

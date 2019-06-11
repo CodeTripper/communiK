@@ -13,6 +13,7 @@
  */
 package in.codetripper.communik.domain.sms;
 
+import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,7 +21,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SmsId {
+public class SmsId implements Serializable {
 
   private int countryCode;
   private long mobileNo;

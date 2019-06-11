@@ -15,14 +15,15 @@ package in.codetripper.communik.domain.sms;
 
 import org.mapstruct.Mapper;
 import org.springframework.stereotype.Component;
+import in.codetripper.communik.domain.notification.NotificationMessage;
 
 
 @Mapper(componentModel = "spring")
 @Component
 public interface SmsMapper {
 
-  Sms smsDtoToSms(SmsDto smsDto);
+  NotificationMessage smsDtoToSms(SmsDto smsDto);
 
-  SmsDto smsToSmsDto(Sms sms);
+  SmsDto smsToSmsDto(NotificationMessage sms);
 
 }
