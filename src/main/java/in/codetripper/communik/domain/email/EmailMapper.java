@@ -13,9 +13,9 @@
  */
 package in.codetripper.communik.domain.email;
 
-import in.codetripper.communik.domain.notification.NotificationMessage;
 import org.mapstruct.Mapper;
 import org.springframework.stereotype.Component;
+import in.codetripper.communik.domain.notification.NotificationMessage;
 
 
 @Mapper(componentModel = "spring")

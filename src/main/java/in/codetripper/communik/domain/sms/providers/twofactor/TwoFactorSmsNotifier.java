@@ -13,6 +13,7 @@
  */
 package in.codetripper.communik.domain.sms.providers.twofactor;
 
+import org.springframework.stereotype.Service;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import in.codetripper.communik.domain.notification.NotificationMessage;
 import in.codetripper.communik.domain.notification.NotificationStatusResponse;
@@ -21,7 +22,6 @@ import in.codetripper.communik.domain.sms.SmsId;
 import in.codetripper.communik.domain.sms.SmsNotifier;
 import in.codetripper.communik.exceptions.NotificationSendFailedException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 @Service

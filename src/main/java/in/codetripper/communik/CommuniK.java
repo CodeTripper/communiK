@@ -14,7 +14,6 @@
 package in.codetripper.communik;
 
 import static in.codetripper.communik.Constants.APPLICATION_BASE_PACKAGE;
-
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;

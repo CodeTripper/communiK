@@ -14,16 +14,10 @@
 package in.codetripper.communik.domain.email;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.github.tomakehurst.wiremock.WireMockServer;
-import in.codetripper.communik.Integration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,6 +31,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.github.tomakehurst.wiremock.WireMockServer;
+import in.codetripper.communik.Integration;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient

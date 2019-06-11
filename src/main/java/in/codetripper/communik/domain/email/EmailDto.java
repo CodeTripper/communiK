@@ -13,9 +13,6 @@
  */
 package in.codetripper.communik.domain.email;
 
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import in.codetripper.communik.domain.notification.Type;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -23,6 +20,9 @@ import java.util.Locale;
 import java.util.Map;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import in.codetripper.communik.domain.notification.Type;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;

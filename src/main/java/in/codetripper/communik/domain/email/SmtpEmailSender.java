@@ -13,17 +13,17 @@
  */
 package in.codetripper.communik.domain.email;
 
-import in.codetripper.communik.domain.notification.NotificationMessage;
-import in.codetripper.communik.domain.notification.NotificationStatusResponse;
-import in.codetripper.communik.exceptions.NotificationSendFailedException;
 import java.util.List;
 import java.util.Properties;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import in.codetripper.communik.domain.notification.NotificationMessage;
+import in.codetripper.communik.domain.notification.NotificationStatusResponse;
+import in.codetripper.communik.exceptions.NotificationSendFailedException;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 @Slf4j

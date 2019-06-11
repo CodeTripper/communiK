@@ -15,7 +15,16 @@ package in.codetripper.communik.domain.email.providers;
 
 import static in.codetripper.communik.Constants.TRACE_EMAIL_OPERATION_NAME;
 import static io.netty.util.CharsetUtil.UTF_8;
-
+import java.time.LocalDateTime;
+import java.util.Collections;
+import org.springframework.http.MediaType;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.stereotype.Service;
+import org.springframework.util.Base64Utils;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientException;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.base.Strings;
 import in.codetripper.communik.domain.email.EmailId;
@@ -29,18 +38,8 @@ import in.codetripper.communik.exceptions.NotificationSendFailedException;
 import in.codetripper.communik.trace.WebClientDecorator;
 import io.opentracing.Tracer;
 import io.opentracing.contrib.spring.web.client.TracingExchangeFilterFunction;
-import java.time.LocalDateTime;
-import java.util.Collections;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.MediaType;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
-import org.springframework.stereotype.Service;
-import org.springframework.util.Base64Utils;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientException;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 

@@ -13,9 +13,9 @@
  */
 package in.codetripper.communik.domain.template;
 
-import in.codetripper.communik.repository.mongo.NotificationTemplateRepoDto;
 import org.mapstruct.Mapper;
 import org.springframework.stereotype.Component;
+import in.codetripper.communik.repository.mongo.NotificationTemplateRepoDto;
 
 
 @Mapper(componentModel = "spring")

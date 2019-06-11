@@ -15,13 +15,12 @@ package in.codetripper.communik.exceptions;
 
 import static in.codetripper.communik.exceptions.ExceptionConstants.ERROR_BAD_REQUEST;
 import static in.codetripper.communik.exceptions.ExceptionConstants.ERROR_UNABLE_TO_PROCESS;
-
-import io.opentracing.Tracer;
 import java.util.Map;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.reactive.error.DefaultErrorAttributes;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
+import io.opentracing.Tracer;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component

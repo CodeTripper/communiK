@@ -13,6 +13,10 @@
  */
 package in.codetripper.communik.trace;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import io.jaegertracing.internal.JaegerTracer;
 import io.jaegertracing.internal.reporters.InMemoryReporter;
 import io.jaegertracing.internal.samplers.ConstSampler;
@@ -20,10 +24,6 @@ import io.jaegertracing.internal.samplers.ProbabilisticSampler;
 import io.jaegertracing.spi.Reporter;
 import io.jaegertracing.spi.Sampler;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @Slf4j

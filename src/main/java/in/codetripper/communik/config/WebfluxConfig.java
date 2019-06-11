@@ -13,8 +13,8 @@
  */
 package in.codetripper.communik.config;
 
-import lombok.experimental.UtilityClass;
 import org.springframework.web.reactive.config.ResourceHandlerRegistry;
+import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class WebfluxConfig {

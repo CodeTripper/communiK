@@ -13,9 +13,9 @@
  */
 package in.codetripper.communik.webhooks;
 
+import java.util.List;
 import in.codetripper.communik.domain.notification.Status;
 import in.codetripper.communik.domain.notification.Type;
-import java.util.List;
 
 public class WebhookClient {
 

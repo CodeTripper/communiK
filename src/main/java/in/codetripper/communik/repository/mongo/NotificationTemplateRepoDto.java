@@ -13,12 +13,12 @@
  */
 package in.codetripper.communik.repository.mongo;
 
-import in.codetripper.communik.domain.notification.Type;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.data.mongodb.core.mapping.Document;
+import in.codetripper.communik.domain.notification.Type;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "NotificationTemplate")
 @Data

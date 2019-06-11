@@ -13,10 +13,10 @@
  */
 package in.codetripper.communik.domain.email;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import in.codetripper.communik.domain.notification.Type;
 import java.util.List;
 import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import in.codetripper.communik.domain.notification.Type;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class EmailSampleRequest {

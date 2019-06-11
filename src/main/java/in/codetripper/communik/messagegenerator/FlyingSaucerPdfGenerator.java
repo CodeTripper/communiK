@@ -14,9 +14,9 @@
 package in.codetripper.communik.messagegenerator;
 
 import java.io.ByteArrayOutputStream;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.xhtmlrenderer.pdf.ITextRenderer;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 @Slf4j

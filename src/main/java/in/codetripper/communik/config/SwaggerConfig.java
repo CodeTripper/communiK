@@ -13,14 +13,14 @@
  */
 package in.codetripper.communik.config;
 
-import in.codetripper.communik.domain.email.EmailController;
-import in.codetripper.communik.domain.sms.SmsController;
-import in.codetripper.communik.domain.template.NotificationTemplateController;
 import java.util.Collections;
 import java.util.function.Predicate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import in.codetripper.communik.domain.email.EmailController;
+import in.codetripper.communik.domain.sms.SmsController;
+import in.codetripper.communik.domain.template.NotificationTemplateController;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.ApiInfo;

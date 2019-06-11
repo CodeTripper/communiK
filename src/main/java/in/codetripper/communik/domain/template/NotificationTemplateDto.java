@@ -13,10 +13,10 @@
  */
 package in.codetripper.communik.domain.template;
 
-import in.codetripper.communik.domain.notification.Type;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
+import in.codetripper.communik.domain.notification.Type;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;

@@ -13,16 +13,16 @@
  */
 package in.codetripper.communik.domain.email.providers;
 
+import java.util.Properties;
+import org.springframework.stereotype.Service;
 import in.codetripper.communik.domain.email.EmailConfiguration;
 import in.codetripper.communik.domain.email.EmailId;
 import in.codetripper.communik.domain.email.SmtpEmailSender;
 import in.codetripper.communik.domain.notification.NotificationMessage;
 import in.codetripper.communik.domain.provider.Provider;
 import in.codetripper.communik.domain.provider.ProviderService;
-import java.util.Properties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j

@@ -13,9 +13,9 @@
  */
 package in.codetripper.communik.domain.provider;
 
-import in.codetripper.communik.repository.mongo.ProviderRepoDto;
 import org.mapstruct.Mapper;
 import org.springframework.stereotype.Component;
+import in.codetripper.communik.repository.mongo.ProviderRepoDto;
 
 @Mapper(componentModel = "spring")
 @Component

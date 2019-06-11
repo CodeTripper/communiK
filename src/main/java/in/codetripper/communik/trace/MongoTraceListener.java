@@ -13,12 +13,12 @@
  */
 package in.codetripper.communik.trace;
 
+import org.springframework.stereotype.Component;
 import io.opentracing.Tracer;
 import io.opentracing.contrib.mongo.common.TracingCommandListener;
 import io.opentracing.contrib.mongo.common.providers.PrefixSpanNameProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor

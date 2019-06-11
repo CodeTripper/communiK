@@ -13,14 +13,14 @@
  */
 package in.codetripper.communik.trace;
 
+import java.util.HashMap;
+import java.util.Map;
+import org.springframework.web.reactive.function.client.ClientRequest;
+import org.springframework.web.reactive.function.client.ClientResponse;
 import io.opentracing.Span;
 import io.opentracing.contrib.spring.web.client.WebClientSpanDecorator;
 import io.opentracing.tag.Tags;
-import java.util.HashMap;
-import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.reactive.function.client.ClientRequest;
-import org.springframework.web.reactive.function.client.ClientResponse;
 
 @Slf4j
 public class WebClientDecorator implements WebClientSpanDecorator {
