@@ -1,5 +1,9 @@
 # CommuniK - reactive api for sending emails/SMS/chat notifications
 
+[![Build Status](https://travis-ci.org/CodeTripper/communiK.svg?branch=master)](https://travis-ci.org/CodeTripper/communiK)
+
+
+
 It's a Store And Forward API built with Springboot/Webflux and MongoDb to send out notifications.
 
 ## Features: 
