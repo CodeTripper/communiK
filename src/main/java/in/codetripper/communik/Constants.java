@@ -21,4 +21,5 @@ public interface Constants {
   String CACHE_DEFAULT = "DEFAULT";
   String CACHE_TEMPLATE = "TEMPLATE";
   String TRACE_EMAIL_OPERATION_NAME = "email.send";
+  String APPLICATION_BASE_PACKAGE = "in.codetripper.communik";
 }

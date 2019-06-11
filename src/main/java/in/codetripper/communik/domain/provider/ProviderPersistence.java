@@ -11,19 +11,16 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package in.codetripper.communik.webhooks;
+package in.codetripper.communik.domain.provider;
 
-import in.codetripper.communik.domain.notification.Status;
-import in.codetripper.communik.domain.notification.Type;
-import java.util.List;
 
-public class WebhookClient {
+import java.io.IOException;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-  private String clientId;
-  private String clientName;
-  private List<Status> interests;
-  private List<Type> notificationTypes;
-  private String webhook;
-  private String active;
+public interface ProviderPersistence {
 
+  Mono<Provider> getProvider(String id);
+
+  Flux<Provider> getAll() throws IOException;
 }

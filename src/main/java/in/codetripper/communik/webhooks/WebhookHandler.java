@@ -13,7 +13,7 @@
  */
 package in.codetripper.communik.webhooks;
 
-import in.codetripper.communik.notification.NotificationMessage;
+import in.codetripper.communik.domain.notification.NotificationMessage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.List;

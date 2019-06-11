@@ -11,19 +11,8 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package in.codetripper.communik.webhooks;
+package in.codetripper.communik.domain.notification;
 
-import in.codetripper.communik.domain.notification.Status;
-import in.codetripper.communik.domain.notification.Type;
-import java.util.List;
-
-public class WebhookClient {
-
-  private String clientId;
-  private String clientName;
-  private List<Status> interests;
-  private List<Type> notificationTypes;
-  private String webhook;
-  private String active;
-
+public enum Status {
+  NOTIFICATION_NEW, NOTIFICATION_STORED, NOTIFICATION_SENT, NOTIFICATION_SUCCESS, NOTIFICATION_FAILED, NOTIFICATION_RETRY_FAILED, NOTIFICATION_INPROGRESS
 }

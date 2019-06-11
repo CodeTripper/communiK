@@ -11,19 +11,18 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package in.codetripper.communik.webhooks;
+package in.codetripper.communik.domain.provider;
 
-import in.codetripper.communik.domain.notification.Status;
-import in.codetripper.communik.domain.notification.Type;
-import java.util.List;
+import in.codetripper.communik.repository.mongo.ProviderRepoDto;
+import org.mapstruct.Mapper;
+import org.springframework.stereotype.Component;
 
-public class WebhookClient {
+@Mapper(componentModel = "spring")
+@Component
+public interface ProviderMapper {
 
-  private String clientId;
-  private String clientName;
-  private List<Status> interests;
-  private List<Type> notificationTypes;
-  private String webhook;
-  private String active;
+  Provider mapDtoToNotifier(ProviderRepoDto notifierDto);
+
+  ProviderRepoDto mapNotifierToDto(Provider provider);
 
 }

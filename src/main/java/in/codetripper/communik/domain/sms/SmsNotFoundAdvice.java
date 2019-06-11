@@ -11,19 +11,21 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package in.codetripper.communik.webhooks;
+package in.codetripper.communik.domain.sms;
 
-import in.codetripper.communik.domain.notification.Status;
-import in.codetripper.communik.domain.notification.Type;
-import java.util.List;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-public class WebhookClient {
+@ControllerAdvice
+class SmsNotFoundAdvice {
 
-  private String clientId;
-  private String clientName;
-  private List<Status> interests;
-  private List<Type> notificationTypes;
-  private String webhook;
-  private String active;
-
+  @ResponseBody
+  @ExceptionHandler(SmsNotFoundException.class)
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  String smsNotFoundHandler(SmsNotFoundException ex) {
+    return ex.getMessage();
+  }
 }

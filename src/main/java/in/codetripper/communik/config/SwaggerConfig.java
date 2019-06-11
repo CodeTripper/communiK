@@ -13,9 +13,9 @@
  */
 package in.codetripper.communik.config;
 
-import in.codetripper.communik.email.EmailController;
-import in.codetripper.communik.sms.SmsController;
-import in.codetripper.communik.template.NotificationTemplateController;
+import in.codetripper.communik.domain.email.EmailController;
+import in.codetripper.communik.domain.sms.SmsController;
+import in.codetripper.communik.domain.template.NotificationTemplateController;
 import java.util.Collections;
 import java.util.function.Predicate;
 import org.springframework.context.annotation.Bean;
@@ -45,7 +45,7 @@ public class SwaggerConfig {
   private ApiInfo metaInfo() {
     return new ApiInfo("Communik API", "Communik API - centralizes all your notifications",
         "API TOS", "Terms of service",
-        new Contact("Code Tripper", "https://github.com/CodeTripper/", "admin@condetripper.in"),
-        "MIT", "API license URL", Collections.emptyList());
+        new Contact("Code Tripper", "https://github.com/CodeTripper/", "admin@codetripper.in"),
+        "Apache", "API license URL", Collections.emptyList());
   }
 }

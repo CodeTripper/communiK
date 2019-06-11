@@ -11,19 +11,19 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package in.codetripper.communik.webhooks;
+package in.codetripper.communik.domain.notification;
 
-import in.codetripper.communik.domain.notification.Status;
-import in.codetripper.communik.domain.notification.Type;
-import java.util.List;
+import in.codetripper.communik.repository.mongo.NotificationMessageRepoDto;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-public class WebhookClient {
+public interface NotificationPersistence<T extends NotificationMessage> {
 
-  private String clientId;
-  private String clientName;
-  private List<Status> interests;
-  private List<Type> notificationTypes;
-  private String webhook;
-  private String active;
+  Mono<NotificationStorageResponse> store(T notificationMessage);
 
+  Mono<NotificationStorageResponse> update(T notificationMessage);
+
+  Mono<NotificationMessageRepoDto> status(String id);
+
+  Flux<NotificationMessageRepoDto> getAll();
 }

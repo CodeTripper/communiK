@@ -13,8 +13,8 @@
  */
 package in.codetripper.communik.repository.mongo;
 
-import in.codetripper.communik.notification.NotificationMessage;
-import in.codetripper.communik.notification.Status;
+import in.codetripper.communik.domain.notification.NotificationMessage;
+import in.codetripper.communik.domain.notification.Status;
 import java.time.LocalDateTime;
 import java.util.List;
 import javax.validation.constraints.NotNull;

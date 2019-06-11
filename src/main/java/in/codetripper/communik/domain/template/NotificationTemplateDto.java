@@ -11,18 +11,20 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package in.codetripper.communik.repository.mongo;
+package in.codetripper.communik.domain.template;
 
 import in.codetripper.communik.domain.notification.Type;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.mongodb.core.mapping.Document;
+import lombok.ToString;
 
-@Document(collection = "NotificationTemplate")
+
+@ToString
 @Data
-public class NotificationTemplateRepoDto {
+public class NotificationTemplateDto implements Serializable {
 
   private String id;
   private String name;
@@ -38,6 +40,7 @@ public class NotificationTemplateRepoDto {
   private List<String> bcc;
   private List<String> cc;
   private String replyTo;
+  private String from;
   private String mediaType;
 
   @Data
@@ -50,5 +53,4 @@ public class NotificationTemplateRepoDto {
     private String name;
     private String placement;
   }
-
 }

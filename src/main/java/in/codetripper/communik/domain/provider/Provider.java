@@ -11,22 +11,19 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package in.codetripper.communik.repository.mongo;
+package in.codetripper.communik.domain.provider;
 
-import in.codetripper.communik.domain.provider.Provider;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+import lombok.ToString;
 
 @Data
-@Document(collection = "Providers")
-public class ProviderRepoDto {
+@ToString
+public class Provider {
 
-  private @Id
-  String id;
+  private String id;
   private String name;
   private String comment;
   private List<String> email;
@@ -41,7 +38,7 @@ public class ProviderRepoDto {
   private String from;
   private BearerAuthentication bearerAuthentication;
   private BasicAuthentication basicAuthentication;
-  private Provider.Server server;
+  private Server server;
 
   @Data
   @NoArgsConstructor
@@ -66,5 +63,15 @@ public class ProviderRepoDto {
     private String base;
     private String sendUri;
     private String statusUri;
+  }
+
+  @Data
+  @NoArgsConstructor
+  public static class Server {
+
+    private String host;
+    private int port;
+    private String protocol;
+    private boolean tls;
   }
 }
