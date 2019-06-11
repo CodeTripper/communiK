@@ -18,13 +18,13 @@
   },
   "primary": false,
   "endpoints": {
-    "base": "https://api.mailgun.net/v3/sandboxbb8993410ffc433dbb95623d35af5581.mailgun.org/",
+    "base": "",
     "sendUri": "messages"
   },
-  "from": "Mailgun Sandbox <postmaster@sandboxbb8993410ffc433dbb95623d35af5581.mailgun.org>",
+  "from": "Mailgun Sandbox ",
   "authType": "basic",
   "basicAuthentication": {
     "userId": "api",
-    "password": "393dbd22ffe92af5a50cb6f1396a82e9-39bc661a-3bb021ec"
+    "password": ""
   }
 }
