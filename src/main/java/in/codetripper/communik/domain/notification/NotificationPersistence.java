@@ -13,17 +13,17 @@
  */
 package in.codetripper.communik.domain.notification;
 
-import in.codetripper.communik.repository.mongo.NotificationMessageRepoDto;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public interface NotificationPersistence<T extends NotificationMessage> {
+public interface NotificationPersistence<T> {
 
-  Mono<NotificationStorageResponse> store(T notificationMessage);
+  Mono<NotificationStorageResponse> store(NotificationMessage<T> notificationMessage);
 
-  Mono<NotificationStorageResponse> update(T notificationMessage);
+  Mono<NotificationStorageResponse> update(NotificationMessage<T> notificationMessage);
 
-  Mono<NotificationMessageRepoDto> status(String id);
+  Mono<NotificationMessage<T>> status(String id);
 
-  Flux<NotificationMessageRepoDto> getAll();
+  Flux<NotificationMessage<T>> getAll();
 }

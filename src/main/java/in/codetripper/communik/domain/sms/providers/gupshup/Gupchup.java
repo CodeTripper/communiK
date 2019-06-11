@@ -14,11 +14,12 @@
 package in.codetripper.communik.domain.sms.providers.gupshup;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import in.codetripper.communik.domain.notification.NotificationMessage;
 import in.codetripper.communik.domain.notification.NotificationStatusResponse;
 import in.codetripper.communik.domain.notification.Type;
 import in.codetripper.communik.domain.provider.Provider;
 import in.codetripper.communik.domain.provider.ProviderService;
-import in.codetripper.communik.domain.sms.Sms;
+import in.codetripper.communik.domain.sms.SmsId;
 import in.codetripper.communik.domain.sms.SmsNotifier;
 import in.codetripper.communik.exceptions.NotificationSendFailedException;
 import java.time.LocalDateTime;
@@ -36,13 +37,14 @@ import reactor.core.publisher.Mono;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class Gupchup implements SmsNotifier<Sms> {
+public class Gupchup implements SmsNotifier<SmsId> {
 
   private final ProviderService providerService;
   String providerId = "12001";
 
   @Override
-  public Mono<NotificationStatusResponse> send(Sms sms) throws NotificationSendFailedException {
+  public Mono<NotificationStatusResponse> send(NotificationMessage sms)
+      throws NotificationSendFailedException {
     Mono<NotificationStatusResponse> response = null;
     Provider provider = providerService.getProvider(providerId);
     GupchupRequest gupchupRequest = new GupchupRequest();

@@ -15,5 +15,5 @@ package in.codetripper.communik.repository.mongo;
 
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 
-public interface ProviderRepository extends ReactiveMongoRepository<ProviderRepoDto, String> {
+public interface ProviderRepository<T> extends ReactiveMongoRepository<ProviderRepoDto<T>, String> {
 }

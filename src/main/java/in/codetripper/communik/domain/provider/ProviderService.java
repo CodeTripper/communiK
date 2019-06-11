@@ -25,7 +25,7 @@ import reactor.core.publisher.Flux;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class ProviderService {
+public class ProviderService<T> {
 
   private final ProviderPersistence providerPersistence;
   private Map<String, Provider> providerMap;
@@ -37,14 +37,13 @@ public class ProviderService {
     try {
       getAllProviders().filter(Provider::isActive)
           .doOnNext(item -> providerMap.put(item.getId(), item))
-          .doOnError(error -> log.error("Error while initializing providers", error))
-          .subscribe();
+          .doOnError(error -> log.error("Error while initializing providers", error)).subscribe();
     } catch (IOException e) {
       log.error("Unable to initialize providers map", e);
     }
   }
 
-  public Provider getProvider(String id) {
+  public Provider<T> getProvider(String id) {
     log.debug("searching providerid {} from providerMap {}", id, providerMap);
     return providerMap.get(id);
   }

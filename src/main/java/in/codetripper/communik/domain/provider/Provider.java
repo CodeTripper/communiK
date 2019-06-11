@@ -21,7 +21,7 @@ import lombok.ToString;
 
 @Data
 @ToString
-public class Provider {
+public class Provider<T> {
 
   private String id;
   private String name;
@@ -35,7 +35,7 @@ public class Provider {
   private LocalDateTime activatedOn;
   private Endpoints endpoints;
   private String authType;
-  private String from;
+  private T from;
   private BearerAuthentication bearerAuthentication;
   private BasicAuthentication basicAuthentication;
   private Server server;

@@ -15,5 +15,5 @@ package in.codetripper.communik.domain.email;
 
 import in.codetripper.communik.domain.notification.Notifier;
 
-public interface EmailNotifier<T> extends Notifier<Email> {
+public interface EmailNotifier<T> extends Notifier<T> {
 }

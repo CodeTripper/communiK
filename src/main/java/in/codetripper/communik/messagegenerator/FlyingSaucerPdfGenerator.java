@@ -24,18 +24,16 @@ import reactor.core.publisher.Mono;
 public class FlyingSaucerPdfGenerator<T> implements MessageGenerator<T, byte[]> {
 
 
-  public Mono<byte[]> generateMessage(String template, T data,
-      String locale)
+  public Mono<byte[]> generateMessage(String template, T data, String locale)
       throws MessageGenerationException {
     return Mono.create(sink -> {
-          ITextRenderer renderer = new ITextRenderer();
-          ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-          renderer.setDocumentFromString(template);
-          renderer.layout();
-          renderer.createPDF(outputStream);
-          sink.success(outputStream.toByteArray());
-        }
-    );
+      ITextRenderer renderer = new ITextRenderer();
+      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+      renderer.setDocumentFromString(template);
+      renderer.layout();
+      renderer.createPDF(outputStream);
+      sink.success(outputStream.toByteArray());
+    });
 
   }
 

@@ -35,39 +35,37 @@ import reactor.core.publisher.Mono;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class Notification<T extends NotificationMessage> {
+public class Notification<T> {
 
   private final NotificationPersistence<T> notificationPersistence;
 
-  public Mono<NotificationStatusResponse> sendNotification(@NonNull T message) {
+  public Mono<NotificationStatusResponse> sendNotification(
+      @NonNull NotificationMessage<T> message) {
     log.debug("About to persist notification for {}", message);
     message.setStatus(Status.NOTIFICATION_NEW);
-    return notificationPersistence.store(message)
-        .timeout(Duration.ofMillis(DB_WRITE_TIMEOUT))
-        .map(status -> updateMessage(message, status))
-        .flatMap(this::notify)
+    return notificationPersistence.store(message).timeout(Duration.ofMillis(DB_WRITE_TIMEOUT))
+        .map(status -> updateMessage(message, status)).flatMap(this::notify)
         .onErrorResume(error -> retry(error, message))
-        .flatMap(status -> updateToRepository(message))
-        .timeout(Duration.ofMillis(DB_WRITE_TIMEOUT))
+        .flatMap(status -> updateToRepository(message)).timeout(Duration.ofMillis(DB_WRITE_TIMEOUT))
         .flatMap(this::createResponse)
-        .onErrorResume(
-            error -> Mono.error(new NotificationSendFailedException(error.getMessage())));
+        .onErrorMap(error -> new NotificationSendFailedException(error.getMessage()));
 
   }
 
-  private Mono<NotificationStatusResponse> notify(@NonNull T message) {
+  private Mono<NotificationStatusResponse> notify(@NonNull NotificationMessage<T> message) {
     NotificationMessage.Notifiers<T> notifiers = message.getNotifiers();
     return notifiers.getPrimary().send(message).timeout(Duration.ofMillis(PROVIDER_TIMEOUT));
   }
 
   @NonNull
-  private T updateMessage(@NonNull T message, NotificationStorageResponse status) {
+  private NotificationMessage<T> updateMessage(@NonNull NotificationMessage<T> message,
+      NotificationStorageResponse status) {
     message.setStatus(Status.NOTIFICATION_STORED);
     message.setId(status.getId());
     return message;
   }
 
-  private Mono<NotificationStatusResponse> retry(Throwable error, T message) {
+  private Mono<NotificationStatusResponse> retry(Throwable error, NotificationMessage<T> message) {
     log.info("primary provider failed to send notification ", error);
     if (error instanceof NotificationPersistenceException) {
       return Mono.error(error);
@@ -80,6 +78,7 @@ public class Notification<T extends NotificationMessage> {
           .orElseGet(() -> Mono.error(new NotificationSendFailedException(error.getMessage())));
     }
   }
+
   private Mono<NotificationStatusResponse> createResponse(NotificationStorageResponse status) {
     NotificationStatusResponse notificationStatusResponse = new NotificationStatusResponse();
     notificationStatusResponse.setResponseId(status.getId());
@@ -89,7 +88,8 @@ public class Notification<T extends NotificationMessage> {
     return Mono.just(notificationStatusResponse);
   }
 
-  private Mono<NotificationStorageResponse> updateToRepository(@NonNull T notificationMessage) {
+  private Mono<NotificationStorageResponse> updateToRepository(
+      @NonNull NotificationMessage<T> notificationMessage) {
     notificationMessage.setStatus(Status.NOTIFICATION_SUCCESS);
     notificationMessage.setAttempts(1);
     NotificationMessage.Action<T> action = new NotificationMessage.Action<>();

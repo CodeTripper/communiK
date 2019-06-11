@@ -11,10 +11,17 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package in.codetripper.communik.domain.sms;
+package in.codetripper.communik.domain.email;
 
-import in.codetripper.communik.domain.notification.Notifier;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-public interface SmsNotifier<T> extends Notifier<T> {
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class EmailId {
 
+  private String name;
+  private String id;
 }

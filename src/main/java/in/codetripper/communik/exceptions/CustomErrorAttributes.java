@@ -38,8 +38,10 @@ class CustomErrorAttributes extends DefaultErrorAttributes {
     final var error = getError(request);
     final var errorAttributes = super.getErrorAttributes(request, false);
     log.debug("tracer {}", tracer.scopeManager().activeSpan());
-    errorAttributes.put(ErrorAttribute.TRACE_ID.value,
-        tracer.scopeManager().activeSpan().context().toTraceId());
+    if (tracer.scopeManager().activeSpan() != null) {
+      errorAttributes.put(ErrorAttribute.TRACE_ID.value,
+          tracer.scopeManager().activeSpan().context().toTraceId());
+    }
     if (error instanceof NotificationSendFailedException
         || error instanceof NotificationPersistenceException) {
       log.debug("Caught an instance of: {}, err: {}", NotificationSendFailedException.class, error);

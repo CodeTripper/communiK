@@ -17,7 +17,7 @@ import static in.codetripper.communik.Constants.TRACE_EMAIL_OPERATION_NAME;
 import static io.netty.util.CharsetUtil.UTF_8;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import in.codetripper.communik.domain.email.Email;
+import in.codetripper.communik.domain.email.EmailId;
 import in.codetripper.communik.domain.email.EmailNotifier;
 import in.codetripper.communik.domain.notification.NotificationMessage;
 import in.codetripper.communik.domain.notification.NotificationStatusResponse;
@@ -50,7 +50,7 @@ import reactor.netty.http.client.HttpClient;
 
 @Service
 @Slf4j
-public class DummyMailer implements EmailNotifier<Email> {
+public class DummyMailer implements EmailNotifier<EmailId> {
 
   private String providerId = "11404";
   private final Tracer tracer;
@@ -65,31 +65,37 @@ public class DummyMailer implements EmailNotifier<Email> {
         .filter(new TracingExchangeFilterFunction(this.tracer,
             Collections
                 .singletonList(new WebClientDecorator(TRACE_EMAIL_OPERATION_NAME, className))))
-        .clientConnector(
-            new ReactorClientHttpConnector(HttpClient.create().wiretap(false)))
+        .clientConnector(new ReactorClientHttpConnector(HttpClient.create().wiretap(false)))
         .baseUrl(provider.getEndpoints().getBase()).build();
   }
 
   @Override
-  public Mono<NotificationStatusResponse> send(Email email) throws NotificationSendFailedException {
+  public Mono<NotificationStatusResponse> send(NotificationMessage<EmailId> email)
+      throws NotificationSendFailedException {
     DummyMailerRequest dummyMailerRequest = new DummyMailerRequest();
     dummyMailerRequest.setTo(email.getTo());
     dummyMailerRequest.setSubject(email.getSubject());
     dummyMailerRequest.setMessage(email.getBodyTobeSent());
     dummyMailerRequest.setCc(email.getCc());
     dummyMailerRequest.setBcc(email.getBcc());
-    dummyMailerRequest.setReplyTo(email.getReplyTo());
+    if (email.getReplyTo() != null) {
+      EmailId replyTo = email.getReplyTo();
+      dummyMailerRequest.setReplyTo(replyTo.getId());
+    }
+
     List<NotificationMessage.Attachment> atts = email.getAttachments();
-    List<Attachment> attachments = atts.stream().map(att -> {
-      Attachment dummyAttachment = new Attachment();
-      dummyAttachment.setDisposition(att.getPlacement());
-      dummyAttachment.setType(att.getMediaType());
-      dummyAttachment.setContent_id(UUID.randomUUID().toString());
-      dummyAttachment.setFileName(att.getName());
-      dummyAttachment.setContent(encodeAttachment(att.getContent()));
-      return dummyAttachment;
-    }).collect(Collectors.toList());
-    dummyMailerRequest.setAttachments(attachments);
+    if (atts != null) {
+      List<Attachment> attachments = atts.stream().map(att -> {
+        Attachment dummyAttachment = new Attachment();
+        dummyAttachment.setDisposition(att.getPlacement());
+        dummyAttachment.setType(att.getMediaType());
+        dummyAttachment.setContent_id(UUID.randomUUID().toString());
+        dummyAttachment.setFileName(att.getName());
+        dummyAttachment.setContent(encodeAttachment(att.getContent()));
+        return dummyAttachment;
+      }).collect(Collectors.toList());
+      dummyMailerRequest.setAttachments(attachments);
+    }
     Mono<NotificationStatusResponse> response = null;
     if (provider != null && provider.getType().equalsIgnoreCase(Type.EMAIL.toString())) {
       log.debug("Sending email via provider: {}", provider);
@@ -124,6 +130,7 @@ public class DummyMailer implements EmailNotifier<Email> {
   private String encodeAttachment(byte[] attachment) {
     return Base64.getEncoder().encodeToString(attachment);
   }
+
   @Override
   public boolean isPrimary() {
     return provider != null && provider.isPrimary();
@@ -140,15 +147,15 @@ public class DummyMailer implements EmailNotifier<Email> {
 
   @JsonIgnoreProperties(ignoreUnknown = true)
   @Data
-  public static class DummyMailerRequest {
+  public static class DummyMailerRequest<T> {
 
-    private List<String> to;
+    private List<T> to;
     private String message;
     private String subject;
     private String from;
     private String replyTo;
-    private String cc;
-    private String bcc;
+    private List<T> cc;
+    private List<T> bcc;
     private List<DummyMailer.Attachment> attachments;
 
   }

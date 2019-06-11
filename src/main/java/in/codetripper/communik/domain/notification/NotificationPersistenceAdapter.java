@@ -34,48 +34,45 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 @ConditionalOnProperty(value = "notification.persistence", havingValue = "mongo",
     matchIfMissing = true)
-public class NotificationPersistenceAdapter implements NotificationPersistence {
+public class NotificationPersistenceAdapter<T> implements NotificationPersistence<T> {
 
-  private final NotificationMessageRepository notificationRepository;
-  private final NotificationMapper notificationMapper;
+  private final NotificationMessageRepository<T> notificationRepository;
+  private final NotificationMapper<T> notificationMapper;
 
 
   @Override
   @HystrixCommand
-  public Mono<NotificationStorageResponse> store(NotificationMessage notificationMessage) {
+  public Mono<NotificationStorageResponse> store(NotificationMessage<T> notificationMessage) {
 
-    NotificationMessageRepoDto notificationMessageDto =
+    NotificationMessageRepoDto<T> notificationMessageDto =
         notificationMapper.mapMessageToDto(notificationMessage);
     return notificationRepository.insert(notificationMessageDto).map(this::createResponse)
         .onErrorMap(error -> new NotificationPersistenceException(
             NOTIFICATION_PERSISTENCE_UNABLE_TO_SAVE, error))
         .doOnSuccess(message -> log.debug("Saved message to Mongo with data {}", message))
-        .doOnError(
-            error -> log.error("could not save message to Mongo with data ", error));
+        .doOnError(error -> log.error("could not save message to Mongo with data ", error));
 
   }
 
 
   @Override
   @HystrixCommand
-  public Mono<NotificationStorageResponse> update(NotificationMessage notificationMessage) {
+  public Mono<NotificationStorageResponse> update(NotificationMessage<T> notificationMessage) {
     log.debug("Received for updation to Mongo pre mapped data {}", notificationMessage);
     if (Strings.isNullOrEmpty(notificationMessage.getId())) {
       throw new NotificationPersistenceException(NOTIFICATION_PERSISTENCE_ID_NOT_PRESENT);
     }
-    NotificationMessageRepoDto notificationMessageDto =
+    NotificationMessageRepoDto<T> notificationMessageDto =
         notificationMapper.mapMessageToDto(notificationMessage);
     log.debug("Received for updation to Mongo post mapped data {}", notificationMessageDto);
     return notificationRepository.save(notificationMessageDto).map(this::createResponse)
         .onErrorMap(error -> new NotificationPersistenceException(
             NOTIFICATION_PERSISTENCE_UNABLE_TO_UPDATE, error))
         .doOnSuccess(message -> log.debug("Updated message to Mongo with data {}", message))
-        .doOnError(
-            (error -> log.error("could not update message to Mongo with data ", error)));
+        .doOnError((error -> log.error("could not update message to Mongo with data ", error)));
   }
 
-  private NotificationStorageResponse createResponse(
-      NotificationMessageRepoDto message) {
+  private NotificationStorageResponse createResponse(NotificationMessageRepoDto<T> message) {
     NotificationStorageResponse notificationStorageResponse = new NotificationStorageResponse();
     notificationStorageResponse.setId(message.getId());
     notificationStorageResponse.setStatus(true);
@@ -84,15 +81,17 @@ public class NotificationPersistenceAdapter implements NotificationPersistence {
 
   @Override
   @HystrixCommand
-  public Mono<NotificationMessageRepoDto> status(String id) {
-    return notificationRepository.findById(id);
+  public Mono<NotificationMessage<T>> status(String id) {
+    // NotificationMessageRepoDto notificationMessageRepoDto = notificationRepository.findById(id);
+    return null; // FIXME
 
   }
 
   @Override
   @HystrixCommand
-  public Flux<NotificationMessageRepoDto> getAll() {
-    return notificationRepository.findAll();
+  public Flux<NotificationMessage<T>> getAll() {
+    // return notificationRepository.findAll();
+    return null; // FIXME
   }
 
 }

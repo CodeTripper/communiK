@@ -16,9 +16,9 @@ package in.codetripper.communik.domain.notification;
 import in.codetripper.communik.exceptions.NotificationSendFailedException;
 import reactor.core.publisher.Mono;
 
-public interface Notifier<T extends NotificationMessage> {
+public interface Notifier<T> {
 
-  Mono<NotificationStatusResponse> send(T notificationMessage)
+  Mono<NotificationStatusResponse> send(NotificationMessage<T> notificationMessage)
       throws NotificationSendFailedException;
 
   boolean isPrimary();

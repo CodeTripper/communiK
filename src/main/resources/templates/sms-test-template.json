@@ -6,5 +6,5 @@
   "type": "SMS",
   "active": true,
   "owner": "HK",
-  "body": "Hi ${body.data.to} Your salary ${body.message} and has been credited on  "
+  "body": "Hi ${data.to} Your salary ${message} and has been credited on  "
 }

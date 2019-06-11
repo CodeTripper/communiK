@@ -17,8 +17,7 @@ import static in.codetripper.communik.Constants.TRACE_EMAIL_OPERATION_NAME;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Strings;
-import in.codetripper.communik.domain.email.Email;
+import in.codetripper.communik.domain.email.EmailId;
 import in.codetripper.communik.domain.email.EmailNotifier;
 import in.codetripper.communik.domain.notification.NotificationMessage;
 import in.codetripper.communik.domain.notification.NotificationStatusResponse;
@@ -54,14 +53,14 @@ import reactor.netty.http.client.HttpClient;
 
 @Service
 @Slf4j
-public class SendGrid implements EmailNotifier<Email> {
+public class SendGrid implements EmailNotifier<EmailId> {
 
   private String providerId = "11002";
   private final Tracer tracer;
-  private Provider provider;
+  private Provider<EmailId> provider;
   private WebClient client;
 
-  public SendGrid(ProviderService providerService, Tracer tracer) {
+  public SendGrid(ProviderService<EmailId> providerService, Tracer tracer) {
     this.tracer = tracer;
     provider = providerService.getProvider(providerId);
     String className = DummyMailer.class.getSimpleName();
@@ -69,13 +68,13 @@ public class SendGrid implements EmailNotifier<Email> {
         .filter(new TracingExchangeFilterFunction(this.tracer,
             Collections
                 .singletonList(new WebClientDecorator(TRACE_EMAIL_OPERATION_NAME, className))))
-        .clientConnector(
-            new ReactorClientHttpConnector(HttpClient.create().wiretap(true)))
+        .clientConnector(new ReactorClientHttpConnector(HttpClient.create().wiretap(true)))
         .baseUrl(provider.getEndpoints().getBase()).build();
   }
 
   @Override
-  public Mono<NotificationStatusResponse> send(Email email) throws NotificationSendFailedException {
+  public Mono<NotificationStatusResponse> send(NotificationMessage<EmailId> email)
+      throws NotificationSendFailedException {
 
     Mono<NotificationStatusResponse> response = null;
     if (provider.getType().equalsIgnoreCase(Type.EMAIL.toString())) {
@@ -116,21 +115,26 @@ public class SendGrid implements EmailNotifier<Email> {
     return response;
   }
 
-  private SendGridRequest createSendGridRequest(Provider provider, Email email) {
+  private SendGridRequest createSendGridRequest(Provider<EmailId> provider,
+      NotificationMessage<EmailId> email) {
 
     SendGridRequest sendGridRequest = new SendGridRequest();
     Personalization personalization = new Personalization();
-    String fromStr = email.getFrom();
-    if (Strings.isNullOrEmpty(fromStr)) {
-      fromStr = provider.getFrom();
-    }
-    var from = new Personalization.EmailEntity(fromStr);
+    EmailId fromEmail = email.getFrom();
+    /*
+     * if (fromEmail==null) { fromEmail = provider.getFrom(); // FIXME } //var from = new
+     * Personalization.EmailEntity(fromEmail.getId(), fromEmail.getName());
+     *
+     */
+    Personalization.EmailEntity from =
+        new Personalization.EmailEntity("test@example.com", "Sendgrid");
+    sendGridRequest.setFrom(from);
     email.getTo().stream().forEach(t -> {
-      Personalization.EmailEntity to = new Personalization.EmailEntity((String) t);
+      Personalization.EmailEntity to = new Personalization.EmailEntity(t.getId(), t.getName());
       personalization.addTo(to);
     });
 
-    sendGridRequest.setFrom(from);
+
     sendGridRequest.setSubject(email.getSubject());
     sendGridRequest
         .setContent(Arrays.asList(Map.of("type", "text/html", "value", email.getBodyTobeSent())));
@@ -192,7 +196,7 @@ public class SendGrid implements EmailNotifier<Email> {
     public static class EmailEntity {
 
       private String email;
-      // private String email;
+      private String name;
     }
 
     @Data

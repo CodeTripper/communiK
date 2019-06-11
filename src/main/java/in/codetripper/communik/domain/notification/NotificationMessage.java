@@ -41,14 +41,14 @@ import lombok.extern.slf4j.Slf4j;
 public class NotificationMessage<T> implements Serializable {
 
   private String id; // from DB
-  private List<String> to;
+  private List<T> to;
   private String bodyTobeSent;
 
   private @NotNull Container body;
   private List<Attachment> attachments;
   private Meta meta;
   private Status status;
-  private Notifiers<? extends NotificationMessage> notifiers;
+  private Notifiers<T> notifiers;
   private List<NotificationMessage.Action> actions;
   private List<NotificationMessage.BlackOut> blackouts;
   private LocalDateTime lastUpdated;
@@ -56,9 +56,12 @@ public class NotificationMessage<T> implements Serializable {
   private int deadLine;
   private String templateId;
   private String locale;
-  private String from;
+  private T from;
   private String mediaType;
-
+  private String subject;
+  private List<T> cc;
+  private List<T> bcc;
+  private T replyTo;
 
   @Data
   @NoArgsConstructor
@@ -94,14 +97,14 @@ public class NotificationMessage<T> implements Serializable {
   }
 
   @Data
-  public static class Notifiers<K extends NotificationMessage> {
+  public static class Notifiers<K> {
 
     private Notifier<K> primary;
     private List<? extends Notifier<K>> backup;
   }
 
   @Data
-  public static class Action<K extends NotificationMessage> {
+  public static class Action<T> {
 
     private String notifier;
     private String requestId;

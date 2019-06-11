@@ -22,7 +22,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "NotificationTemplate")
 @Data
-public class NotificationTemplateRepoDto {
+public class NotificationTemplateRepoDto<T> {
 
   private String id;
   private String name;
@@ -35,9 +35,9 @@ public class NotificationTemplateRepoDto {
   private String owner;
   private String body;
   private List<Container> attachments;
-  private List<String> bcc;
-  private List<String> cc;
-  private String replyTo;
+  private List<T> bcc;
+  private List<T> cc;
+  private T replyTo;
   private String mediaType;
 
   @Data

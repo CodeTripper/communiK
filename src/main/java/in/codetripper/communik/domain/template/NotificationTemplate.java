@@ -24,7 +24,7 @@ import lombok.ToString;
 
 @ToString
 @Data
-public class NotificationTemplate implements Serializable {
+public class NotificationTemplate<T> implements Serializable {
 
   private String id;
   private String name;
@@ -38,11 +38,12 @@ public class NotificationTemplate implements Serializable {
   private String owner;
   private String body;
   private List<Container> attachments;
-  private List<String> bcc;
-  private List<String> cc;
-  private String replyTo;
-  private String from;
+  private List<T> bcc;
+  private List<T> cc;
+  private T replyTo;
+  private T from;
   private String mediaType;
+
   @Data
   @NoArgsConstructor
   public static class Container {

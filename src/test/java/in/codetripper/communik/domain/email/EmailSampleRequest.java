@@ -21,7 +21,7 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class EmailSampleRequest {
 
-  private List<String> to;
+  private List<EmailId> to;
   private String subject;
   private Type type;
   private Map<String, Object> body;
@@ -33,11 +33,11 @@ public class EmailSampleRequest {
   private String ipAddress;
 
 
-  public List<String> getTo() {
+  public List<EmailId> getTo() {
     return to;
   }
 
-  public void setTo(List<String> to) {
+  public void setTo(List<EmailId> to) {
     this.to = to;
   }
 

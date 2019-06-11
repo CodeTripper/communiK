@@ -12,6 +12,10 @@
   "type": "EMAIL",
   "timeOutInMs": 3000,
   "active": true,
+  "from": {
+    "id": "test@example.com",
+    "name": "Mailgun Tester"
+  },
   "primary": false,
   "endpoints": {
     "base": "https://api.mailgun.net/v3/sandboxbb8993410ffc433dbb95623d35af5581.mailgun.org/",

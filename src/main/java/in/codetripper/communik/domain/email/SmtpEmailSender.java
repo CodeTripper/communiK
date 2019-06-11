@@ -13,6 +13,7 @@
  */
 package in.codetripper.communik.domain.email;
 
+import in.codetripper.communik.domain.notification.NotificationMessage;
 import in.codetripper.communik.domain.notification.NotificationStatusResponse;
 import in.codetripper.communik.exceptions.NotificationSendFailedException;
 import java.util.List;
@@ -29,7 +30,7 @@ import reactor.core.publisher.Mono;
 /*
  * WARNING DO NOT USE. SMTP is blocking.This is only for test purpose.
  */
-public abstract class SmtpEmailSender implements EmailNotifier<Email> {
+public abstract class SmtpEmailSender implements EmailNotifier<EmailId> {
 
   private final JavaMailSenderImpl sender;
 
@@ -39,7 +40,7 @@ public abstract class SmtpEmailSender implements EmailNotifier<Email> {
   }
 
   @Override
-  public final Mono<NotificationStatusResponse> send(Email email)
+  public final Mono<NotificationStatusResponse> send(NotificationMessage<EmailId> email)
       throws NotificationSendFailedException {
     log.debug("starting email sender");
     try {
@@ -52,7 +53,8 @@ public abstract class SmtpEmailSender implements EmailNotifier<Email> {
     return null;
   }
 
-  private boolean process(Email email) throws MailException, MessagingException {
+  private boolean process(NotificationMessage<EmailId> email)
+      throws MailException, MessagingException {
     EmailConfiguration emailConfiguration = getMailConfiguration();
     sender.setHost(emailConfiguration.getHost());
     sender.setPassword(emailConfiguration.getPassword());
@@ -62,16 +64,18 @@ public abstract class SmtpEmailSender implements EmailNotifier<Email> {
     sender.setJavaMailProperties(getMailProperties());
     MimeMessage message = sender.createMimeMessage();
     MimeMessageHelper helper = new MimeMessageHelper(message, true);
-    List<String> list = email.getTo();
+    List<EmailId> list = email.getTo();
     helper.setTo(list.toArray(new String[0]));
     helper.setSubject(email.getSubject());
     helper.setText(email.getBodyTobeSent());
 
-    //if (email.getAttachment() != null) {
-    /*  FileSystemResource file =
-          new FileSystemResource(new File(email.getAttachment().getMessage()));*/
-      //helper.addAttachment("CoolImage.jpg", null);
-    //}
+    // if (email.getAttachment() != null) {
+    /*
+     * FileSystemResource file = new FileSystemResource(new
+     * File(email.getAttachment().getMessage()));
+     */
+    // helper.addAttachment("CoolImage.jpg", null);
+    // }
     sender.send(message);
     return true;
 
@@ -81,8 +85,8 @@ public abstract class SmtpEmailSender implements EmailNotifier<Email> {
 
   protected abstract Properties getMailProperties();
 
-  protected abstract Properties preProcess(Email email);
+  protected abstract Properties preProcess(NotificationMessage<EmailId> email);
 
-  protected abstract Properties postProcess(Email email);
+  protected abstract Properties postProcess(NotificationMessage<EmailId> email);
 
 }

@@ -22,78 +22,86 @@ import static in.codetripper.communik.exceptions.ExceptionConstants.NO_PRIMARY_P
 import com.google.common.base.Strings;
 import in.codetripper.communik.domain.notification.Notification;
 import in.codetripper.communik.domain.notification.NotificationMessage;
+import in.codetripper.communik.domain.notification.NotificationPersistence;
 import in.codetripper.communik.domain.notification.NotificationStatusResponse;
 import in.codetripper.communik.domain.template.NotificationTemplate;
 import in.codetripper.communik.domain.template.NotificationTemplateService;
 import in.codetripper.communik.exceptions.InvalidRequestException;
 import in.codetripper.communik.exceptions.NotificationPersistenceException;
-import in.codetripper.communik.exceptions.NotificationSendFailedException;
+import in.codetripper.communik.messagegenerator.AttachmentHandler;
 import in.codetripper.communik.messagegenerator.MessageGenerator;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-@Slf4j
 @Component
+@Slf4j
 @RequiredArgsConstructor
 class SmsServiceImpl implements SmsService {
 
-  private final NotificationTemplateService templateService;
-  private final Notification<Sms> notificationHandler;
-  private final MessageGenerator<SmsDto, String> messageGenerator;
-  private final Map<String, SmsNotifier<Sms>> providers;
+  private final Notification<NotificationMessage> notificationHandler;
+  private final MessageGenerator<SmsDto.Container, String> messageGenerator;
+  private final Map<String, SmsNotifier<SmsId>> providers;
+  private final NotificationPersistence<NotificationMessage<SmsId>> notificationPersistence; // TODO
+  // here?
   private final SmsMapper smsMapper;
+  private final NotificationTemplateService templateService;
+  private final Map<String, AttachmentHandler<SmsDto.Container, byte[]>> attachmentHandlers;
 
   @Override
   public Mono<NotificationStatusResponse> sendSms(SmsDto smsDto) {
-    // validate all data present in SMS dto?
+    log.debug("smsDTO {}", smsDto);
     return templateService.get(smsDto.getTemplateId()).timeout(Duration.ofMillis(DB_READ_TIMEOUT))
-        .single().map(this::validateTemplate).onErrorMap(original -> {
-          if (original instanceof TimeoutException) {
-            return new NotificationPersistenceException(NOTIFICATION_PERSISTENCE_DB_TIMED_OUT);
-          } else {
-            return new InvalidRequestException(INVALID_REQUEST_TEMPLATE_NOT_FOUND);
-          }
-        })
-        .onErrorMap(original -> new NotificationSendFailedException(original.getMessage()))
-        .map(t -> prepareSms(t, smsDto)).flatMap(notificationHandler::sendNotification)
-        .doOnError(err -> log.error("Error while sending Sms", err))
-        .onErrorMap(original -> new NotificationSendFailedException(original.getMessage()));
+        .single().map(this::validateTemplate).onErrorMap(this::getThrowable)
+        .map(template -> new SmsRequest(template, smsDto, smsMapper.smsDtoToSms(smsDto)))
+        .flatMap(this::generateBody).map(this::prepareSms)
+        .flatMap(notificationHandler::sendNotification)
+        .doOnError(error -> log.error("Error while sending Sms", error));
   }
 
-  private Sms prepareSms(NotificationTemplate template, SmsDto smsDto) {
-    log.debug("sms called with provider {} for providers {}", smsDto.getProviderName(),
-        providers);
-    String message = generateMessage(template, smsDto);
-    Sms sms = smsMapper.smsDtoToSms(smsDto);
-
-    if (Strings.isNullOrEmpty(sms.getFrom())) {
-      sms.setFrom(template.getFrom());
+  private Throwable getThrowable(Throwable error) {
+    log.error("error while processing template", error);
+    if (error instanceof TimeoutException) {
+      return new NotificationPersistenceException(NOTIFICATION_PERSISTENCE_DB_TIMED_OUT);
+    } else {
+      return new InvalidRequestException(INVALID_REQUEST_TEMPLATE_NOT_FOUND);
     }
+  }
 
-    sms.setBodyTobeSent(message);
-    NotificationMessage.Notifiers<Sms> notifiers = new NotificationMessage.Notifiers<>();
-    var defaultProvider = providers.entrySet().stream()
+
+  private NotificationMessage prepareSms(SmsRequest smsRequest) {
+    SmsDto smsDto = smsRequest.getSmsDto();
+    NotificationMessage<SmsId> sms = smsRequest.getSms();
+    NotificationTemplate<SmsId> notificationTemplate = smsRequest.getNotificationTemplate();
+    log.debug("sms called with provider {} from provider list {}", smsDto.getProviderName(),
+        providers);
+    if (sms.getFrom() != null) {
+      sms.setFrom(notificationTemplate.getFrom());
+    }
+    NotificationMessage.Notifiers<SmsId> notifiers = new NotificationMessage.Notifiers<>();
+    // TODO do not need to call all for default
+    var primaryProvider = providers.entrySet().stream()
         .filter(provider -> provider.getValue().isPrimary()).findFirst();
-
     var requestedProvider = providers.get(smsDto.getProviderName());
     if (requestedProvider == null) {
-      if (defaultProvider.isPresent()) {
-        requestedProvider = defaultProvider.get().getValue();
+
+      if (primaryProvider.isPresent()) {
+        requestedProvider = primaryProvider.get().getValue();
       } else {
         throw new RuntimeException(NO_PRIMARY_PROVIDER);
       }
     }
     var backups = providers.entrySet().stream()
-        .filter(provider -> defaultProvider
+        .filter(provider -> primaryProvider
             .map(notifierEntry -> provider.getKey().equalsIgnoreCase(notifierEntry.getKey()))
             .orElse(true))
         .map(Entry::getValue).collect(Collectors.toList());
@@ -104,8 +112,8 @@ class SmsServiceImpl implements SmsService {
     NotificationMessage.Meta meta = new NotificationMessage.Meta();
     meta.setSenderIp(smsDto.getIpAddress());
     meta.setType(getType());
-    meta.setCategory(template.getCategory());
-    meta.setLob(template.getLob());
+    meta.setCategory(notificationTemplate.getCategory());
+    meta.setLob(notificationTemplate.getLob());
     meta.setCreated(LocalDateTime.now());
     sms.setMeta(meta);
     return sms;
@@ -115,28 +123,49 @@ class SmsServiceImpl implements SmsService {
     log.debug("validating template {}", template);
     if (template == null) {
       throw new InvalidRequestException(INVALID_REQUEST_TEMPLATE_NOT_FOUND);
-    } else if (!template.getType().equals(getType())) {
+    }
+    if (!template.getType().equals(getType())) {
       throw new InvalidRequestException(INVALID_REQUEST_TEMPLATE_MISMATCH);
     }
     return template;
   }
 
+
+  private Mono<SmsRequest> generateBody(SmsRequest smsRequest) {
+    SmsDto smsDto = smsRequest.getSmsDto();
+    NotificationMessage sms = smsRequest.getSms();
+    return getMessage(smsDto).switchIfEmpty(Mono.defer(
+        () -> messageGenerator.generateMessage(smsRequest.getNotificationTemplate().getBody(),
+            smsDto.getBody(), smsDto.getLocale())))
+        .map(t -> {
+          sms.setBodyTobeSent(t);
+          smsRequest.setSms(sms);
+          return smsRequest;
+        });
+
+  }
+
+  private Mono<String> getMessage(SmsDto smsDto) {
+    Mono<String> message = Mono.empty();
+    if (Strings.isNullOrEmpty(smsDto.getTemplateId())) {
+      message = Mono.just(smsDto.getBody().getMessage());
+    }
+    return message;
+  }
+
   @Override
   public NotificationStatusResponse getSmsStatus(String id) {
-    // notificationHandler.getNotificationStatus(id);
     return null;
   }
 
-  private String generateMessage(NotificationTemplate template, SmsDto smsDto) {
 
-    Locale userLocale = Strings.isNullOrEmpty(smsDto.getLocale()) ? Locale.getDefault()
-        : Locale.forLanguageTag(smsDto.getLocale());
-    String message = ""; // FIXME // Strings.isNullOrEmpty(smsDto.getTemplateId()) ? smsDto.getBody().getMessage()
-    //: messageGenerator.generateMessage(template.getBody(), smsDto, userLocale);
-    log.debug("generated message {}", message);
-    return message;
+  @Data
+  @AllArgsConstructor
+  public static class SmsRequest {
+
+    private NotificationTemplate<SmsId> notificationTemplate;
+    private SmsDto smsDto;
+    private NotificationMessage<SmsId> sms;
 
   }
-
-
 }

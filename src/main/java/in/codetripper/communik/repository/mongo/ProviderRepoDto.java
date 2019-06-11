@@ -23,7 +23,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @Document(collection = "Providers")
-public class ProviderRepoDto {
+public class ProviderRepoDto<K> {
 
   private @Id
   String id;
@@ -38,7 +38,7 @@ public class ProviderRepoDto {
   private LocalDateTime activatedOn;
   private Endpoints endpoints;
   private String authType;
-  private String from;
+  private K from;
   private BearerAuthentication bearerAuthentication;
   private BasicAuthentication basicAuthentication;
   private Provider.Server server;

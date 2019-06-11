@@ -21,7 +21,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import lombok.Data;
@@ -33,7 +32,10 @@ import lombok.ToString;
 public class EmailDto implements Serializable {
 
   @EmailList
-  private List<String> to;
+  private List<EmailId> to;
+  /*
+   * private List<EmailId> cc; private List<EmailId> bcc;
+   */
   @NotBlank(message = "Subject must be between {min} and {max} characters long")
   @Size(min = 1, max = 100)
   private String subject;
@@ -41,18 +43,21 @@ public class EmailDto implements Serializable {
   private Type type = Type.EMAIL;
   private Container body;
   private Container attachment;
-  @Size(min = 1, max = 100, message = "The templateId must be between {min} and {max} characters long")
+  @Size(min = 1, max = 100,
+      message = "The templateId must be between {min} and {max} characters long")
   private String templateId;
-  @Size(min = 1, max = 100, message = "The providerName must be between {min} and {max} characters long")
+  @Size(min = 1, max = 100,
+      message = "The providerName must be between {min} and {max} characters long")
   private String providerName;
   @Size(min = 1, max = 100, message = "The locale' must be between {min} and {max} characters long")
   private String locale = Locale.getDefault().toString();
-  @Email
-  @Size(min = 1, max = 100, message = "The replyTo email id  must be between {min} and {max} characters long")
-  private String replyTo;
+  // @Size(min = 1, max = 100, message = "The replyTo email id must be between {min} and {max}
+  // characters long")
+  private EmailId replyTo;
   @JsonIgnore
   private String ipAddress;
-  @Size(min = 1, max = 100, message = "The mediaType must be between {min} and {max} characters long")
+  @Size(min = 1, max = 100,
+      message = "The mediaType must be between {min} and {max} characters long")
   private String mediaType;
 
   @Data

@@ -29,7 +29,6 @@ import in.codetripper.communik.domain.template.NotificationTemplate;
 import in.codetripper.communik.domain.template.NotificationTemplateService;
 import in.codetripper.communik.exceptions.InvalidRequestException;
 import in.codetripper.communik.exceptions.NotificationPersistenceException;
-import in.codetripper.communik.exceptions.NotificationSendFailedException;
 import in.codetripper.communik.messagegenerator.AttachmentHandler;
 import in.codetripper.communik.messagegenerator.MessageGenerator;
 import in.codetripper.communik.repository.mongo.NotificationMessageRepoDto;
@@ -52,10 +51,11 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 class EmailServiceImpl implements EmailService {
 
-  private final Notification<Email> notificationHandler;
+  private final Notification<NotificationMessage> notificationHandler;
   private final MessageGenerator<EmailDto.Container, String> messageGenerator;
-  private final Map<String, EmailNotifier<Email>> providers;
-  private final NotificationPersistence<Email> notificationPersistence; // TODO here?
+  private final Map<String, EmailNotifier<EmailId>> providers;
+  private final NotificationPersistence<NotificationMessage<EmailId>> notificationPersistence; // TODO
+  // here?
   private final EmailMapper emailMapper;
   private final NotificationTemplateService templateService;
   private final Map<String, AttachmentHandler<EmailDto.Container, byte[]>> attachmentHandlers;
@@ -66,12 +66,9 @@ class EmailServiceImpl implements EmailService {
         .single().map(this::validateTemplate).onErrorMap(this::getThrowable)
         .map(
             template -> new EmailRequest(template, emailDto, emailMapper.emailDtoToEmail(emailDto)))
-        .flatMap(this::generateAttachment)
-        .flatMap(this::generateBody)
-        .map(this::prepareEmail)
+        .flatMap(this::generateAttachment).flatMap(this::generateBody).map(this::prepareEmail)
         .flatMap(notificationHandler::sendNotification)
-        .doOnError(err -> log.error("Error while sending Email", err))
-        .onErrorMap(original -> new NotificationSendFailedException(original.getMessage()));
+        .doOnError(error -> log.error("Error while sending Email", error));
   }
 
   private Throwable getThrowable(Throwable error) {
@@ -85,24 +82,23 @@ class EmailServiceImpl implements EmailService {
 
   @Override
   public Flux<NotificationMessageRepoDto> getAllEmails() {
-
-    return notificationPersistence.getAll();
+    return Flux.empty();
   }
 
-  private Email prepareEmail(EmailRequest emailRequest) {
+  private NotificationMessage prepareEmail(EmailRequest emailRequest) {
     EmailDto emailDto = emailRequest.getEmailDto();
-    Email email = emailRequest.getEmail();
-    NotificationTemplate notificationTemplate = emailRequest.getNotificationTemplate();
+    NotificationMessage<EmailId> email = emailRequest.getEmail();
+    NotificationTemplate<EmailId> notificationTemplate = emailRequest.getNotificationTemplate();
     log.debug("email called with provider {} from provider list {}", emailDto.getProviderName(),
         providers);
 
-    if (Strings.isNullOrEmpty(email.getReplyTo())) {
+    if (email.getReplyTo() != null) {
       email.setReplyTo(notificationTemplate.getReplyTo());
     }
-    if (Strings.isNullOrEmpty(email.getFrom())) {
+    if (email.getFrom() != null) {
       email.setFrom(notificationTemplate.getFrom());
     }
-    NotificationMessage.Notifiers<Email> notifiers = new NotificationMessage.Notifiers<>();
+    NotificationMessage.Notifiers<EmailId> notifiers = new NotificationMessage.Notifiers<>();
     // TODO do not need to call all for default
     var primaryProvider = providers.entrySet().stream()
         .filter(provider -> provider.getValue().isPrimary()).findFirst();
@@ -148,15 +144,12 @@ class EmailServiceImpl implements EmailService {
 
   private Mono<EmailRequest> generateBody(EmailRequest emailRequest) {
     EmailDto emailDto = emailRequest.getEmailDto();
-    Email email = emailRequest.getEmail();
+    NotificationMessage email = emailRequest.getEmail();
     String message = null;
-    if (Strings.isNullOrEmpty(emailDto.getTemplateId())) {
-      message = emailDto.getBody().getMessage();
-    }
-    return Mono.justOrEmpty(message)
-        .switchIfEmpty(messageGenerator
-            .generateMessage(emailRequest.getNotificationTemplate().getBody(), emailDto.getBody(),
-                emailDto.getLocale()))
+
+    return getMessage(emailDto).switchIfEmpty(Mono.defer(
+        () -> messageGenerator.generateMessage(emailRequest.getNotificationTemplate().getBody(),
+            emailDto.getBody(), emailDto.getLocale())))
         .map(t -> {
           email.setBodyTobeSent(t);
           emailRequest.setEmail(email);
@@ -165,15 +158,24 @@ class EmailServiceImpl implements EmailService {
 
   }
 
+  private Mono<String> getMessage(EmailDto emailDto) {
+    Mono<String> message;
+    if (Strings.isNullOrEmpty(emailDto.getTemplateId())) {
+      message = Mono.just(emailDto.getBody().getMessage());
+    } else {
+      message = Mono.empty();
+    }
+    return message;
+  }
+
   private Mono<EmailRequest> generateAttachment(EmailRequest emailRequest) {
     if (emailRequest.getNotificationTemplate().getAttachments() != null) {
       return Flux.fromIterable(emailRequest.getNotificationTemplate().getAttachments())
           .flatMap(attachmentTemplate -> {
-            AttachmentHandler<EmailDto.Container, byte[]> handler = attachmentHandlers
-                .get(attachmentTemplate.getMethod());
-            return handler
-                .get(attachmentTemplate.getSource(), emailRequest.getEmailDto().getAttachment(),
-                    emailRequest.getEmailDto().getLocale())
+            AttachmentHandler<EmailDto.Container, byte[]> handler =
+                attachmentHandlers.get(attachmentTemplate.getMethod());
+            return handler.get(attachmentTemplate.getSource(),
+                emailRequest.getEmailDto().getAttachment(), emailRequest.getEmailDto().getLocale())
                 .map(content -> {
                   Attachment attachment = new Attachment();
                   attachment.setName(attachmentTemplate.getName());
@@ -185,8 +187,7 @@ class EmailServiceImpl implements EmailService {
                   log.error("attachment creation failed", e);
                   return Mono.empty();
                 });
-          }).collect(Collectors.toList())
-          .map(e -> {
+          }).collect(Collectors.toList()).map(e -> {
             emailRequest.getEmail().setAttachments(e);
             return emailRequest;
           });
@@ -200,9 +201,9 @@ class EmailServiceImpl implements EmailService {
   @AllArgsConstructor
   public static class EmailRequest {
 
-    private NotificationTemplate notificationTemplate;
+    private NotificationTemplate<EmailId> notificationTemplate;
     private EmailDto emailDto;
-    private Email email;
+    private NotificationMessage<EmailId> email;
 
   }
 }

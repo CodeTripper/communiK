@@ -14,9 +14,10 @@
 package in.codetripper.communik.domain.sms.providers.twofactor;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import in.codetripper.communik.domain.notification.NotificationMessage;
 import in.codetripper.communik.domain.notification.NotificationStatusResponse;
 import in.codetripper.communik.domain.provider.ProviderService;
-import in.codetripper.communik.domain.sms.Sms;
+import in.codetripper.communik.domain.sms.SmsId;
 import in.codetripper.communik.domain.sms.SmsNotifier;
 import in.codetripper.communik.exceptions.NotificationSendFailedException;
 import lombok.RequiredArgsConstructor;
@@ -25,16 +26,15 @@ import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
-public class TwoFactorSmsNotifier implements SmsNotifier<Sms> {
+public class TwoFactorSmsNotifier implements SmsNotifier<SmsId> {
 
   private ProviderService providerService;
   String providerId = "12002";
 
   @Override
   @HystrixCommand()
-  public Mono<NotificationStatusResponse> send(Sms sms) throws NotificationSendFailedException {
-    System.out.println("Inside Twofactor Notifier" + sms.toString());
-    // ADD web flux webclient to call Gupchup
+  public Mono<NotificationStatusResponse> send(NotificationMessage<SmsId> sms)
+      throws NotificationSendFailedException {
     return null;
   }
 

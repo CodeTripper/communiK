@@ -18,8 +18,9 @@ import static io.netty.util.CharsetUtil.UTF_8;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.base.Strings;
-import in.codetripper.communik.domain.email.Email;
+import in.codetripper.communik.domain.email.EmailId;
 import in.codetripper.communik.domain.email.EmailNotifier;
+import in.codetripper.communik.domain.notification.NotificationMessage;
 import in.codetripper.communik.domain.notification.NotificationStatusResponse;
 import in.codetripper.communik.domain.notification.Type;
 import in.codetripper.communik.domain.provider.Provider;
@@ -30,7 +31,6 @@ import io.opentracing.Tracer;
 import io.opentracing.contrib.spring.web.client.TracingExchangeFilterFunction;
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.stream.Collectors;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -47,7 +47,7 @@ import reactor.netty.http.client.HttpClient;
 
 @Service
 @Slf4j
-public class MailGun implements EmailNotifier<Email> {
+public class MailGun implements EmailNotifier<EmailId> {
 
   private final ProviderService providerService;
   private String providerId = "11001";
@@ -64,13 +64,13 @@ public class MailGun implements EmailNotifier<Email> {
         .filter(new TracingExchangeFilterFunction(this.tracer,
             Collections
                 .singletonList(new WebClientDecorator(TRACE_EMAIL_OPERATION_NAME, className))))
-        .clientConnector(
-            new ReactorClientHttpConnector(HttpClient.create().wiretap(false)))
+        .clientConnector(new ReactorClientHttpConnector(HttpClient.create().wiretap(false)))
         .baseUrl(provider.getEndpoints().getBase()).build();
   }
 
   @Override
-  public Mono<NotificationStatusResponse> send(Email email) throws NotificationSendFailedException {
+  public Mono<NotificationStatusResponse> send(NotificationMessage<EmailId> email)
+      throws NotificationSendFailedException {
     Mono<NotificationStatusResponse> response = null;
 
     if (provider.getType().equalsIgnoreCase(Type.EMAIL.toString())) {
@@ -101,8 +101,7 @@ public class MailGun implements EmailNotifier<Email> {
   private NotificationStatusResponse getNotificationStatusResponse(
       MailGunResponse mailgunResponse) {
     log.debug("mailgunResponse {}", mailgunResponse);
-    NotificationStatusResponse notificationStatusResponse =
-        new NotificationStatusResponse();
+    NotificationStatusResponse notificationStatusResponse = new NotificationStatusResponse();
     notificationStatusResponse.setStatus(200);
     notificationStatusResponse.setTimestamp(LocalDateTime.now());
     notificationStatusResponse.setProviderResponseId(mailgunResponse.getId());
@@ -110,12 +109,12 @@ public class MailGun implements EmailNotifier<Email> {
     return notificationStatusResponse;
   }
 
-  private MultiValueMap<String, Object> getStringObjectMultiValueMap(Email email,
-      Provider provider) {
+  private MultiValueMap<String, Object> getStringObjectMultiValueMap(
+      NotificationMessage<EmailId> email, Provider provider) {
     MultiValueMap<String, Object> formMap = new LinkedMultiValueMap<>();
-    String from = email.getFrom();
-    if (Strings.isNullOrEmpty(from)) {
-      from = provider.getFrom();
+    EmailId from = email.getFrom();
+    if (Strings.isNullOrEmpty(from.getId())) {
+      from = (EmailId) provider.getFrom();
     }
     formMap.add("from", from);
     if (email.getCc() != null) {
@@ -126,8 +125,9 @@ public class MailGun implements EmailNotifier<Email> {
     }
 
     formMap.add("subject", email.getSubject());
-    String tos = (String) email.getTo().stream().collect(Collectors.joining(","));
-    formMap.add("to", tos);
+    // TODO
+    // String tos = (String) email.getTo().stream().collect(Collectors.joining(","));
+    // formMap.add("to", tos);
     formMap.add("html", email.getBodyTobeSent());
     // formMap.add("attachment", email.getA());
     return formMap;

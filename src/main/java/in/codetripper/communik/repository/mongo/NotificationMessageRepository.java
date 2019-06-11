@@ -15,6 +15,6 @@ package in.codetripper.communik.repository.mongo;
 
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 
-public interface NotificationMessageRepository
-    extends ReactiveMongoRepository<NotificationMessageRepoDto, String> {
+public interface NotificationMessageRepository<T>
+    extends ReactiveMongoRepository<NotificationMessageRepoDto<T>, String> {
 }

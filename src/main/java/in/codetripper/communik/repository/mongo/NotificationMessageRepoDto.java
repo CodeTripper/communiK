@@ -28,8 +28,10 @@ public class NotificationMessageRepoDto<T> {
 
   private @Id
   String id;
-  private @NotNull List<String> to;
+  private @NotNull List<T> to;
   private @NotNull NotificationMessage.Container body;
+  private List<T> cc;
+  private List<T> bcc;
   private NotificationMessage.Container attachment;
   private NotificationMessage.Meta meta;
   private Status status;

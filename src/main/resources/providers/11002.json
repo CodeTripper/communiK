@@ -13,7 +13,10 @@
   "timeOutInMs": 3000,
   "active": true,
   "primary": false,
-  "from": "test@@example.com",
+  "from": {
+    "id": "test@example.com",
+    "name": "SendGrid Tester"
+  },
   "endpoints": {
     "base": "https://api.sendgrid.com/v3/",
     "sendUri": "mail/send",

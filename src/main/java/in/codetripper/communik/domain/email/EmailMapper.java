@@ -13,6 +13,7 @@
  */
 package in.codetripper.communik.domain.email;
 
+import in.codetripper.communik.domain.notification.NotificationMessage;
 import org.mapstruct.Mapper;
 import org.springframework.stereotype.Component;
 
@@ -21,8 +22,8 @@ import org.springframework.stereotype.Component;
 @Component
 public interface EmailMapper {
 
-  Email emailDtoToEmail(EmailDto emailDto);
+  NotificationMessage emailDtoToEmail(EmailDto emailDto);
 
-  EmailDto emailToEmailDto(Email email);
+  // EmailDto emailToEmailDto(NotificationMessage email);
 
 }

@@ -29,9 +29,9 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 @ConditionalOnProperty(value = "notification.provider.location", havingValue = "mongo",
     matchIfMissing = true)
-public class ProviderMongoPersistenceAdapter implements ProviderPersistence {
+public class ProviderMongoPersistenceAdapter<T> implements ProviderPersistence {
 
-  private final ProviderRepository mongoNotifierRepository;
+  private final ProviderRepository<T> mongoNotifierRepository;
   private final ProviderMapper notifierMapper;
 
   @Override

@@ -52,6 +52,7 @@ public class EmailControllerTest {
   @MockBean
   private EmailService emailService;
   private NotificationStatusResponse successResponse;
+
   @Before
   public void setup() throws Exception {
     successResponse = new NotificationStatusResponse();
@@ -63,7 +64,7 @@ public class EmailControllerTest {
 
   @Test
   public void testEmail() throws Exception {
-    String TO = "test@example.com";
+    EmailId TO = new EmailId("HK", "test@example.com");
     String LOCALE = "en_IN";
     String TEMPLATE = "email-test-template";
     String PROVIDER = "dummyMailer";
@@ -72,25 +73,25 @@ public class EmailControllerTest {
     emailSampleRequest = new EmailSampleRequest();
     emailSampleRequest.setTo(Arrays.asList(TO));
     emailSampleRequest.setSubject(SUBJECT);
-    /*emailSampleRequest.setLocale(LOCALE);
-    emailSampleRequest.setTemplateId(TEMPLATE);
-    emailSampleRequest.setProviderName(PROVIDER);
-    */
+    /*
+     * emailSampleRequest.setLocale(LOCALE); emailSampleRequest.setTemplateId(TEMPLATE);
+     * emailSampleRequest.setProviderName(PROVIDER);
+     */
     emailSampleRequest.setType(EMAIL);
     Map<String, Object> b1 = new HashMap<>();
-    //emailSampleRequest.setBody(b1);
+    // emailSampleRequest.setBody(b1);
     EmailDto emailDto = new EmailDto();
+
     emailDto.setTo(Arrays.asList(TO));
     emailDto.setSubject(SUBJECT);
     /*
-    emailDto.setLocale(LOCALE);
-    emailDto.setProviderName(PROVIDER);
-    emailDto.setTemplateId(TEMPLATE);
-    */
+     * emailDto.setLocale(LOCALE); emailDto.setProviderName(PROVIDER);
+     * emailDto.setTemplateId(TEMPLATE);
+     */
     EmailDto.Container container = new Container();
     Map<String, Object> b = new HashMap<>();
     container.setData(b);
-    //emailDto.setBody(container);
+    // emailDto.setBody(container);
     System.out.println("" + emailDto);
     System.out.println("" + emailSampleRequest);
     given(emailService.sendEmail(any(EmailDto.class))).willReturn(Mono.just(successResponse));
@@ -106,7 +107,7 @@ public class EmailControllerTest {
   @Test
   public void testEmptySubject() {
     emailSampleRequest = new EmailSampleRequest();
-    emailSampleRequest.setTo(Arrays.asList("test@example.com"));
+    EmailId TO = new EmailId("HK", "test@example.com");
     emailSampleRequest.setLocale("en_IN");
     emailSampleRequest.setTemplateId("template");
     emailSampleRequest.setProviderName("provider");
@@ -144,7 +145,7 @@ public class EmailControllerTest {
   @Test
   public void testInvalidTo() {
     emailSampleRequest = new EmailSampleRequest();
-    emailSampleRequest.setTo(Arrays.asList("test"));
+    EmailId TO = new EmailId("HK", "test@example.com");
     emailSampleRequest.setLocale("en_IN");
     emailSampleRequest.setTemplateId("template");
     emailSampleRequest.setProviderName("provider");

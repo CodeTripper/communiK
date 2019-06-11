@@ -13,9 +13,10 @@
  */
 package in.codetripper.communik.domain.email.providers;
 
-import in.codetripper.communik.domain.email.Email;
 import in.codetripper.communik.domain.email.EmailConfiguration;
+import in.codetripper.communik.domain.email.EmailId;
 import in.codetripper.communik.domain.email.SmtpEmailSender;
+import in.codetripper.communik.domain.notification.NotificationMessage;
 import in.codetripper.communik.domain.provider.Provider;
 import in.codetripper.communik.domain.provider.ProviderService;
 import java.util.Properties;
@@ -55,12 +56,12 @@ public class Gmail extends SmtpEmailSender {
   }
 
   @Override
-  protected Properties preProcess(Email email) {
+  protected Properties preProcess(NotificationMessage<EmailId> email) {
     return null;
   }
 
   @Override
-  protected Properties postProcess(Email email) {
+  protected Properties postProcess(NotificationMessage<EmailId> email) {
     return null;
   }
 
