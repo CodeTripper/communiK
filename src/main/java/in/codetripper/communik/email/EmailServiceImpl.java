@@ -23,7 +23,7 @@ import com.google.common.base.Strings;
 import in.codetripper.communik.exceptions.InvalidRequestException;
 import in.codetripper.communik.exceptions.NotificationPersistenceException;
 import in.codetripper.communik.exceptions.NotificationSendFailedException;
-import in.codetripper.communik.messagegenerator.AttachmentDownloader;
+import in.codetripper.communik.messagegenerator.AttachmentHandler;
 import in.codetripper.communik.messagegenerator.MessageGenerator;
 import in.codetripper.communik.notification.Notification;
 import in.codetripper.communik.notification.NotificationMessage;
@@ -32,13 +32,9 @@ import in.codetripper.communik.notification.NotificationPersistence;
 import in.codetripper.communik.notification.NotificationStatusResponse;
 import in.codetripper.communik.repository.mongo.NotificationMessageRepoDto;
 import in.codetripper.communik.template.NotificationTemplate;
-import in.codetripper.communik.template.NotificationTemplate.Container;
 import in.codetripper.communik.template.NotificationTemplateService;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeoutException;
@@ -57,30 +53,27 @@ import reactor.core.publisher.Mono;
 class EmailServiceImpl implements EmailService {
 
   private final Notification<Email> notificationHandler;
-  private final MessageGenerator<EmailDto> messageGenerator;
+  private final MessageGenerator<EmailDto.Container, String> messageGenerator;
   private final Map<String, EmailNotifier<Email>> providers;
   private final NotificationPersistence<Email> notificationPersistence; // TODO here?
   private final EmailMapper emailMapper;
   private final NotificationTemplateService templateService;
-  private final AttachmentDownloader attachmentDownloader;
+  private final Map<String, AttachmentHandler<EmailDto.Container, byte[]>> attachmentHandlers;
 
   public Mono<NotificationStatusResponse> sendEmail(EmailDto emailDto) {
+    log.debug("emailDto {}", emailDto);
     return templateService.get(emailDto.getTemplateId()).timeout(Duration.ofMillis(DB_READ_TIMEOUT))
         .single().map(this::validateTemplate).onErrorMap(this::getThrowable)
         .map(
             template -> new EmailRequest(template, emailDto, emailMapper.emailDtoToEmail(emailDto)))
         .flatMap(this::generateAttachment)
+        .flatMap(this::generateBody)
         .map(this::prepareEmail)
         .flatMap(notificationHandler::sendNotification)
         .doOnError(err -> log.error("Error while sending Email", err))
         .onErrorMap(original -> new NotificationSendFailedException(original.getMessage()));
   }
 
-  private Mono<EmailRequest> generateAttachment2(EmailRequest emailRequest) {
-    EmailDto emailDto = emailRequest.getEmailDto();
-    Email email = emailRequest.getEmail();
-    return Mono.just(emailRequest);
-  }
   private Throwable getThrowable(Throwable error) {
     log.error("error while processing template", error);
     if (error instanceof TimeoutException) {
@@ -92,6 +85,7 @@ class EmailServiceImpl implements EmailService {
 
   @Override
   public Flux<NotificationMessageRepoDto> getAllEmails() {
+
     return notificationPersistence.getAll();
   }
 
@@ -101,8 +95,6 @@ class EmailServiceImpl implements EmailService {
     NotificationTemplate notificationTemplate = emailRequest.getNotificationTemplate();
     log.debug("email called with provider {} from provider list {}", emailDto.getProviderName(),
         providers);
-    String message = generateMessage(notificationTemplate, emailDto);
-    //  generateAttachment(notificationTemplate, emailDto);
 
     if (Strings.isNullOrEmpty(email.getReplyTo())) {
       email.setReplyTo(notificationTemplate.getReplyTo());
@@ -110,7 +102,6 @@ class EmailServiceImpl implements EmailService {
     if (Strings.isNullOrEmpty(email.getFrom())) {
       email.setFrom(notificationTemplate.getFrom());
     }
-    email.setBodyTobeSent(message);
     NotificationMessage.Notifiers<Email> notifiers = new NotificationMessage.Notifiers<>();
     // TODO do not need to call all for default
     var primaryProvider = providers.entrySet().stream()
@@ -155,47 +146,51 @@ class EmailServiceImpl implements EmailService {
   }
 
 
-  private String generateMessage(NotificationTemplate notificationTemplate, EmailDto emailDto) {
-    Locale userLocale = Strings.isNullOrEmpty(emailDto.getLocale()) ? Locale.getDefault()
-        : Locale.forLanguageTag(emailDto.getLocale());
-    String message =
-        Strings.isNullOrEmpty(emailDto.getTemplateId()) ? emailDto.getBody().getMessage()
-            : messageGenerator
-                .generateMessage(notificationTemplate.getBody(), emailDto, userLocale);
-    log.debug("generated message {}", message);
-    return message;
+  private Mono<EmailRequest> generateBody(EmailRequest emailRequest) {
+    EmailDto emailDto = emailRequest.getEmailDto();
+    Email email = emailRequest.getEmail();
+    String message = null;
+    if (Strings.isNullOrEmpty(emailDto.getTemplateId())) {
+      message = emailDto.getBody().getMessage();
+    }
+    return Mono.justOrEmpty(message)
+        .switchIfEmpty(messageGenerator
+            .generateMessage(emailRequest.getNotificationTemplate().getBody(), emailDto.getBody(),
+                emailDto.getLocale()))
+        .map(t -> {
+          email.setBodyTobeSent(t);
+          emailRequest.setEmail(email);
+          return emailRequest;
+        });
 
   }
 
   private Mono<EmailRequest> generateAttachment(EmailRequest emailRequest) {
-    EmailDto emailDto = emailRequest.getEmailDto();
-    Email email = emailRequest.getEmail();
-    NotificationTemplate notificationTemplate = emailRequest.getNotificationTemplate();
-    Locale userLocale = Strings.isNullOrEmpty(emailDto.getLocale()) ? Locale.getDefault()
-        : Locale.forLanguageTag(emailDto.getLocale());
+    if (emailRequest.getNotificationTemplate().getAttachments() != null) {
+      return Flux.fromIterable(emailRequest.getNotificationTemplate().getAttachments())
+          .flatMap(attachmentTemplate -> {
+            AttachmentHandler<EmailDto.Container, byte[]> handler = attachmentHandlers
+                .get(attachmentTemplate.getMethod());
+            return handler
+                .get(attachmentTemplate.getSource(), emailRequest.getEmailDto().getAttachment(),
+                    emailRequest.getEmailDto().getLocale())
+                .map(content -> {
+                  Attachment attachment = new Attachment();
+                  attachment.setName(attachmentTemplate.getName());
+                  attachment.setMediaType(attachmentTemplate.getMediaType());
+                  attachment.setPlacement(attachmentTemplate.getPlacement());
+                  attachment.setContent(content);
+                  return attachment;
+                }).onErrorResume(e -> Mono.empty());
+          }).collect(Collectors.toList())
+          .map(e -> {
+            emailRequest.getEmail().setAttachments(e);
+            return emailRequest;
+          });
+    } else {
+      return Mono.just(emailRequest);
+    }
 
-    // notificationTemplate.getAttachments().stream().map()
-
-
-
-
-    //notificationTemplate.getAttachments().stream().forEach(attachement->{
-    Container attachmentMetaData = notificationTemplate.getAttachments().get(0); // TODO hard coded
-    return attachmentDownloader.download(attachmentMetaData.getSource()).map(path -> {
-      try {
-        Attachment attachment = new Attachment();
-        attachment.setName(attachmentMetaData.getName());
-        attachment.setMediaType(attachmentMetaData.getMediaType());
-        attachment.setContent(Files.readAllBytes(path));
-        email.setAttachment(attachment);
-        System.out.println("attachment = " + attachment);
-        emailRequest.setEmail(email);
-        return emailRequest;
-      } catch (IOException e) {
-        return emailRequest;
-      }
-    })
-        .doOnError(error -> log.error("Error while downloading attachments", error));
   }
 
   @Data

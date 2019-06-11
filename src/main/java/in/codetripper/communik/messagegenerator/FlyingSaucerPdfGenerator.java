@@ -13,33 +13,30 @@
  */
 package in.codetripper.communik.messagegenerator;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Objects;
+import java.io.ByteArrayOutputStream;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 import org.xhtmlrenderer.pdf.ITextRenderer;
+import reactor.core.publisher.Mono;
 
-public class FlyingSaucerPdfGenerator implements PdfGenerator {
+@Slf4j
+@Service("pdf")
+public class FlyingSaucerPdfGenerator<T> implements MessageGenerator<T, byte[]> {
 
-  @Override
-  public String generatePdf(String templateId, Object notificationMessage)
+
+  public Mono<byte[]> generateMessage(String template, T data,
+      String locale)
       throws MessageGenerationException {
-    OutputStream outputStream = null;
-    try {
-      outputStream = new FileOutputStream("message.pdf");
-    } catch (FileNotFoundException e) {
-      e.printStackTrace();
-    }
-    ITextRenderer renderer = new ITextRenderer();
-    renderer.setDocumentFromString(templateId);
-    renderer.layout();
-    renderer.createPDF(outputStream);
-    try {
-      Objects.requireNonNull(outputStream).close();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    return null;
+    return Mono.create(sink -> {
+          ITextRenderer renderer = new ITextRenderer();
+          ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+          renderer.setDocumentFromString(template);
+          renderer.layout();
+          renderer.createPDF(outputStream);
+          sink.success(outputStream.toByteArray());
+        }
+    );
+
   }
+
 }

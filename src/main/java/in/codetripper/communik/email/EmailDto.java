@@ -19,6 +19,7 @@ import in.codetripper.communik.notification.Type;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -45,7 +46,7 @@ public class EmailDto implements Serializable {
   @Size(min = 1, max = 100, message = "The providerName must be between {min} and {max} characters long")
   private String providerName;
   @Size(min = 1, max = 100, message = "The locale' must be between {min} and {max} characters long")
-  private String locale;
+  private String locale = Locale.getDefault().toString();
   @Email
   @Size(min = 1, max = 100, message = "The replyTo email id  must be between {min} and {max} characters long")
   private String replyTo;

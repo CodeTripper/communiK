@@ -25,7 +25,7 @@ public interface ExceptionConstants {
       "Unable to update notification as id is not present";
   String NOTIFICATION_PERSISTENCE_DB_TIMED_OUT = "DB TimedOut";
   String NOTIFICATION_SEND_FAILURE = "Unable to send notification";
-  String NO_PRIMARY_PROVIDER = "No default provider configured";
+  String NO_PRIMARY_PROVIDER = "No provider configured";
   String ERROR_UNABLE_TO_PROCESS = "Unable to process request";
   String ERROR_BAD_REQUEST = "Invalid request received";
 }

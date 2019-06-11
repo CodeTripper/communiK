@@ -67,11 +67,11 @@ public abstract class SmtpEmailSender implements EmailNotifier<Email> {
     helper.setSubject(email.getSubject());
     helper.setText(email.getBodyTobeSent());
 
-    if (email.getAttachment() != null) {
+    //if (email.getAttachment() != null) {
     /*  FileSystemResource file =
           new FileSystemResource(new File(email.getAttachment().getMessage()));*/
       //helper.addAttachment("CoolImage.jpg", null);
-    }
+    //}
     sender.send(message);
     return true;
 

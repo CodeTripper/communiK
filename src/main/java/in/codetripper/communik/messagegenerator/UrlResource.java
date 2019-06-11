@@ -14,26 +14,23 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Slf4j
-@Service
-public class UrlDownloader implements AttachmentDownloader {
+@Service("url")
+public class UrlResource {
 
-  @Override
   public Mono<Path> download(String url) {
     Mono<Path> result = null;
     Flux<DataBuffer> data = WebClient.create(url).get()
-        //.uri(url)
         .retrieve()
         .bodyToFlux(DataBuffer.class);
-
     try {
-      Path file = Files.createTempFile("communik", null);
-
+      log.debug("downloading url {}", url);
+      Path file = Files.createTempFile("communik-url", null);
       WritableByteChannel channel = Files.newByteChannel(file, StandardOpenOption.WRITE);
       result = DataBufferUtils.write(data, channel)
           .map(DataBufferUtils::release)
           .then(Mono.just(file));
     } catch (IOException e) {
-      e.printStackTrace();
+      log.error("Error while downloading", e);
     }
     return result;
   }

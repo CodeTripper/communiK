@@ -13,7 +13,22 @@
  */
 package in.codetripper.communik.messagegenerator;
 
-public interface PdfGenerator<T> {
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
-  String generatePdf(String templateId, T notificationMessage) throws MessageGenerationException;
+@Slf4j
+@RequiredArgsConstructor
+@Service("generate-pdf")
+public class PdfAttachmentHandler<T> implements AttachmentHandler<T, byte[]> {
+
+  @Qualifier("pdf")
+  private final MessageGenerator<T, byte[]> messageGenerator;
+
+  @Override
+  public Mono<byte[]> get(String source, T data, String locale) {
+    return messageGenerator.generateMessage(source, data, locale);
+  }
 }

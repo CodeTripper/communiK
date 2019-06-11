@@ -1,1 +1,0 @@
-http://localhost:8080/sms POST {"to":"hkdoley@gmail.com","subject":"subject is good", "templateId":"5ce3e7942aecc619719d3e1b", "body": { "message":"Rs 10500", "timestamp":"21/12/2019", "mapTest": {"mykey":"myValue","mykey1":"myValue2"} } }

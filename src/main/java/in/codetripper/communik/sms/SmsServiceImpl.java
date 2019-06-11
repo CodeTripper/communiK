@@ -48,7 +48,7 @@ class SmsServiceImpl implements SmsService {
 
   private final NotificationTemplateService templateService;
   private final Notification<Sms> notificationHandler;
-  private final MessageGenerator<SmsDto> messageGenerator;
+  private final MessageGenerator<SmsDto, String> messageGenerator;
   private final Map<String, SmsNotifier<Sms>> providers;
   private final SmsMapper smsMapper;
 
@@ -81,7 +81,6 @@ class SmsServiceImpl implements SmsService {
 
     sms.setBodyTobeSent(message);
     NotificationMessage.Notifiers<Sms> notifiers = new NotificationMessage.Notifiers<>();
-    // TODO do not need to call all for default
     var defaultProvider = providers.entrySet().stream()
         .filter(provider -> provider.getValue().isPrimary()).findFirst();
 
@@ -132,8 +131,8 @@ class SmsServiceImpl implements SmsService {
 
     Locale userLocale = Strings.isNullOrEmpty(smsDto.getLocale()) ? Locale.getDefault()
         : Locale.forLanguageTag(smsDto.getLocale());
-    String message = Strings.isNullOrEmpty(smsDto.getTemplateId()) ? smsDto.getBody().getMessage()
-        : messageGenerator.generateMessage(template.getBody(), smsDto, userLocale);
+    String message = ""; // FIXME // Strings.isNullOrEmpty(smsDto.getTemplateId()) ? smsDto.getBody().getMessage()
+    //: messageGenerator.generateMessage(template.getBody(), smsDto, userLocale);
     log.debug("generated message {}", message);
     return message;
 

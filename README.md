@@ -113,7 +113,7 @@ Running
 Results:
     1. Transactions - 200
     2. Elapsed Time - 17.2 secs
-    3. Avg Response Time - 1.63 secs  (Lower the better)
+    3. (Avg) Response Time - 1.63 secs  (Lower the better)
     4. Transaction Rate - 11.61 tps (Higher the better)
     5. Threads - 31 (Should be always 31)
     6. Heap - 250 MB

@@ -6,24 +6,31 @@
   "type": "EMAIL",
   "active": true,
   "owner": "HK",
-  "replyTo": "test@example.com",
-  "from": "test@example.com",
+  "replyTo": "noreply@example.com",
+  "from": "from@example.com",
   "mediaType": "text/html",
-  "body": "<#assign currentDateTime = .now>\n <html>Hi Mr ${body.data.to}  <br/>Your salary ${body.data.salary?string.currency} and ${body.data.timestamp}has been <#list body.data.mapTest as key, value>   ${key} = ${value} </#list> credited on ${currentDateTime}\n <br/>Team</html>",
+  "body": "<#assign currentDateTime = .now>\n <html>Hi Mr ${data.to}  <br/>Your salary ${data.salary?string.currency} and ${data.timestamp}has been <#list data.mapTest as key, value>   ${key} = ${value} </#list> credited on ${currentDateTime}\n <br/>Team</html>",
   "attachments": [
+    {
+      "mediaType": "application/pdf",
+      "method": "generate-pdf",
+      "placement": "attachment",
+      "name": "statement.pdf",
+      "source": "<html>This is my test pdf</html>"
+    },
+    {
+      "mediaType": "application/html",
+      "method": "generate-html",
+      "placement": "attachment",
+      "name": "statement.html",
+      "source": "<html>This is my test html</html>"
+    },
     {
       "mediaType": "image/png",
       "method": "download",
-      "placement": "attachment",
+      "placement": "inline",
       "name": "logo.png",
       "source": "https://www.wikipedia.org/portal/wikipedia.org/assets/img/Wikipedia-logo-v2.png"
-    },
-    {
-      "mediaType": "application/pdf",
-      "method": "generate",
-      "placement": "inline",
-      "name": "statement",
-      "source": "<html>Hi Mr ${body.data.to}  <br/>Your salary ${body.data.salary?string.currency} and ${body.data.timestamp}has been <#list body.data.mapTest as key, value>   ${key} = ${value} </#list> credited \n <br/>Team</html>"
     }
   ]
 }

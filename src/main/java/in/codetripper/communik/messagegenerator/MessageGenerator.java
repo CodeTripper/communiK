@@ -14,9 +14,9 @@
 package in.codetripper.communik.messagegenerator;
 
 
-import java.util.Locale;
+import reactor.core.publisher.Mono;
 
-public interface MessageGenerator<T> {
+public interface MessageGenerator<T, R> {
 
-  String generateMessage(String template, T notificationMessage, Locale locale);
+  Mono<R> generateMessage(String template, T data, String locale);
 }

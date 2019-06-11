@@ -45,8 +45,7 @@ public class NotificationMessage<T> implements Serializable {
   private String bodyTobeSent;
 
   private @NotNull Container body;
-  // TODO should be a list of attachment
-  private Attachment attachment;
+  private List<Attachment> attachments;
   private Meta meta;
   private Status status;
   private Notifiers<? extends NotificationMessage> notifiers;

@@ -21,6 +21,7 @@ import com.google.common.base.Strings;
 import in.codetripper.communik.email.Email;
 import in.codetripper.communik.email.EmailNotifier;
 import in.codetripper.communik.exceptions.NotificationSendFailedException;
+import in.codetripper.communik.notification.NotificationMessage;
 import in.codetripper.communik.notification.NotificationStatusResponse;
 import in.codetripper.communik.notification.Type;
 import in.codetripper.communik.provider.Provider;
@@ -35,6 +36,8 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -131,15 +134,17 @@ public class SendGrid implements EmailNotifier<Email> {
     sendGridRequest.setSubject(email.getSubject());
     sendGridRequest
         .setContent(Arrays.asList(Map.of("type", "text/html", "value", email.getBodyTobeSent())));
-    sendGridRequest.setPersonalizations(Arrays.asList(personalization));
-    List<Attachment> attachments = new ArrayList<>();
-    // TODO
-    Attachment sendgridAttachment = new Attachment();
-    sendgridAttachment.setDisposition("attachment");
-    sendgridAttachment.setType("image/jpeg");
-    sendgridAttachment.setFileName(email.getAttachment().getName());
-    sendgridAttachment.setContent(encodeAttachment(email.getAttachment().getContent()));
-    attachments.add(sendgridAttachment);
+    sendGridRequest.setPersonalizations(Collections.singletonList(personalization));
+    List<NotificationMessage.Attachment> atts = email.getAttachments();
+    List<Attachment> attachments = atts.stream().map(att -> {
+      Attachment sendgridAttachment = new Attachment();
+      sendgridAttachment.setDisposition(att.getPlacement());
+      sendgridAttachment.setType(att.getMediaType());
+      sendgridAttachment.setContent_id(UUID.randomUUID().toString());
+      sendgridAttachment.setFileName(att.getName());
+      sendgridAttachment.setContent(encodeAttachment(att.getContent()));
+      return sendgridAttachment;
+    }).collect(Collectors.toList());
     sendGridRequest.setAttachments(attachments);
     return sendGridRequest;
   }
@@ -161,17 +166,18 @@ public class SendGrid implements EmailNotifier<Email> {
     private Personalization.EmailEntity from;
     private String subject;
     private List<Map<String, String>> content;
-    private List<Attachment> attachments;
+    private List<SendGrid.Attachment> attachments;
   }
 
   @Data
   @NoArgsConstructor
-  public static class Attachment {
+  private static class Attachment {
 
     private String type;
     private String content;
     private String fileName;
     private String disposition;
+    private String content_id;
   }
 
   @JsonIgnoreProperties(ignoreUnknown = true)
@@ -205,7 +211,7 @@ public class SendGrid implements EmailNotifier<Email> {
       return tos;
     }
 
-    public void addTo(Personalization.EmailEntity newEmail) {
+    private void addTo(Personalization.EmailEntity newEmail) {
       if (tos == null) {
         tos = new ArrayList<>();
         tos.add(newEmail);

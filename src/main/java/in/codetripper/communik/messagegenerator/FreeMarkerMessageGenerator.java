@@ -23,36 +23,32 @@ import java.io.StringWriter;
 import java.util.Locale;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
-@Service
 @Slf4j
 @RequiredArgsConstructor
-public class FreeMarkerMessageGenerator<T> implements MessageGenerator<T> {
+@Service("html")
+@Primary
+public class FreeMarkerMessageGenerator<T> implements MessageGenerator<T, String> {
 
   private final Configuration configuration;
 
   @Override
-  public String generateMessage(String template, T notificationMessage, Locale locale) {
-    String message;
+  public Mono<String> generateMessage(String template, T data, String locale) {
+    StringWriter result = new StringWriter();
     try {
-      StringWriter result = new StringWriter();
       Template t = new Template("name", new StringReader(template), configuration);
-      Environment env = t.createProcessingEnvironment(notificationMessage, result);
-      env.setLocale(locale);
-      env.setNumberFormat(",##0.00");
+      Environment env = t.createProcessingEnvironment(data, result);
+      env.setLocale(Locale.forLanguageTag(locale));
+      env.setNumberFormat(",##0.00"); // TODO check
       env.process();
-      message = result.toString();
-      log.debug("Generated {} message {} from template with {}", locale.toString(), message,
-          notificationMessage);
-
     } catch (IOException | TemplateException e) {
       log.error("Unable to generate message", e);
       throw new MessageGenerationException("Unable to create message from template", e);
     }
-
-    return message;
-
+    return Mono.just(result.toString());
   }
 
 

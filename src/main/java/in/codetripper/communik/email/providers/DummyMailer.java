@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import in.codetripper.communik.email.Email;
 import in.codetripper.communik.email.EmailNotifier;
 import in.codetripper.communik.exceptions.NotificationSendFailedException;
+import in.codetripper.communik.notification.NotificationMessage;
 import in.codetripper.communik.notification.NotificationStatusResponse;
 import in.codetripper.communik.notification.Type;
 import in.codetripper.communik.provider.Provider;
@@ -28,9 +29,13 @@ import in.codetripper.communik.trace.WebClientDecorator;
 import io.opentracing.Tracer;
 import io.opentracing.contrib.spring.web.client.TracingExchangeFilterFunction;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
@@ -74,6 +79,17 @@ public class DummyMailer implements EmailNotifier<Email> {
     dummyMailerRequest.setCc(email.getCc());
     dummyMailerRequest.setBcc(email.getBcc());
     dummyMailerRequest.setReplyTo(email.getReplyTo());
+    List<NotificationMessage.Attachment> atts = email.getAttachments();
+    List<Attachment> attachments = atts.stream().map(att -> {
+      Attachment dummyAttachment = new Attachment();
+      dummyAttachment.setDisposition(att.getPlacement());
+      dummyAttachment.setType(att.getMediaType());
+      dummyAttachment.setContent_id(UUID.randomUUID().toString());
+      dummyAttachment.setFileName(att.getName());
+      dummyAttachment.setContent(encodeAttachment(att.getContent()));
+      return dummyAttachment;
+    }).collect(Collectors.toList());
+    dummyMailerRequest.setAttachments(attachments);
     Mono<NotificationStatusResponse> response = null;
     if (provider != null && provider.getType().equalsIgnoreCase(Type.EMAIL.toString())) {
       log.debug("Sending email via provider: {}", provider);
@@ -105,6 +121,9 @@ public class DummyMailer implements EmailNotifier<Email> {
     return response;
   }
 
+  private String encodeAttachment(byte[] attachment) {
+    return Base64.getEncoder().encodeToString(attachment);
+  }
   @Override
   public boolean isPrimary() {
     return provider != null && provider.isPrimary();
@@ -125,12 +144,24 @@ public class DummyMailer implements EmailNotifier<Email> {
 
     private List<String> to;
     private String message;
-    private String attachment;
     private String subject;
     private String from;
     private String replyTo;
     private String cc;
     private String bcc;
+    private List<DummyMailer.Attachment> attachments;
+
+  }
+
+  @Data
+  @NoArgsConstructor
+  private static class Attachment {
+
+    private String type;
+    private String content;
+    private String fileName;
+    private String disposition;
+    private String content_id;
   }
 
 }
