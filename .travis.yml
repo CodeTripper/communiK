@@ -1,7 +1,12 @@
 language: java
 
 sudo: false
+
 dist: trusty
+
+cache:
+  directories:
+  - "$HOME/.gradle"
 
 os:
   - linux
@@ -14,4 +19,4 @@ addons:
     organization: "codetripper-github"
 
 script:
-  - sonar-scanner
+  - ./gradlew sonarqube
