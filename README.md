@@ -22,11 +22,15 @@ It's a Store And Forward API built with Springboot/Webflux and MongoDb to send o
     * Generate and send html attachments (via Freemarker) 
     * Download from a url and send attachments 
     * Retry the failed notifications via multiple fallback providers
-    * Call webhooks on any failure/success 
+    * Call webhooks on any failure/success (WIP)
     * Audit the notifications.
     * Easily extendable, so one can change any part of the system as required
     * OpenTracing (Jaegar) integrated
-    * Prometheus metrics
+    * Prometheus metrics (WIP)
+    * SendMail/Mailgun for emails 
+    * Twilio (WIP)
+    
+    
 
 ## Why Communik?
 
