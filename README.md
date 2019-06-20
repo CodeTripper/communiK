@@ -1,4 +1,4 @@
-# CommuniK - reactive api for sending emails/SMS/chat notifications
+# CommuniK (pronounced as communique)- reactive api for sending emails/SMS/chat notifications
 
 [![Build Status](https://travis-ci.org/CodeTripper/communiK.svg?branch=master)](https://travis-ci.org/CodeTripper/communiK)
 [![Maintainability](https://api.codeclimate.com/v1/badges/b9b8834a844bed8d2632/maintainability)](https://codeclimate.com/github/CodeTripper/communiK/maintainability)
