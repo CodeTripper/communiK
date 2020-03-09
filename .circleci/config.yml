@@ -6,7 +6,7 @@ version: 2
 jobs:
   build:
     docker:
-      # specify the version you desire here
+      # changed to 12
       - image: openjdk:12-alpine
 
       # Specify service dependencies here if necessary
